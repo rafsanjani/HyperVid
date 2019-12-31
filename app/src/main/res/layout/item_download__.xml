@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/DownloadsCardStyle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:adjustViewBounds="false"
+            android:cropToPadding="false"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tvName"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="16dp"
+            android:lines="3"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:typeface="sans"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.109"
+            app:layout_constraintStart_toEndOf="@+id/image"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Some random video" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvDate"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/tvMenu"
+            tools:text="March 11, 2019" />
+
+        <ProgressBar
+            android:id="@+id/progressDownload"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:indeterminate="false"
+            android:progress="50"
+            app:layout_constraintEnd_toEndOf="@+id/tvName"
+            app:layout_constraintStart_toStartOf="@+id/tvName"
+            app:layout_constraintTop_toBottomOf="@+id/tvName" />
+
+        <TextView
+            android:id="@+id/tvDownloadedBytes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="textStart"
+            app:layout_constraintStart_toStartOf="@+id/progressDownload"
+            app:layout_constraintTop_toBottomOf="@+id/progressDownload"
+            tools:text="20MB" />
+
+        <TextView
+            android:id="@+id/tvMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="&#8942;"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvName"
+            app:layout_constraintTop_toTopOf="@+id/tvName" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            app:layout_constraintEnd_toStartOf="@+id/tvPercentage"
+            app:layout_constraintTop_toTopOf="@+id/tvDownloadedBytes"
+            tools:text="Downloading:" />
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:background="@drawable/duration_bg"
+            android:elevation="3dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/image"
+            app:layout_constraintEnd_toEndOf="@+id/image"
+            tools:text="7:04" />
+
+        <ImageButton
+            android:id="@+id/btnStartPause"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="@android:color/black"
+            app:layout_constraintStart_toStartOf="@+id/tvDownloadedBytes"
+            app:layout_constraintTop_toBottomOf="@+id/tvDownloadedBytes"
+            app:srcCompat="@android:drawable/ic_media_play"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tvPercentage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/tvStatus"
+            app:layout_constraintEnd_toEndOf="@+id/tvName"
+            tools:text="20%" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

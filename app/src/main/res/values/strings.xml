@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Rafs FB Video Downloader</string>
+    <string name="Url">Url</string>
+    <string name="Downloads">Downloads</string>
+    <string name="hint_url">Facebook Video Url</string>
+    <string name="download">Download</string>
+    <string name="paste_link">Paste Link</string>
+    <string name="Videos">Videos</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="delete">Delete</string>
+    <string name="pause">Pause</string>
+    <string name="add_to_downloads">Add to Downloads</string>
+    <string name="forward_slash">/</string>
+    <string name="downloading">Downloading…</string>
+    <string name="paused">Paused</string>
+    <string name="stopped">Stopped</string>
+    <string name="completed">Completed</string>
+    <string name="failed">Failed</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="ready">Ready</string>
+</resources>

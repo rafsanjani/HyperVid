@@ -1,0 +1,25 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="TextAppearance.AppCompat.Subhead.Bold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="DownloadsCardStyle" parent="CardView.Light">
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">#E6E6E6</item>
+        <item name="android:layout_margin">@dimen/card_margin</item>
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+    </style>
+</resources>
