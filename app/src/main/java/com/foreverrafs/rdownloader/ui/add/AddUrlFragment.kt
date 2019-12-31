@@ -15,6 +15,8 @@ import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
+import com.foreverrafs.rdownloader.util.disable
+import com.foreverrafs.rdownloader.util.enable
 import com.foreverrafs.rdownloader.util.showToast
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import org.joda.time.DateTime
@@ -52,6 +54,10 @@ class AddUrlFragment : Fragment() {
         //immediately. We wait for the user to interract with it in the downloads section before we download.
         btnAddToDownloads.setOnClickListener {
             extractVideo(etFacebookUrl.text.toString())
+
+            btnAddToDownloads.text = getString(R.string.extracting)
+            btnAddToDownloads.disable()
+            etFacebookUrl.disable()
         }
     }
 
@@ -72,13 +78,22 @@ class AddUrlFragment : Fragment() {
                     DownloadsAdapter.getInstance(context!!).addDownload(mDownloadInfo!!)
                     Timber.d("Download URL extraction complete: Adding to List: $mDownloadInfo")
                     showToast("Video added to download queue...")
+                    btnPaste.text = getString(R.string.paste_link)
                     etFacebookUrl.text?.clear()
+
+                    btnAddToDownloads.text = getString(R.string.add_to_downloads)
+                    btnAddToDownloads.enable()
+                    btnAddToDownloads.enable()
                 }
 
                 override fun onExtractionFail(exception: Exception) {
                     Timber.e(exception)
                     showToast("Error loading video from link")
                     textInputLayout.isErrorEnabled = true
+
+                    btnAddToDownloads.text = getString(R.string.add_to_downloads)
+                    btnAddToDownloads.enable()
+                    etFacebookUrl.enable()
                 }
             })
 

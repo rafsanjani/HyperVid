@@ -58,10 +58,12 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:indeterminate="false"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="@+id/tvName"
             app:layout_constraintStart_toStartOf="@+id/tvName"
             app:layout_constraintTop_toBottomOf="@+id/tvName"
-            tools:progress="50" />
+            tools:progress="50"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/tvDownloadedBytes"
