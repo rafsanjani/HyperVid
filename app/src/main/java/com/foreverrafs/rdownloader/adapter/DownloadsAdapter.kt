@@ -153,7 +153,9 @@ class DownloadsAdapter private constructor(private val context: Context) :
 
                 "${String.format("%02d", minutes)}:${String.format("%02d", seconds)}"
             } catch (exception: ArithmeticException) {
-                "00:00"
+                val seconds = TimeUnit.MILLISECONDS.toSeconds(duration)
+
+                String.format("00:%2d", seconds)
             }
         }
 
@@ -166,8 +168,10 @@ class DownloadsAdapter private constructor(private val context: Context) :
                     itemView.tvPercentage.text = "${percentage.toInt()} %"
                     itemView.progressDownload.progress = percentage.toInt()
 
-                    itemView.tvDownloadedBytes.text =
-                        (currentBytes / 1024 / 1024).toInt().toString() + " MB"
+                    val downloadedMB = (currentBytes.toDouble() / 1024 / 1024)
+
+                    itemView.tvDownloadedSize.text =
+                        if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
                 }
 
                 override fun onDownloadPaused() {
