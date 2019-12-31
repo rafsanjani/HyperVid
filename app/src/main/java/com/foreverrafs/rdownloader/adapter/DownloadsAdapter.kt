@@ -2,10 +2,12 @@ package com.foreverrafs.rdownloader.adapter
 
 import android.content.Context
 import android.graphics.Color
+import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.foreverrafs.downloader.DownloadEvents
@@ -13,7 +15,7 @@ import com.foreverrafs.downloader.DownloadException
 import com.foreverrafs.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.util.disable
+import com.foreverrafs.rdownloader.util.gone
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
 import kotlinx.android.synthetic.main.item_download__.view.*
@@ -189,10 +191,13 @@ class DownloadsAdapter private constructor(private val context: Context) :
                         Color.GREEN, android.graphics.PorterDuff.Mode.SRC_IN
                     )
                     itemView.btnStartPause.setImageDrawable(context.getDrawable(R.drawable.ic_start))
-                    itemView.btnStartPause.disable()
+                    itemView.btnStartPause.gone()
                     itemView.tvStatus.text = context.getString(R.string.completed)
                     isDownloading = false
+
+                    animateLayoutChanges()
                 }
+
 
                 override fun onDownloadError(error: DownloadException) {
                     Timber.e(error)
@@ -217,6 +222,22 @@ class DownloadsAdapter private constructor(private val context: Context) :
                     itemView.tvStatus.text = context.getString(R.string.downloading)
                 }
             })
+        }
+
+        private fun animateLayoutChanges() {
+            TransitionManager.beginDelayedTransition(itemView as ViewGroup)
+            val constraintSet = ConstraintSet()
+
+            constraintSet.apply {
+                clone(itemView.constraintLayout)
+                connect(
+                    R.id.tvDownloadedSize,
+                    ConstraintSet.TOP,
+                    R.id.tvDate,
+                    ConstraintSet.TOP
+                )
+                applyTo(itemView.constraintLayout)
+            }
         }
 
         private fun pauseDownload() {
