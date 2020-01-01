@@ -22,12 +22,14 @@ import kotlinx.android.synthetic.main.item_download__.view.*
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 class DownloadsAdapter private constructor(private val context: Context) :
     RecyclerView.Adapter<DownloadsAdapter.DownloadsViewHolder>() {
 
     private var downloadList = mutableListOf<DownloadInfo>()
     private val videoDownloader: VideoDownloader = VideoDownloader.getInstance(context)!!
+    private lateinit var downloadListChangedListener: DownloadListChangedListener
 
     companion object {
         private var instance: DownloadsAdapter? = null
@@ -43,16 +45,20 @@ class DownloadsAdapter private constructor(private val context: Context) :
     fun clearDownloads() {
         downloadList.clear()
         notifyDataSetChanged()
+        downloadListChangedListener.onListChanged(itemCount)
     }
 
 
     fun addDownload(downloadInfo: DownloadInfo) {
         downloadList.add(downloadInfo)
+        downloadListChangedListener.onListChanged(itemCount)
         notifyItemInserted(downloadList.size)
     }
 
+
     fun removeDownload(position: Int) {
         downloadList.removeAt(position)
+        downloadListChangedListener.onListChanged(itemCount)
         notifyItemRemoved(position)
     }
 
@@ -83,7 +89,8 @@ class DownloadsAdapter private constructor(private val context: Context) :
         fun bind(downloadItem: DownloadInfo) {
             this.downloadItem = downloadItem
 
-            itemView.tvName.text = downloadItem.name
+            itemView.tvName.text =
+                if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
 
             val formatter = DateTimeFormat.forPattern("MMMM d, yyyy")
 
@@ -194,6 +201,7 @@ class DownloadsAdapter private constructor(private val context: Context) :
                     itemView.btnStartPause.gone()
                     itemView.tvStatus.text = context.getString(R.string.completed)
                     isDownloading = false
+                    downloadItem.isCompleted = true
 
                     animateLayoutChanges()
                 }
@@ -243,8 +251,14 @@ class DownloadsAdapter private constructor(private val context: Context) :
         private fun pauseDownload() {
             videoDownloader.pauseDownload(downloadId)
         }
-
     }
 
+    fun addDownloadListChangedListener(listener: DownloadListChangedListener) {
+        this.downloadListChangedListener = listener
+    }
+
+    interface DownloadListChangedListener {
+        fun onListChanged(listSize: Int)
+    }
 
 }
