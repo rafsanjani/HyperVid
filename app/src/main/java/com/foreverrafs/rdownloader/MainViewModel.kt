@@ -4,8 +4,6 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.foreverrafs.downloader.DownloadEvents
-import com.foreverrafs.downloader.DownloadException
 import com.foreverrafs.downloader.VideoDownloader
 import com.foreverrafs.downloader.extractor.FacebookExtractor
 import com.foreverrafs.downloader.model.DownloadInfo
@@ -29,34 +27,4 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
         extractor.addExtractionEventsListenener(listener)
         extractor.execute(streamUrl)
     }
-
-    fun downloadVideoFile(downloadInfo: DownloadInfo) {
-        videoDownloader?.downloadFile(downloadInfo, object : DownloadEvents {
-            override fun onDownloadProgressChanged(currentBytes: Long, totalBytes: Long) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onDownloadPaused() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onDownloadCompleted() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onDownloadError(error: DownloadException) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onDownloadCancelled() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onDownloadStart() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-        })
-    }
-
 }
