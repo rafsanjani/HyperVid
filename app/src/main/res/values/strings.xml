@@ -19,5 +19,7 @@
     <string name="failed">Failed</string>
     <string name="cancelled">Cancelled</string>
     <string name="ready">Ready</string>
-    <string name="extracting">Extracting...</string>
+    <string name="extracting">Extracting…</string>
+    <string name="empty_downloads">No download in queue…</string>
+    <string name="add_download_link">Add a download link to see it here</string>
 </resources>

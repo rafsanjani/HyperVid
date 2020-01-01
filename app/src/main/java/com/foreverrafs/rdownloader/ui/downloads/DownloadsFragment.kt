@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
+import com.foreverrafs.rdownloader.util.invisible
+import com.foreverrafs.rdownloader.util.visible
 import kotlinx.android.synthetic.main.fragment_downloads.*
 
 class DownloadsFragment : Fragment() {
+    private lateinit var downloadsAdapter: DownloadsAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -19,6 +22,20 @@ class DownloadsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        downloadListRecyclerView.adapter = DownloadsAdapter.getInstance(context!!)
+        downloadsAdapter = DownloadsAdapter.getInstance(context!!)
+
+        downloadListRecyclerView.adapter = downloadsAdapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (downloadsAdapter.itemCount == 0) {
+            layoutEmpty.visible()
+            downloadListRecyclerView.invisible()
+        } else {
+            layoutEmpty.invisible()
+            downloadListRecyclerView.visible()
+        }
     }
 }

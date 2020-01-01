@@ -83,6 +83,7 @@ class AddUrlFragment : Fragment() {
 
                     btnAddToDownloads.text = getString(R.string.add_to_downloads)
                     btnAddToDownloads.enable()
+                    etFacebookUrl.enable()
                     btnAddToDownloads.enable()
                 }
 
