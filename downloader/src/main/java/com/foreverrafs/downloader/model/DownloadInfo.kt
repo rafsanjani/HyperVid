@@ -12,5 +12,6 @@ data class DownloadInfo(
     var currentBytes: Long = 0,
     var totalBytes: Long = 0,
     val dateAdded: DateTime,
-    val extension: String = "mp4"
+    val extension: String = "mp4",
+    var isCompleted: Boolean = false
 )

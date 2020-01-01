@@ -4,19 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.foreverrafs.downloader.VideoDownloader
 import com.foreverrafs.downloader.extractor.FacebookExtractor
-import com.foreverrafs.downloader.model.DownloadInfo
+import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
 
-class MainViewModel(private val app: Application) : AndroidViewModel(app) {
-
-    private val videoDownloader = VideoDownloader.getInstance(app)
-
-    private var _progress = MutableLiveData<Int>()
-    val progress: LiveData<Int> = _progress
-
-    private var _downloads = MutableLiveData<ArrayList<DownloadInfo>>()
-    val downloads: LiveData<ArrayList<DownloadInfo>> = _downloads
+class SharedViewModel(app: Application) : AndroidViewModel(app) {
+    private var _downloadsAdapter: DownloadsAdapter = DownloadsAdapter.getInstance(app)
+    private var _downloadListCount = MutableLiveData<Int>()
+    private val downloadListCount: LiveData<Int> = _downloadListCount
 
 
     fun extractVideoDownloadUrl(
@@ -27,4 +21,8 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
         extractor.addExtractionEventsListenener(listener)
         extractor.execute(streamUrl)
     }
+
+    val downloadsAdapter: DownloadsAdapter
+        get() = _downloadsAdapter
+
 }
