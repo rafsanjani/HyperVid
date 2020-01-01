@@ -2,9 +2,9 @@ package com.foreverrafs.downloader.extractor;
 
 import android.media.MediaMetadataRetriever;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -14,8 +14,12 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import timber.log.Timber;
+
 public final class FacebookExtractor extends AsyncTask<String, Integer, FacebookFile> {
     private ExtractionEventsListenener eventsListener;
+    private static final String TAG = "FacebookExtractor";
+    private Exception exception;
 
     public interface ExtractionEventsListenener {
         void onExtractionComplete(FacebookFile facebookFile);
@@ -29,33 +33,26 @@ public final class FacebookExtractor extends AsyncTask<String, Integer, Facebook
 
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36";
 
+    private FacebookFile extractFBFileInfo(String url) {
+        try {
+            String html = downloadHtml(url);
+            return parseHtml(html);
+        } catch (IOException e) {
+            exception = e;
+            Timber.e(e);
+        }
+        return null;
+    }
 
-    private FacebookFile parseHtml(String url) {
+    private FacebookFile parseHtml(String streamMap) throws IOException {
         String result = "";
         String filename = "";
         FacebookFile facebookFile = new FacebookFile();
-        try {
-            URL getUrl = new URL(url);
-            HttpURLConnection urlConnection = (HttpURLConnection) getUrl.openConnection();
 
-            BufferedReader reader = null;
-            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
-            StringBuilder streamMap = new StringBuilder();
-            try {
-                reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    streamMap.append(line);
-                }
-            } catch (Exception exception) {
-                eventsListener.onExtractionFail(exception);
-            } finally {
-                if (reader != null)
-                    reader.close();
-                urlConnection.disconnect();
-            }
+        if (streamMap == null)
+            return null;
 
-            if (streamMap.toString().contains("You must log in to continue.")) {
+        if (streamMap.contains("You must log in to continue.")) {
                 result = "Not Public Video";
             } else {
 
@@ -93,7 +90,7 @@ public final class FacebookExtractor extends AsyncTask<String, Integer, Facebook
                 }
                 if (metaTAGTitleMatcher.find()) {
                     String author = streamMap.substring(metaTAGTitleMatcher.start(), metaTAGTitleMatcher.end());
-                    Log.e("Extractor", "AUTHOR :: " + author);
+                    Timber.i("AUTHOR :: %s", author);
 
                     author = author.replace("<meta property=\"og:title\" content=\"", "").replace("\" />", "");
 
@@ -105,8 +102,7 @@ public final class FacebookExtractor extends AsyncTask<String, Integer, Facebook
                 if (metaTAGDescriptionMatcher.find()) {
                     String name = streamMap.substring(metaTAGDescriptionMatcher.start(), metaTAGDescriptionMatcher.end());
 
-                    Log.e("Extractor", "FILENAME :: " + name);
-
+                    Timber.i("FILENAME :: %s", name);
 
                     name = name.replace("<meta property=\"og:description\" content=\"", "").replace("\" />", "");
 
@@ -117,7 +113,7 @@ public final class FacebookExtractor extends AsyncTask<String, Integer, Facebook
 
                 if (metaTAGTypeMatcher.find()) {
                     String ext = streamMap.substring(metaTAGTypeMatcher.start(), metaTAGTypeMatcher.end());
-                    Log.e("Extractor", "EXT :: " + ext);
+                    Timber.i("EXT :: %s", ext);
 
                     ext = ext.replace("<meta property=\"og:video:type\" content=\"", "").replace("\" />", "").replace("video/", "");
 
@@ -137,27 +133,48 @@ public final class FacebookExtractor extends AsyncTask<String, Integer, Facebook
             }
 
             return facebookFile;
-        } catch (Exception E) {
-            E.printStackTrace();
-            return null;
+    }
+
+    private String downloadHtml(String url) {
+        //download html website as a string
+        try {
+            URL facebookUrl = new URL(url);
+            HttpURLConnection urlConnection = (HttpURLConnection) facebookUrl.openConnection();
+
+            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+            StringBuilder streamMap = new StringBuilder();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    streamMap.append(line);
+                }
+            }
+
+            urlConnection.disconnect();
+            return streamMap.toString();
+        } catch (Exception e) {
+            exception = e;
         }
+        return null;
     }
 
     @Override
     protected FacebookFile doInBackground(String... urls) {
-        return parseHtml(urls[0]);
+        return extractFBFileInfo(urls[0]);
     }
 
     @Override
     protected void onPostExecute(FacebookFile facebookFile) {
         super.onPostExecute(facebookFile);
         if (facebookFile != null) {
-
-
-            Log.e("FB", "URL :: " + facebookFile.getUrl());
-            Log.e("FB", "Author :: " + facebookFile.getAuthor());
-            Log.e("FB", "Ext :: " + facebookFile.getExt());
+            Timber.i("URL :: %s", facebookFile.getUrl());
+            Timber.i("Author :: %s", facebookFile.getAuthor());
+            Timber.i("Ext :: %s", facebookFile.getExt());
             eventsListener.onExtractionComplete(facebookFile);
+        } else {
+            eventsListener.onExtractionFail(exception);
         }
     }
 }
