@@ -42,11 +42,6 @@ class AddUrlFragment : Fragment() {
     }
 
     private fun initializeViews() {
-        if (clipBoardData != null) {
-            val initialClipText = clipBoardData?.getItemAt(0)?.text.toString()
-            etFacebookUrl.setText(initialClipText)
-        }
-
         btnPaste.setOnClickListener {
             if (clipBoardData != null) {
                 clipboardText = clipBoardData?.getItemAt(0)?.text.toString()
@@ -114,7 +109,8 @@ class AddUrlFragment : Fragment() {
             clipBoardData = clipboardManager.primaryClip
             val clipText = clipBoardData?.getItemAt(0)?.text
 
-            etFacebookUrl.setText(clipText.toString())
+            if (clipText!!.contains("facebook"))
+                etFacebookUrl.setText(clipText.toString())
         }
     }
 }

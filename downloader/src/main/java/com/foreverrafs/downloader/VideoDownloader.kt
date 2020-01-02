@@ -20,7 +20,6 @@ class VideoDownloader private constructor(private val context: Context) : Downlo
                     .build()
                 PRDownloader.initialize(context, config)
             }
-
             return instance
         }
     }
@@ -83,5 +82,9 @@ class VideoDownloader private constructor(private val context: Context) : Downlo
     override fun cancelDownload(downloadId: Int): Boolean {
         PRDownloader.cancel(downloadId)
         return true
+    }
+
+    fun close() {
+        PRDownloader.shutDown()
     }
 }
