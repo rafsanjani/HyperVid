@@ -1,10 +1,7 @@
 package com.foreverrafs.downloader
 
 import android.content.Context
-import com.downloader.Error
-import com.downloader.OnDownloadListener
-import com.downloader.PRDownloader
-import com.downloader.PRDownloaderConfig
+import com.downloader.*
 import com.foreverrafs.downloader.model.DownloadInfo
 
 
@@ -39,7 +36,8 @@ class VideoDownloader private constructor(private val context: Context) : Downlo
             downloadInfo.url,
             context.filesDir.absolutePath,
             "downloads/${downloadInfo.name}.mp4"
-        ).build()
+        ).setPriority(Priority.HIGH)
+            .build()
             .setOnStartOrResumeListener {
                 videoDownloadListener.onDownloadStart()
             }.setOnPauseListener {
