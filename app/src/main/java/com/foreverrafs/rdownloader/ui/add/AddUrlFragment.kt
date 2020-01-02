@@ -8,13 +8,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.foreverrafs.downloader.extractor.FacebookExtractor
 import com.foreverrafs.downloader.extractor.FacebookFile
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
+import com.foreverrafs.rdownloader.SharedViewModel
 import com.foreverrafs.rdownloader.util.disable
 import com.foreverrafs.rdownloader.util.enable
 import com.foreverrafs.rdownloader.util.showToast
@@ -25,7 +24,8 @@ import timber.log.Timber
 class AddUrlFragment : Fragment() {
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
-    private val mainViewModel: MainViewModel by viewModels()
+    private val viewModel: SharedViewModel by activityViewModels()
+
     private var mDownloadInfo: DownloadInfo? = null
 
     override fun onCreateView(
@@ -42,12 +42,16 @@ class AddUrlFragment : Fragment() {
     }
 
     private fun initializeViews() {
+        if (clipBoardData != null) {
+            val initialClipText = clipBoardData?.getItemAt(0)?.text.toString()
+            etFacebookUrl.setText(initialClipText)
+        }
+
         btnPaste.setOnClickListener {
             if (clipBoardData != null) {
                 clipboardText = clipBoardData?.getItemAt(0)?.text.toString()
                 etFacebookUrl.setText(clipboardText)
             }
-
         }
 
         //add the download job to the download list when the button is clicked. We don't start downloading
@@ -62,7 +66,7 @@ class AddUrlFragment : Fragment() {
     }
 
     private fun extractVideo(videoURL: String) {
-        mainViewModel.extractVideoDownloadUrl(
+        viewModel.extractVideoDownloadUrl(
             videoURL,
             object : FacebookExtractor.ExtractionEventsListenener {
                 override fun onExtractionComplete(facebookFile: FacebookFile) {
@@ -75,7 +79,8 @@ class AddUrlFragment : Fragment() {
                         dateAdded = DateTime.now()
                     )
 
-                    DownloadsAdapter.getInstance(context!!).addDownload(mDownloadInfo!!)
+                    viewModel.downloadsAdapter.addDownload(mDownloadInfo!!)
+
                     Timber.d("Download URL extraction complete: Adding to List: $mDownloadInfo")
                     showToast("Video added to download queue...")
                     btnPaste.text = getString(R.string.paste_link)
@@ -97,15 +102,19 @@ class AddUrlFragment : Fragment() {
                     etFacebookUrl.enable()
                 }
             })
-
     }
 
     private fun initializeClipboard() {
         val clipboardManager =
             activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
+        clipBoardData = clipboardManager.primaryClip
+
         clipboardManager.addPrimaryClipChangedListener {
-            clipBoardData = clipboardManager.primaryClip!!
+            clipBoardData = clipboardManager.primaryClip
+            val clipText = clipBoardData?.getItemAt(0)?.text
+
+            etFacebookUrl.setText(clipText.toString())
         }
     }
 }
