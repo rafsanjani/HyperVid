@@ -22,4 +22,5 @@
         <item name="android:layout_margin">@dimen/card_margin</item>
         <item name="cardCornerRadius">@dimen/card_corner_radius</item>
     </style>
+
 </resources>
