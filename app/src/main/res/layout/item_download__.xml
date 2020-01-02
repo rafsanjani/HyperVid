@@ -50,7 +50,7 @@
             android:layout_marginBottom="4dp"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/tvMenu"
+            app:layout_constraintEnd_toEndOf="@+id/tvPercentage"
             tools:text="March 11, 2019" />
 
         <ProgressBar
@@ -113,14 +113,14 @@
             tools:text="7:04" />
 
         <ImageButton
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:id="@+id/btnStartPause"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:tint="@android:color/black"
             app:layout_constraintStart_toStartOf="@+id/tvDownloadedSize"
             app:layout_constraintTop_toBottomOf="@+id/tvDownloadedSize"
-            app:srcCompat="@android:drawable/ic_media_play"
+            android:src="@android:drawable/ic_media_play"
             tools:ignore="ContentDescription" />
 
         <TextView
