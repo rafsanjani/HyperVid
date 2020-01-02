@@ -1,6 +1,7 @@
 package com.foreverrafs.downloader
 
 import android.content.Context
+import android.os.Environment
 import com.downloader.*
 import com.foreverrafs.downloader.model.DownloadInfo
 
@@ -24,18 +25,17 @@ class VideoDownloader private constructor(private val context: Context) : Downlo
         }
     }
 
-    /**
-     * Suspend because we can't really tell whether our download engine will schedule the download operation on the
-     * main thread or not. We suspend this so that we may call it in a different context other than main
-     */
+    fun getDownloadDir(): String {
+        return context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.absolutePath!!
+    }
     override fun downloadFile(
         downloadInfo: DownloadInfo,
         videoDownloadListener: DownloadEvents
     ): Int {
         return PRDownloader.download(
             downloadInfo.url,
-            context.filesDir.absolutePath,
-            "downloads/${downloadInfo.name}.mp4"
+            getDownloadDir(),
+            "${downloadInfo.name}.mp4"
         ).setPriority(Priority.HIGH)
             .build()
             .setOnStartOrResumeListener {
