@@ -1,7 +1,15 @@
 package com.foreverrafs.rdownloader.ui.downloads
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 
-class DownloadsViewModel : ViewModel(){
+class DownloadsViewModel(application: Application) : AndroidViewModel(application) {
 
+    fun saveDownloadList() {
+
+    }
+
+    fun loadDownloadList(){
+
+    }
 }
