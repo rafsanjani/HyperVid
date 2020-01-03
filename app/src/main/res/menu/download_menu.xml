@@ -4,7 +4,7 @@
     <item
         android:id="@+id/startPause"
         android:icon="@drawable/ic_start"
-        android:title="@string/start" />
+        android:title="@string/start_pause" />
     <item
         android:id="@+id/stop"
         android:icon="@drawable/ic_stop"

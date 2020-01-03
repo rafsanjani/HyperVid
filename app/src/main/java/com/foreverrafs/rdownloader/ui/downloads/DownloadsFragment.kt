@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.SharedViewModel
 import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
+import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
 import kotlinx.android.synthetic.main.fragment_downloads.*
@@ -31,6 +32,10 @@ class DownloadsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         downloadsAdapter = mainViewModel.downloadsAdapter
 
+        initializeViews()
+    }
+
+    private fun initializeViews() {
         downloadListRecyclerView.adapter = downloadsAdapter
 
         downloadsAdapter.addDownloadListChangedListener(object :
@@ -45,9 +50,19 @@ class DownloadsFragment : Fragment() {
                 }
             }
         })
+
+
+
+        downloadsAdapter.addDownloadCompleteListener(object :
+            DownloadsAdapter.DownloadCompletedListener {
+            override fun onDownloadCompleted(facebookVideo: FacebookVideo) {
+                //add the downloaded video to the videos adapter
+                mainViewModel.videosAdapter.addVideo(facebookVideo)
+            }
+        })
     }
 
-    override fun onStart() {
+    override fun onResume() {
         if (downloadsAdapter.itemCount > 0) {
             downloadListRecyclerView.visible()
             layoutEmpty.invisible()
@@ -55,6 +70,6 @@ class DownloadsFragment : Fragment() {
             downloadListRecyclerView.invisible()
             layoutEmpty.visible()
         }
-        super.onStart()
+        super.onResume()
     }
 }

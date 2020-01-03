@@ -71,10 +71,8 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
     kapt "com.android.databinding:compiler:3.1.4"
     implementation 'joda-time:joda-time:2.10.3'
-    implementation("io.coil-kt:coil:0.8.0")
-
-
-
-
+    implementation 'io.coil-kt:coil:0.8.0'
+    implementation 'com.shreyaspatil:MaterialDialog:2.0'
+    implementation 'com.airbnb.android:lottie:3.3.1'
 
 }

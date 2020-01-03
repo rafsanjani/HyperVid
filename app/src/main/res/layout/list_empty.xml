@@ -45,7 +45,7 @@
         android:layout_marginEnd="10dp"
         android:gravity="center"
         android:padding="18dp"
-        android:text="@string/add_download_link"
+        android:text="@string/empty_download_desc"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
 </LinearLayout>

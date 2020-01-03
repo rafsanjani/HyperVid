@@ -6,10 +6,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import java.util.*
 
 class HomeSectionsPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
-
     private val mFragmentList = ArrayList<Fragment>()
     private val mFragmentTitleList = ArrayList<String>()
-
 
     fun addFragment(fragment: Fragment, title: String) {
         mFragmentList.add(fragment)

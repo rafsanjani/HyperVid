@@ -68,4 +68,8 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = viewPagerAdapter
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
 }
