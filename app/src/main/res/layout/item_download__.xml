@@ -79,13 +79,14 @@
             android:id="@+id/tvMenu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
             android:text="&#8942;"
             android:textColor="@android:color/black"
+            android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tvName"
             app:layout_constraintTop_toTopOf="@+id/tvName" />
 
         <TextView
