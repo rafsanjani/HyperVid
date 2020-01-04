@@ -15,6 +15,7 @@ import com.foreverrafs.rdownloader.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import java.io.File
+import java.util.*
 import kotlin.math.abs
 
 class VideosAdapter(private val context: Context) :
@@ -47,6 +48,11 @@ class VideosAdapter(private val context: Context) :
         videosListChangedListener?.onVideosListChanged(itemCount)
     }
 
+    fun swapVideos(from: Int, to: Int) {
+        Collections.swap(videoList, from, to)
+        notifyItemMoved(from, to)
+    }
+
     fun addVideosListChangedListener(listener: VideosListChangedListener){
         this.videosListChangedListener = listener
     }
@@ -69,14 +75,14 @@ class VideosAdapter(private val context: Context) :
             }
 
             itemView.btnShareWhatsapp.setOnClickListener {
-                context.shareFile(facebookVideo.path, "com.whatsapp")
+                context.shareFile(facebookVideo.path, "com.whatsapp_icon")
             }
 
             itemView.btnShare.setOnClickListener {
                 val uri = Uri.fromFile(File(facebookVideo.path))
 
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    setDataAndType(Uri.parse(facebookVideo.path), "video/*")
+                    setDataAndType(Uri.parse(facebookVideo.path), "*/*")
                     putExtra(Intent.EXTRA_STREAM, uri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }

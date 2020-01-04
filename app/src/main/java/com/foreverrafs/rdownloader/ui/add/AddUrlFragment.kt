@@ -13,7 +13,7 @@ import com.foreverrafs.downloader.extractor.FacebookExtractor
 import com.foreverrafs.downloader.extractor.FacebookFile
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.SharedViewModel
+import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.util.disable
 import com.foreverrafs.rdownloader.util.enable
 import com.foreverrafs.rdownloader.util.showToast
@@ -24,7 +24,7 @@ import timber.log.Timber
 class AddUrlFragment : Fragment() {
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
-    private val viewModel: SharedViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
 
     private var mDownloadInfo: DownloadInfo? = null
 

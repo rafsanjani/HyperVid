@@ -6,16 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.SharedViewModel
+import com.foreverrafs.rdownloader.MainViewModel
+import com.foreverrafs.rdownloader.adapter.SimpleItemTouchHelper
 import com.foreverrafs.rdownloader.adapter.VideosAdapter
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
 import kotlinx.android.synthetic.main.fragment_videos.*
 import kotlinx.android.synthetic.main.list_empty.*
 
+
 class VideosFragment : Fragment() {
-    private val mainViewModel: SharedViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private lateinit var videosAdapter: VideosAdapter
 
     override fun onCreateView(
@@ -30,7 +33,11 @@ class VideosFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         videosAdapter = mainViewModel.videosAdapter
         videoListRecyclerView.adapter = videosAdapter
+
         initEmptyLayoutTexts()
+
+        val itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelper(videosAdapter))
+        itemTouchHelper.attachToRecyclerView(videoListRecyclerView)
 
         videosAdapter.addVideosListChangedListener(object :
             VideosAdapter.VideosListChangedListener {
@@ -44,6 +51,7 @@ class VideosFragment : Fragment() {
                 }
             }
         })
+
     }
 
     private fun initEmptyLayoutTexts() {

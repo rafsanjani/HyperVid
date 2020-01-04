@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.SharedViewModel
+import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
 import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.invisible
@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_downloads.*
 
 class DownloadsFragment : Fragment() {
     private lateinit var downloadsAdapter: DownloadsAdapter
-    private val mainViewModel: SharedViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
     private val downloadsViewModel: DownloadsViewModel by viewModels()
 
 
