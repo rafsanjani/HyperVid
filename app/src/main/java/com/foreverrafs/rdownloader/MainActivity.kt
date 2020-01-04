@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
+import com.foreverrafs.downloader.VideoDownloader
 import com.foreverrafs.rdownloader.adapter.HomeSectionsPagerAdapter
 import com.foreverrafs.rdownloader.androidext.requestStoragePermission
 import com.foreverrafs.rdownloader.ui.add.AddUrlFragment
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if()
+        VideoDownloader.getInstance(this)?.close()
     }
 
 }
