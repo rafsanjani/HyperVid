@@ -4,9 +4,7 @@ package com.foreverrafs.rdownloader.adapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
@@ -152,15 +150,6 @@ class DownloadsAdapter(private val context: Context) :
 
             itemView.btnStartPause.setOnClickListener {
                 toggleDownload()
-            }
-
-            itemView.setOnClickListener {
-                val filePath = getVideoFilePath(downloadItem)
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(filePath), "video/*")
-
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(intent)
             }
         }
 
