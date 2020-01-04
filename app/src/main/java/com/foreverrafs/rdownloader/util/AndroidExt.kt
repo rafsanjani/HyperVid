@@ -51,7 +51,7 @@ fun Context.shareFile(path: String, packageName: String = "") {
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         putExtra(Intent.EXTRA_STREAM, uri)
-        type = "video/*"
+        type = "*/*"
     }
 
     try {
