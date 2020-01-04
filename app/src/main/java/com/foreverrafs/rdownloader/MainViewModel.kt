@@ -6,7 +6,7 @@ import com.foreverrafs.downloader.extractor.FacebookExtractor
 import com.foreverrafs.rdownloader.adapter.DownloadsAdapter
 import com.foreverrafs.rdownloader.adapter.VideosAdapter
 
-class SharedViewModel(app: Application) : AndroidViewModel(app) {
+class MainViewModel(app: Application) : AndroidViewModel(app) {
     private var _downloadsAdapter: DownloadsAdapter = DownloadsAdapter(app)
     private var _videosAdapter: VideosAdapter = VideosAdapter(app)
 
