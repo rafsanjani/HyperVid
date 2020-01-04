@@ -62,9 +62,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager(viewPager: ViewPager2) {
         val viewPagerAdapter = HomeSectionsPagerAdapter(this)
-        viewPagerAdapter.addFragment(AddUrlFragment(), "")    // index 0
-        viewPagerAdapter.addFragment(DownloadsFragment(), "")   // index 1
-        viewPagerAdapter.addFragment(VideosFragment(), "")   // index 1
+        viewPagerAdapter.addFragment(AddUrlFragment())    // index 0
+        viewPagerAdapter.addFragment(DownloadsFragment())   // index 1
+        viewPagerAdapter.addFragment(VideosFragment())   // index 1
 
         viewPager.adapter = viewPagerAdapter
     }

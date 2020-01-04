@@ -7,11 +7,9 @@ import java.util.*
 
 class HomeSectionsPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
     private val mFragmentList = ArrayList<Fragment>()
-    private val mFragmentTitleList = ArrayList<String>()
 
-    fun addFragment(fragment: Fragment, title: String) {
+    fun addFragment(fragment: Fragment) {
         mFragmentList.add(fragment)
-        mFragmentTitleList.add(title)
     }
 
     override fun getItemCount(): Int {
