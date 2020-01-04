@@ -1,8 +1,6 @@
-package com.foreverrafs;
+package com.foreverrafs.rdownloader;
 
 import android.app.Application;
-
-import com.foreverrafs.rdownloader.BuildConfig;
 
 import timber.log.Timber;
 
