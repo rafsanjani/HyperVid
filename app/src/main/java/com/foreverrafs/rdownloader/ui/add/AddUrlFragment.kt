@@ -12,8 +12,8 @@ import androidx.fragment.app.activityViewModels
 import com.foreverrafs.downloader.extractor.FacebookExtractor
 import com.foreverrafs.downloader.extractor.FacebookFile
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.MainViewModel
+import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.util.disable
 import com.foreverrafs.rdownloader.util.enable
 import com.foreverrafs.rdownloader.util.showToast

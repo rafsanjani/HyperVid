@@ -14,7 +14,6 @@ class VideoDownloader private constructor(private val context: Context) : Downlo
             if (instance == null) {
                 instance = VideoDownloader(context)
                 val config = PRDownloaderConfig.newBuilder()
-                    .setDatabaseEnabled(true)
                     .setConnectTimeout(30_000)
                     .setReadTimeout(30_3000)
                     .build()
@@ -35,7 +34,7 @@ class VideoDownloader private constructor(private val context: Context) : Downlo
             downloadInfo.url,
             getDownloadDir(),
             "${downloadInfo.name}.mp4"
-        ).setPriority(Priority.HIGH)
+        ).setPriority(Priority.IMMEDIATE)
             .build()
             .setOnStartOrResumeListener {
                 videoDownloadListener.onDownloadStart()
