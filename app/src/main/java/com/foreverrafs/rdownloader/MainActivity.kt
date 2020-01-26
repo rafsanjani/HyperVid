@@ -6,7 +6,7 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.foreverrafs.downloader.VideoDownloader
+import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.rdownloader.adapter.HomeSectionsPagerAdapter
 import com.foreverrafs.rdownloader.androidext.requestStoragePermission
 import com.foreverrafs.rdownloader.ui.add.AddUrlFragment

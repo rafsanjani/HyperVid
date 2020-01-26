@@ -4,7 +4,7 @@ package com.foreverrafs.rdownloader.adapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color
+import android.graphics.PorterDuff
 import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +13,9 @@ import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
-import com.foreverrafs.downloader.DownloadEvents
-import com.foreverrafs.downloader.DownloadException
-import com.foreverrafs.downloader.VideoDownloader
+import com.foreverrafs.downloader.downloader.DownloadEvents
+import com.foreverrafs.downloader.downloader.DownloadException
+import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
@@ -204,21 +204,22 @@ class DownloadsAdapter(private val context: Context) :
         }
 
         private fun startDownload() {
-            downloadId = videoDownloader.downloadFile(downloadItem, object : DownloadEvents {
-                override fun onDownloadProgressChanged(currentBytes: Long, totalBytes: Long) {
-                    downloadItem.totalBytes = totalBytes
+            downloadId = videoDownloader.downloadFile(downloadItem, object :
+                DownloadEvents {
+                override fun onProgressChanged(downloaded: Long, percentage: Int) {
+//                    downloadItem.totalBytes = totalBytes
 
-                    val percentage = currentBytes.toDouble() / totalBytes * 100
-                    itemView.tvPercentage.text = "${percentage.toInt()} %"
+//                    val percentage = currentBytes.toDouble() / totalBytes * 100
+                    itemView.tvPercentage.text = "$percentage %"
                     itemView.progressDownload.progress = percentage.toInt()
 
-                    val downloadedMB = (currentBytes.toDouble() / 1024 / 1024)
+                    val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
                     itemView.tvDownloadedSize.text =
                         if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
                 }
 
-                override fun onDownloadPaused() {
+                override fun onPause() {
                     isDownloading = false
                     itemView.progressDownload.visible()
                     itemView.tvStatus.text = context.getString(R.string.paused)
@@ -226,7 +227,7 @@ class DownloadsAdapter(private val context: Context) :
 
                 }
 
-                override fun onDownloadCompleted() {
+                override fun onCompleted() {
                     val facebookVideo = FacebookVideo(
                         downloadItem.name, downloadItem.duration,
                         getVideoFilePath(downloadItem), downloadItem.image
@@ -235,10 +236,13 @@ class DownloadsAdapter(private val context: Context) :
                     downloadCompletedListener?.onDownloadCompleted(facebookVideo)
 
                     itemView.progressDownload.visible()
-
                     itemView.progressDownload.progressDrawable.setColorFilter(
-                        Color.GREEN, android.graphics.PorterDuff.Mode.SRC_IN
+                        context.resources.getColor(
+                            R.color.darkGreen
+                        ),
+                        PorterDuff.Mode.MULTIPLY
                     )
+
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.btnStartPause.gone()
                     itemView.tvStatus.text = context.getString(R.string.completed)
@@ -249,7 +253,7 @@ class DownloadsAdapter(private val context: Context) :
                 }
 
 
-                override fun onDownloadError(error: DownloadException) {
+                override fun onError(error: DownloadException) {
                     Timber.e(error)
                     isDownloading = false
                     itemView.progressDownload.invisible()
@@ -258,14 +262,24 @@ class DownloadsAdapter(private val context: Context) :
 
                 }
 
-                override fun onDownloadCancelled() {
+                override fun onCancelled() {
                     isDownloading = false
                     itemView.progressDownload.invisible()
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.tvStatus.text = context.getString(R.string.cancelled)
                 }
 
-                override fun onDownloadStart() {
+                override fun onWaitingForNetwork() {
+                    Timber.i("Waiting for network")
+                    isDownloading = false
+                    itemView.progressDownload.visible()
+                    itemView.btnStartPause.setImageResource(R.drawable.ic_start)
+                    itemView.tvStatus.text = "Waiting for network..."
+
+
+                }
+
+                override fun onStart() {
                     isDownloading = true
                     itemView.progressDownload.visible()
                     itemView.btnStartPause.setImageResource(R.drawable.ic_pause)

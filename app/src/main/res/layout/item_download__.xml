@@ -60,6 +60,7 @@
             android:layout_height="wrap_content"
             android:indeterminate="false"
             android:visibility="invisible"
+            android:progressTint="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="@+id/tvName"
             app:layout_constraintStart_toStartOf="@+id/tvName"
             app:layout_constraintTop_toBottomOf="@+id/tvName"

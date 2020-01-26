@@ -1,4 +1,4 @@
-package com.foreverrafs.downloader
+package com.foreverrafs.downloader.downloader
 
 import com.foreverrafs.downloader.model.DownloadInfo
 
