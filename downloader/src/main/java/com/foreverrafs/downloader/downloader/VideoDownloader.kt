@@ -34,20 +34,13 @@ class VideoDownloader private constructor(private val context: Context) :
         fetch = Fetch.getInstance(config)
 
 
-        fetch.addListener(object : FetchListener {
-            override fun onAdded(download: Download) {
-
-            }
-
+        fetch.addListener(object : AbstractFetchListener() {
             override fun onCancelled(download: Download) {
                 downloads[download.id]?.onCancelled()
             }
 
             override fun onCompleted(download: Download) {
                 downloads[download.id]?.onCompleted()
-            }
-
-            override fun onDeleted(download: Download) {
             }
 
             override fun onDownloadBlockUpdated(
@@ -83,16 +76,6 @@ class VideoDownloader private constructor(private val context: Context) :
 
                 Timber.d(download.progress.toString())
             }
-
-            override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
-            }
-
-            override fun onRemoved(download: Download) {
-            }
-
-            override fun onResumed(download: Download) {
-            }
-
             override fun onStarted(
                 download: Download,
                 downloadBlocks: List<DownloadBlock>,
