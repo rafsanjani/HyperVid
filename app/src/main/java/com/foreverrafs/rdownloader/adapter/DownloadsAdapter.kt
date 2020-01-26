@@ -274,9 +274,7 @@ class DownloadsAdapter(private val context: Context) :
                     isDownloading = false
                     itemView.progressDownload.visible()
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
-                    itemView.tvStatus.text = "Waiting for network..."
-
-
+                    itemView.tvStatus.text = context.getString(R.string.connecting)
                 }
 
                 override fun onStart() {

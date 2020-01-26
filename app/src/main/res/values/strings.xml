@@ -24,5 +24,5 @@
     <string name="empty_download_desc">Add a download link to see it here</string>
     <string name="empty_video">No video downloaded</string>
     <string name="empty_video_desc">Download a facebook video to see it here</string>
-    <string name="waiting_for_network">Waiting for network…</string>
+    <string name="connecting">Connecting…</string>
 </resources>
