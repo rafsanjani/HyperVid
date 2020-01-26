@@ -1,4 +1,4 @@
-package com.foreverrafs.downloader.extractor;
+package com.foreverrafs.downloader.model;
 
 import android.graphics.Bitmap;
 
