@@ -12,11 +12,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun extractVideoDownloadUrl(
         streamUrl: String,
-        listener: FacebookExtractor.ExtractionEventsListenener
+        listener: FacebookExtractor.ExtractionEvents
     ) {
-        val extractor = FacebookExtractor()
-        extractor.addExtractionEventsListenener(listener)
-        extractor.execute(streamUrl)
+        FacebookExtractor().apply {
+            addEventsListener(listener)
+            extract(streamUrl)
+        }
     }
 
 

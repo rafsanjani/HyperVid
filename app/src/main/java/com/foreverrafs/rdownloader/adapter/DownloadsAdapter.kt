@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.PorterDuff
+import android.text.Html
 import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
 import com.foreverrafs.downloader.downloader.DownloadEvents
 import com.foreverrafs.downloader.downloader.DownloadException
 import com.foreverrafs.downloader.downloader.VideoDownloader
@@ -77,7 +77,6 @@ class DownloadsAdapter(private val context: Context) :
             .setPositiveButton("Delete", R.drawable.ic_delete) { dialogInterface, _ ->
                 removeDownload(position)
                 dialogInterface.dismiss()
-
             }.setNegativeButton("Cancel", R.drawable.ic_cancel) { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
@@ -130,19 +129,20 @@ class DownloadsAdapter(private val context: Context) :
         fun bind(downloadItem: DownloadInfo) {
             this.downloadItem = downloadItem
 
-            itemView.tvName.text =
+            itemView.tvName.text = Html.fromHtml(
                 if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
+            )
 
             val formatter = DateTimeFormat.forPattern("MMMM d, yyyy")
 
             itemView.tvDate.text =
                 downloadItem.dateAdded.toString(formatter)
 
-            itemView.image.setImageBitmap(downloadItem.image)
+//            itemView.image.setImageBitmap(downloadItem.image)
             itemView.tvStatus.text = context.getString(R.string.ready)
 
             itemView.tvDuration.text = Tools.getDurationString(downloadItem.duration)
-            itemView.image.load(downloadItem.image)
+//            itemView.image.load(downloadItem.image)
 
             itemView.tvMenu.setOnClickListener {
                 openPopupMenu()
@@ -207,11 +207,8 @@ class DownloadsAdapter(private val context: Context) :
             downloadId = videoDownloader.downloadFile(downloadItem, object :
                 DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
-//                    downloadItem.totalBytes = totalBytes
-
-//                    val percentage = currentBytes.toDouble() / totalBytes * 100
                     itemView.tvPercentage.text = "$percentage %"
-                    itemView.progressDownload.progress = percentage.toInt()
+                    itemView.progressDownload.progress = percentage
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
@@ -230,7 +227,7 @@ class DownloadsAdapter(private val context: Context) :
                 override fun onCompleted() {
                     val facebookVideo = FacebookVideo(
                         downloadItem.name, downloadItem.duration,
-                        getVideoFilePath(downloadItem), downloadItem.image
+                        getVideoFilePath(downloadItem)
                     )
 
                     downloadCompletedListener?.onDownloadCompleted(facebookVideo)

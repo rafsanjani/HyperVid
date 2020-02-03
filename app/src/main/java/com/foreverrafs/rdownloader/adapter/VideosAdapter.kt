@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.Tools
@@ -64,7 +63,6 @@ class VideosAdapter(private val context: Context) :
                 if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
 
             itemView.tvDuration.text = Tools.getDurationString(facebookVideo.duration)
-            itemView.imageCover.load(facebookVideo.coverImage)
 
             itemView.btnPlay.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)

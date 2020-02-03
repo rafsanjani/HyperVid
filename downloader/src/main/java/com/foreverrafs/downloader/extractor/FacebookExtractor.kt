@@ -56,13 +56,11 @@ class FacebookExtractor {
 
     @Throws(IOException::class)
     private fun parseHtml(streamMap: String?): FacebookFile? {
-        val result: String
-        val filename: String
+       val facebookFile = FacebookFile()
 
-        val facebookFile = FacebookFile()
         if (streamMap == null) return null
         if (streamMap.contains("You must log in to continue.")) {
-            result = "Not Public Video"
+            var result = "Not Public Video"
         } else {
             val metaTAGVideoSRC =
                 Pattern.compile("<meta property=\"og:video\"(.+?)\" />")
@@ -92,6 +90,7 @@ class FacebookExtractor {
                         metaTAG.substring(srcFindMatcher.start(), srcFindMatcher.end())
                             .replace("content=", "").replace("\"", "")
                     facebookFile.url = src.replace("&amp;", "&")
+
                     val openUrl =
                         URL(src).openConnection() as HttpsURLConnection
                     openUrl.connect()
@@ -100,18 +99,18 @@ class FacebookExtractor {
                     val fileSizeInMB = fileSizeInKB / 1024
                     facebookFile.size =
                         if (fileSizeInMB > 1) "$fileSizeInMB MB" else "$fileSizeInKB KB"
+
                     openUrl.disconnect()
                 }
             } else {
                 return null
             }
             if (metaTAGTitleMatcher.find()) {
-                var author =
+                val authorStr =
                     streamMap.substring(metaTAGTitleMatcher.start(), metaTAGTitleMatcher.end())
-                Timber.i("AUTHOR :: %s", author)
-                author = author.replace("<meta property=\"og:title\" content=\"", "")
+                Timber.i("AUTHOR :: %s", authorStr)
+                facebookFile.author = authorStr.replace("<meta property=\"og:title\" content=\"", "")
                     .replace("\" />", "")
-                facebookFile.author = author
             } else {
                 facebookFile.author = "fbdescription"
             }
@@ -128,12 +127,11 @@ class FacebookExtractor {
                 facebookFile.filename = "fbdescription"
             }
             if (metaTAGTypeMatcher.find()) {
-                var ext =
+                val extStr =
                     streamMap.substring(metaTAGTypeMatcher.start(), metaTAGTypeMatcher.end())
-                Timber.i("EXT :: %s", ext)
-                ext = ext.replace("<meta property=\"og:video:type\" content=\"", "")
+                Timber.i("EXT :: %s", extStr)
+                facebookFile.ext = extStr.replace("<meta property=\"og:video:type\" content=\"", "")
                     .replace("\" />", "").replace("video/", "")
-                facebookFile.ext = ext
             } else {
                 facebookFile.ext = "mp4"
             }
@@ -145,8 +143,7 @@ class FacebookExtractor {
                 )
                 facebookFile.duration =
                     retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
-                facebookFile.coverImage = retriever.frameAtTime
-            } catch (E: java.lang.Exception) {
+            } catch (E: Exception) {
                 facebookFile.duration = 0L
             }
         }
@@ -169,7 +166,7 @@ class FacebookExtractor {
                 }
             urlConnection.disconnect()
             return streamMap.toString()
-        } catch (e: java.lang.Exception) {
+        } catch (e: Exception) {
             exception = e
         }
         return null

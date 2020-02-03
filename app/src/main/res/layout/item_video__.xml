@@ -80,7 +80,7 @@
 
         <ImageView
             android:id="@+id/btnShareWhatsapp"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="36dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/btnShare"

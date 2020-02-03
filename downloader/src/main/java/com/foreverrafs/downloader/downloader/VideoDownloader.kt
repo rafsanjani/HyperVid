@@ -12,11 +12,14 @@ import timber.log.Timber
 
 class VideoDownloader private constructor(private val context: Context) :
     Downloader {
-    private var fetch: Fetch
+    private lateinit var fetch: Fetch
     private var downloads = mutableMapOf<Int, DownloadEvents>()
 
-
     init {
+        setUpDownloader()
+    }
+
+    private fun setUpDownloader() {
         val config = FetchConfiguration.Builder(context)
             .enableFileExistChecks(false)
             .setLogger(FetchLogger())
@@ -26,13 +29,12 @@ class VideoDownloader private constructor(private val context: Context) :
                 )
             ) // set custom downloader
             .setDownloadConcurrentLimit(4)
-            .enableAutoStart(false)
+            .enableAutoStart(true)
             .enableLogging(true)
             .enableRetryOnNetworkGain(true)
             .build();
 
         fetch = Fetch.getInstance(config)
-
 
         fetch.addListener(object : AbstractFetchListener() {
             override fun onCancelled(download: Download) {
@@ -76,6 +78,10 @@ class VideoDownloader private constructor(private val context: Context) :
 
                 Timber.d(download.progress.toString())
             }
+
+            override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
+                super.onQueued(download, waitingOnNetwork)
+            }
             override fun onStarted(
                 download: Download,
                 downloadBlocks: List<DownloadBlock>,
@@ -110,11 +116,11 @@ class VideoDownloader private constructor(private val context: Context) :
         downloadInfo: DownloadInfo,
         videoDownloadListener: DownloadEvents
     ): Int {
-
         val request = Request(
             downloadInfo.url,
             "${getDownloadDir()}/${downloadInfo.name}.${downloadInfo.extension}"
         )
+
         request.apply {
             priority = Priority.HIGH
             networkType = NetworkType.ALL
@@ -122,20 +128,24 @@ class VideoDownloader private constructor(private val context: Context) :
         downloads[request.id] = videoDownloadListener
 
         fetch.enqueue(request)
+
         return request.id
     }
 
     override fun pauseDownload(downloadId: Int): Boolean {
-
+        fetch.pause(downloadId)
+        downloads[downloadId]?.onPause()
         return true
     }
 
     override fun cancelDownload(downloadId: Int): Boolean {
-
+        fetch.cancel(downloadId)
+        downloads[downloadId]?.onCancelled()
         return true
     }
 
     fun close() {
+        fetch.pauseAll()
         fetch.close()
     }
 }

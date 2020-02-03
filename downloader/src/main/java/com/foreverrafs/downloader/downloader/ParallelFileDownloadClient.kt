@@ -18,4 +18,5 @@ class ParallelFileDownloadClient(okHttpClient: OkHttpClient) : OkHttpDownloader(
     ): Downloader.FileDownloaderType {
         return Downloader.FileDownloaderType.PARALLEL
     }
+
 }

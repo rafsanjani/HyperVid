@@ -10,8 +10,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.foreverrafs.downloader.extractor.FacebookExtractor
-import com.foreverrafs.downloader.extractor.FacebookFile
 import com.foreverrafs.downloader.model.DownloadInfo
+import com.foreverrafs.downloader.model.FacebookFile
 import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.util.disable
@@ -63,14 +63,13 @@ class AddUrlFragment : Fragment() {
     private fun extractVideo(videoURL: String) {
         viewModel.extractVideoDownloadUrl(
             videoURL,
-            object : FacebookExtractor.ExtractionEventsListenener {
-                override fun onExtractionComplete(facebookFile: FacebookFile) {
+            object : FacebookExtractor.ExtractionEvents {
+                override fun onComplete(facebookFile: FacebookFile) {
                     mDownloadInfo = DownloadInfo(
                         facebookFile.url,
                         0,
                         facebookFile.author,
                         facebookFile.duration,
-                        facebookFile.coverImage,
                         dateAdded = DateTime.now()
                     )
 
@@ -87,7 +86,7 @@ class AddUrlFragment : Fragment() {
                     btnAddToDownloads.enable()
                 }
 
-                override fun onExtractionFail(exception: Exception) {
+                override fun onError(exception: Exception) {
                     Timber.e(exception)
                     showToast("Error loading video from link")
                     textInputLayout.isErrorEnabled = true
