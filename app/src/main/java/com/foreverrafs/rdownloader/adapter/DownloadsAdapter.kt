@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.PorterDuff
+import android.media.MediaMetadataRetriever
 import android.text.Html
 import android.transition.TransitionManager
 import android.view.LayoutInflater
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 import com.foreverrafs.downloader.downloader.DownloadEvents
 import com.foreverrafs.downloader.downloader.DownloadException
 import com.foreverrafs.downloader.downloader.VideoDownloader
@@ -138,11 +140,14 @@ class DownloadsAdapter(private val context: Context) :
             itemView.tvDate.text =
                 downloadItem.dateAdded.toString(formatter)
 
-//            itemView.image.setImageBitmap(downloadItem.image)
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(downloadItem.url, HashMap())
+
+            itemView.image.load(retriever.frameAtTime)
+
             itemView.tvStatus.text = context.getString(R.string.ready)
 
             itemView.tvDuration.text = Tools.getDurationString(downloadItem.duration)
-//            itemView.image.load(downloadItem.image)
 
             itemView.tvMenu.setOnClickListener {
                 openPopupMenu()
