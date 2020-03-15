@@ -69,8 +69,7 @@ class AddUrlFragment : Fragment() {
                         facebookFile.url,
                         0,
                         facebookFile.author,
-                        facebookFile.duration,
-                        dateAdded = DateTime.now()
+                        facebookFile.duration
                     )
 
                     viewModel.downloadsAdapter.addDownload(mDownloadInfo!!)

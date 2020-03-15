@@ -25,7 +25,7 @@ import com.foreverrafs.rdownloader.util.Tools
 import com.foreverrafs.rdownloader.util.gone
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
-import com.shreyaspatil.MaterialDialog.MaterialDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
@@ -40,15 +40,6 @@ class DownloadsAdapter(private val context: Context) :
     private var downloadListChangedListener: DownloadListChangedListener? = null
     private var downloadCompletedListener: DownloadCompletedListener? = null
 
-    //please don't do this in production code
-    private lateinit var activity: Activity
-
-
-    //never do this in production code. instead expose an interface to the hosting activity so that
-    //events will be propagated to it.
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        activity = recyclerView.context as Activity
-    }
 
     fun clearDownloads() {
         downloadList.clear()
@@ -72,18 +63,15 @@ class DownloadsAdapter(private val context: Context) :
 
     @SuppressLint("RestrictedApi")
     private fun showRemoveDialog(position: Int) {
-        val dialog = MaterialDialog.Builder(activity)
-            .setAnimation(R.raw.delete)
+        val dialog = MaterialAlertDialogBuilder(context)
             .setMessage("Are you sure you want to delete this download")
             .setCancelable(false)
-            .setPositiveButton("Delete", R.drawable.ic_delete) { dialogInterface, _ ->
+            .setPositiveButton("Delete") { dialogInterface, _ ->
                 removeDownload(position)
                 dialogInterface.dismiss()
-            }.setNegativeButton("Cancel", R.drawable.ic_cancel) { dialogInterface, _ ->
+            }.setNegativeButton("Cancel") { dialogInterface, _ ->
                 dialogInterface.dismiss()
             }
-            .build()
-        dialog.animationView.repeatCount = 0
 
         dialog.show()
     }
@@ -209,6 +197,8 @@ class DownloadsAdapter(private val context: Context) :
         }
 
         private fun startDownload() {
+            itemView.btnStartPause.setImageResource(R.drawable.ic_pause)
+
             downloadId = videoDownloader.downloadFile(downloadItem, object :
                 DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
@@ -236,6 +226,7 @@ class DownloadsAdapter(private val context: Context) :
                     )
 
                     downloadCompletedListener?.onDownloadCompleted(facebookVideo)
+                    removeDownload(adapterPosition)
 
                     itemView.progressDownload.visible()
                     itemView.progressDownload.progressDrawable.setColorFilter(
@@ -305,6 +296,7 @@ class DownloadsAdapter(private val context: Context) :
         }
 
         private fun pauseDownload() {
+            itemView.btnStartPause.setImageResource(R.drawable.ic_start)
             videoDownloader.pauseDownload(downloadId)
         }
     }

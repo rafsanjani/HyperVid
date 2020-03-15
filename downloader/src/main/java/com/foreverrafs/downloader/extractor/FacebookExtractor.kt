@@ -28,7 +28,7 @@ class FacebookExtractor {
         try {
             val html: String = downloadHtml(url)!!
             return parseHtml(html)
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             exception = e
             Timber.e(e)
         }
