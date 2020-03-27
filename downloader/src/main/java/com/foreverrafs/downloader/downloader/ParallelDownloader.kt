@@ -5,7 +5,7 @@ import com.tonyodev.fetch2okhttp.OkHttpDownloader
 import okhttp3.OkHttpClient
 
 
-class ParallelFileDownloadClient(okHttpClient: OkHttpClient) : OkHttpDownloader(okHttpClient) {
+class ParallelDownloader(okHttpClient: OkHttpClient) : OkHttpDownloader(okHttpClient) {
     private val slices = 10
 
     override fun getFileSlicingCount(request: Downloader.ServerRequest, contentLength: Long): Int? {

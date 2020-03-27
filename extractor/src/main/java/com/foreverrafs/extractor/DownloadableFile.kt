@@ -1,6 +1,6 @@
-package com.foreverrafs.downloader.model
+package com.foreverrafs.extractor
 
-data class FacebookFile(
+data class DownloadableFile(
     var url: String = "",
     var filename: String = "",
     var author: String = "",

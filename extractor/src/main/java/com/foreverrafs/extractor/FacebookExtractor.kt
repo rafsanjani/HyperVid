@@ -1,7 +1,6 @@
-package com.foreverrafs.downloader.extractor
+package com.foreverrafs.extractor
 
 import android.media.MediaMetadataRetriever
-import com.foreverrafs.downloader.model.FacebookFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -24,7 +23,7 @@ class FacebookExtractor {
     private var exception: java.lang.Exception? = null
 
 
-    private fun extractFBFileInfo(url: String): FacebookFile? {
+    private fun extractFBFileInfo(url: String): DownloadableFile? {
         try {
             val html: String = downloadHtml(url)!!
             return parseHtml(html)
@@ -55,8 +54,8 @@ class FacebookExtractor {
     }
 
     @Throws(IOException::class)
-    private fun parseHtml(streamMap: String?): FacebookFile? {
-       val facebookFile = FacebookFile()
+    private fun parseHtml(streamMap: String?): DownloadableFile? {
+       val facebookFile = DownloadableFile()
 
         if (streamMap == null) return null
         if (streamMap.contains("You must log in to continue.")) {
@@ -173,7 +172,7 @@ class FacebookExtractor {
     }
 
     interface ExtractionEvents {
-        fun onComplete(facebookFile: FacebookFile)
+        fun onComplete(downloadableFile: DownloadableFile)
         fun onError(exception: Exception)
     }
 }

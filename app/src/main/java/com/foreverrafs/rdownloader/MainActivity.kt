@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
 
     private val storageReqCode = 1000
-    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +30,6 @@ class MainActivity : AppCompatActivity() {
 
         initializeTabComponents()
     }
-
 
 
     override fun onRequestPermissionsResult(
@@ -69,10 +67,9 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = viewPagerAdapter
     }
 
-
     override fun onDestroy() {
-        super.onDestroy()
         VideoDownloader.getInstance(this)?.close()
+        super.onDestroy()
     }
 
 }

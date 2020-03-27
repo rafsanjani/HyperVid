@@ -1,10 +1,6 @@
 package com.foreverrafs.rdownloader.adapter
 
-//import com.shreyaspatil.MaterialDialog.MaterialDialog
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
-import android.graphics.PorterDuff
 import android.media.MediaMetadataRetriever
 import android.text.Html
 import android.transition.TransitionManager
@@ -13,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.foreverrafs.downloader.downloader.DownloadEvents
@@ -25,7 +23,6 @@ import com.foreverrafs.rdownloader.util.Tools
 import com.foreverrafs.rdownloader.util.gone
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
@@ -33,48 +30,20 @@ import kotlin.math.abs
 
 
 class DownloadsAdapter(private val context: Context) :
-    RecyclerView.Adapter<DownloadsAdapter.DownloadsViewHolder>() {
+    ListAdapter<DownloadInfo, DownloadsAdapter.DownloadsViewHolder>(object :
+        DiffUtil.ItemCallback<DownloadInfo>() {
+        override fun areItemsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
+            return oldItem == newItem
+        }
 
-    private var downloadList = mutableListOf<DownloadInfo>()
+        override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
+            return oldItem.url == newItem.url
+        }
+    }) {
+
+
     private val videoDownloader: VideoDownloader = VideoDownloader.getInstance(context)!!
-    private var downloadListChangedListener: DownloadListChangedListener? = null
     private var downloadCompletedListener: DownloadCompletedListener? = null
-
-
-    fun clearDownloads() {
-        downloadList.clear()
-        notifyDataSetChanged()
-        downloadListChangedListener?.onListChanged(itemCount)
-    }
-
-
-    fun addDownload(downloadInfo: DownloadInfo) {
-        downloadList.add(downloadInfo)
-        downloadListChangedListener?.onListChanged(itemCount)
-        notifyItemInserted(downloadList.size)
-    }
-
-
-    private fun removeDownload(position: Int) {
-        downloadList.removeAt(position)
-        downloadListChangedListener?.onListChanged(itemCount)
-        notifyItemRemoved(position)
-    }
-
-    @SuppressLint("RestrictedApi")
-    private fun showRemoveDialog(position: Int) {
-        val dialog = MaterialAlertDialogBuilder(context)
-            .setMessage("Are you sure you want to delete this download")
-            .setCancelable(false)
-            .setPositiveButton("Delete") { dialogInterface, _ ->
-                removeDownload(position)
-                dialogInterface.dismiss()
-            }.setNegativeButton("Cancel") { dialogInterface, _ ->
-                dialogInterface.dismiss()
-            }
-
-        dialog.show()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
         val inflater = LayoutInflater.from(context)
@@ -83,26 +52,12 @@ class DownloadsAdapter(private val context: Context) :
         return DownloadsViewHolder(itemView)
     }
 
-    override fun getItemCount(): Int {
-        return downloadList.size
-    }
 
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
-        val downloadItem = downloadList[position]
+        val downloadItem = getItem(position)
         holder.bind(downloadItem)
     }
 
-    fun addDownloadCompleteListener(listener: DownloadCompletedListener) {
-        this.downloadCompletedListener = listener
-    }
-
-    fun addDownloadListChangedListener(listener: DownloadListChangedListener) {
-        this.downloadListChangedListener = listener
-    }
-
-    interface DownloadListChangedListener {
-        fun onListChanged(listSize: Int)
-    }
 
     interface DownloadCompletedListener {
         fun onDownloadCompleted(facebookVideo: FacebookVideo)
@@ -173,8 +128,7 @@ class DownloadsAdapter(private val context: Context) :
                         return@setOnMenuItemClickListener true
                     }
                     R.id.delete -> {
-                        videoDownloader.cancelDownload(downloadId)
-                        showRemoveDialog(adapterPosition)
+                        stopDownload()
                         return@setOnMenuItemClickListener true
                     }
                     R.id.stop -> {
@@ -202,7 +156,7 @@ class DownloadsAdapter(private val context: Context) :
             downloadId = videoDownloader.downloadFile(downloadItem, object :
                 DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
-                    itemView.tvPercentage.text = "$percentage %"
+                    itemView.tvPercentage.text = context.getString(R.string.percentage, percentage)
                     itemView.progressDownload.progress = percentage
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
@@ -226,15 +180,6 @@ class DownloadsAdapter(private val context: Context) :
                     )
 
                     downloadCompletedListener?.onDownloadCompleted(facebookVideo)
-                    removeDownload(adapterPosition)
-
-                    itemView.progressDownload.visible()
-                    itemView.progressDownload.progressDrawable.setColorFilter(
-                        context.resources.getColor(
-                            R.color.darkGreen
-                        ),
-                        PorterDuff.Mode.MULTIPLY
-                    )
 
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.btnStartPause.gone()

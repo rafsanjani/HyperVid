@@ -6,52 +6,34 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.ItemTouchHelper
-import com.foreverrafs.rdownloader.R
+import androidx.lifecycle.Observer
 import com.foreverrafs.rdownloader.MainViewModel
-import com.foreverrafs.rdownloader.adapter.SimpleItemTouchHelper
+import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.adapter.VideosAdapter
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
+import kotlinx.android.synthetic.main.fragment_downloads.*
 import kotlinx.android.synthetic.main.fragment_videos.*
+import kotlinx.android.synthetic.main.fragment_videos.layoutEmpty
 import kotlinx.android.synthetic.main.list_empty.*
 
 
 class VideosFragment : Fragment() {
-    private val mainViewModel: MainViewModel by activityViewModels()
-    private lateinit var videosAdapter: VideosAdapter
+    private val vm: MainViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-       return inflater.inflate(R.layout.fragment_videos, container, false)
+        return inflater.inflate(R.layout.fragment_videos, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        videosAdapter = mainViewModel.videosAdapter
-        videoListRecyclerView.adapter = videosAdapter
+        videoListRecyclerView.adapter = VideosAdapter(requireContext())
 
         initEmptyLayoutTexts()
-
-        val itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelper(videosAdapter))
-        itemTouchHelper.attachToRecyclerView(videoListRecyclerView)
-
-        videosAdapter.addVideosListChangedListener(object :
-            VideosAdapter.VideosListChangedListener {
-            override fun onVideosListChanged(size: Int) {
-                if (size > 0) {
-                    videoListRecyclerView.visible()
-                    layoutEmpty.invisible()
-                } else {
-                    videoListRecyclerView.invisible()
-                    layoutEmpty.visible()
-                }
-            }
-        })
-
     }
 
     private fun initEmptyLayoutTexts() {
@@ -60,14 +42,16 @@ class VideosFragment : Fragment() {
     }
 
     override fun onResume() {
-        if (videosAdapter.itemCount > 0) {
-            videoListRecyclerView.visible()
-            layoutEmpty.invisible()
-        } else {
-            videoListRecyclerView.invisible()
-            layoutEmpty.visible()
-        }
         super.onResume()
-    }
+        vm.downloadedList.observe(viewLifecycleOwner, Observer { downloadList ->
+            if (downloadList.isNotEmpty()) {
+                downloadListRecyclerView.visible()
+                layoutEmpty.invisible()
 
+            } else {
+                downloadListRecyclerView.invisible()
+                layoutEmpty.visible()
+            }
+        })
+    }
 }

@@ -24,7 +24,7 @@ class VideoDownloader private constructor(private val context: Context) :
             .enableFileExistChecks(false)
             .setLogger(FetchLogger())
             .setHttpDownloader(
-                ParallelFileDownloadClient(
+                ParallelDownloader(
                     OkHttpClient()
                 )
             ) // set custom downloader
@@ -79,9 +79,6 @@ class VideoDownloader private constructor(private val context: Context) :
                 Timber.d(download.progress.toString())
             }
 
-            override fun onQueued(download: Download, waitingOnNetwork: Boolean) {
-                super.onQueued(download, waitingOnNetwork)
-            }
             override fun onStarted(
                 download: Download,
                 downloadBlocks: List<DownloadBlock>,

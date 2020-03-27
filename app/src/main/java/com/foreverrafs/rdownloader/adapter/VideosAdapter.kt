@@ -22,7 +22,6 @@ import kotlin.math.abs
 
 class VideosAdapter(private val context: Context) :
     RecyclerView.Adapter<VideosAdapter.VideosViewHolder>() {
-    private var videosListChangedListener: VideosListChangedListener? = null
     private val videoList = mutableListOf<FacebookVideo>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
@@ -41,22 +40,16 @@ class VideosAdapter(private val context: Context) :
     fun addVideo(facebookVideo: FacebookVideo) {
         videoList.add(facebookVideo)
         notifyItemInserted(videoList.size)
-        videosListChangedListener?.onVideosListChanged(itemCount)
     }
 
     fun removeVideo(position: Int) {
         videoList.removeAt(position)
         notifyItemRemoved(position)
-        videosListChangedListener?.onVideosListChanged(itemCount)
     }
 
     fun swapVideos(from: Int, to: Int) {
         Collections.swap(videoList, from, to)
         notifyItemMoved(from, to)
-    }
-
-    fun addVideosListChangedListener(listener: VideosListChangedListener){
-        this.videosListChangedListener = listener
     }
 
 

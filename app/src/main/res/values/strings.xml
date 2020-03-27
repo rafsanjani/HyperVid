@@ -20,6 +20,7 @@
     <string name="cancelled">Cancelled</string>
     <string name="ready">Ready</string>
     <string name="extracting">Extracting…</string>
+    <string name="percentage">%1$d! %</string>
     <string name="empty_downloads">No download in queue</string>
     <string name="empty_download_desc">Add a download link to see it here</string>
     <string name="empty_video">No video downloaded</string>

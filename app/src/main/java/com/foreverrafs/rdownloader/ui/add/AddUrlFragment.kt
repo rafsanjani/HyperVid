@@ -9,24 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.foreverrafs.downloader.extractor.FacebookExtractor
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.downloader.model.FacebookFile
+import com.foreverrafs.extractor.DownloadableFile
+import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.util.disable
 import com.foreverrafs.rdownloader.util.enable
 import com.foreverrafs.rdownloader.util.showToast
 import kotlinx.android.synthetic.main.fragment_addurl.*
-import org.joda.time.DateTime
 import timber.log.Timber
 
 class AddUrlFragment : Fragment() {
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
-    private val viewModel: MainViewModel by activityViewModels()
-
-    private var mDownloadInfo: DownloadInfo? = null
+    private val vm: MainViewModel by activityViewModels()
+    private val downloadList: MutableList<DownloadInfo> = mutableListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,10 +48,9 @@ class AddUrlFragment : Fragment() {
         }
 
         //add the download job to the download list when the button is clicked. We don't start downloading
-        //immediately. We wait for the user to interract with it in the downloads section before we download.
+        //immediately. We wait for the user to interact with it in the downloads section before we download.
         btnAddToDownloads.setOnClickListener {
             extractVideo(etFacebookUrl.text.toString())
-
             btnAddToDownloads.text = getString(R.string.extracting)
             btnAddToDownloads.disable()
             etFacebookUrl.disable()
@@ -61,20 +58,22 @@ class AddUrlFragment : Fragment() {
     }
 
     private fun extractVideo(videoURL: String) {
-        viewModel.extractVideoDownloadUrl(
+        vm.extractVideoDownloadUrl(
             videoURL,
             object : FacebookExtractor.ExtractionEvents {
-                override fun onComplete(facebookFile: FacebookFile) {
-                    mDownloadInfo = DownloadInfo(
-                        facebookFile.url,
+                override fun onComplete(downloadableFile: DownloadableFile) {
+                    val downloadInfo = DownloadInfo(
+                        downloadableFile.url,
                         0,
-                        facebookFile.author,
-                        facebookFile.duration
+                        downloadableFile.author,
+                        downloadableFile.duration
                     )
 
-                    viewModel.downloadsAdapter.addDownload(mDownloadInfo!!)
+                    Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
+                    downloadList.add(downloadInfo)
 
-                    Timber.d("Download URL extraction complete: Adding to List: $mDownloadInfo")
+                    vm.setDownloadList(downloadList)
+
                     showToast("Video added to download queue...")
                     btnPaste.text = getString(R.string.paste_link)
                     etFacebookUrl.text?.clear()
