@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.adapter
+package com.foreverrafs.rdownloader.ui.videos
 
 import android.content.Context
 import android.content.Intent
@@ -8,50 +8,41 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.Tools
+import com.foreverrafs.rdownloader.util.getDurationString
 import com.foreverrafs.rdownloader.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import java.io.File
-import java.util.*
 import kotlin.math.abs
 
 class VideosAdapter(private val context: Context) :
-    RecyclerView.Adapter<VideosAdapter.VideosViewHolder>() {
-    private val videoList = mutableListOf<FacebookVideo>()
+    ListAdapter<FacebookVideo, VideosAdapter.VideosViewHolder>(object :
+        DiffUtil.ItemCallback<FacebookVideo>() {
+        override fun areItemsTheSame(oldItem: FacebookVideo, newItem: FacebookVideo): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: FacebookVideo, newItem: FacebookVideo): Boolean {
+            return oldItem == newItem
+        }
+    }) {
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video__, parent, false)
         return VideosViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return videoList.size
-    }
 
     override fun onBindViewHolder(holder: VideosViewHolder, position: Int) {
-        holder.bind(videoList[position])
+        holder.bind(getItem(position))
     }
-
-    fun addVideo(facebookVideo: FacebookVideo) {
-        videoList.add(facebookVideo)
-        notifyItemInserted(videoList.size)
-    }
-
-    fun removeVideo(position: Int) {
-        videoList.removeAt(position)
-        notifyItemRemoved(position)
-    }
-
-    fun swapVideos(from: Int, to: Int) {
-        Collections.swap(videoList, from, to)
-        notifyItemMoved(from, to)
-    }
-
 
     inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(facebookVideo: FacebookVideo) {
@@ -64,7 +55,7 @@ class VideosAdapter(private val context: Context) :
                 if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
             )
 
-            itemView.tvDuration.text = Tools.getDurationString(facebookVideo.duration)
+            itemView.tvDuration.text = getDurationString(facebookVideo.duration)
 
             itemView.btnPlay.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
@@ -93,9 +84,4 @@ class VideosAdapter(private val context: Context) :
             }
         }
     }
-
-    interface VideosListChangedListener {
-        fun onVideosListChanged(size: Int)
-    }
-
 }

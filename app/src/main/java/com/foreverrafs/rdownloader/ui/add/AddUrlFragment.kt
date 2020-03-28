@@ -4,9 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.foreverrafs.downloader.model.DownloadInfo
@@ -20,19 +18,11 @@ import com.foreverrafs.rdownloader.util.showToast
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import timber.log.Timber
 
-class AddUrlFragment : Fragment() {
+class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
     private val vm: MainViewModel by activityViewModels()
     private val downloadList: MutableList<DownloadInfo> = mutableListOf()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_addurl, container, false)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
@@ -106,8 +96,11 @@ class AddUrlFragment : Fragment() {
             clipBoardData = clipboardManager.primaryClip
             val clipText = clipBoardData?.getItemAt(0)?.text
 
-            if (clipText!!.contains("facebook"))
-                etFacebookUrl.setText(clipText.toString())
+            clipText?.let {
+                if (it.contains("facebook.com"))
+                    etFacebookUrl.setText(clipText.toString())
+            } ?: Timber.e("clipText is null")
+
         }
     }
 }

@@ -3,11 +3,10 @@ package com.foreverrafs.rdownloader
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
-import com.foreverrafs.rdownloader.adapter.HomeSectionsPagerAdapter
+import com.foreverrafs.rdownloader.adapter.HomePagerAdapter
 import com.foreverrafs.rdownloader.androidext.requestStoragePermission
 import com.foreverrafs.rdownloader.ui.add.AddUrlFragment
 import com.foreverrafs.rdownloader.ui.downloads.DownloadsFragment
@@ -59,7 +58,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewPager(viewPager: ViewPager2) {
-        val viewPagerAdapter = HomeSectionsPagerAdapter(this)
+        val viewPagerAdapter = HomePagerAdapter(this)
         viewPagerAdapter.addFragment(AddUrlFragment())    // index 0
         viewPagerAdapter.addFragment(DownloadsFragment())   // index 1
         viewPagerAdapter.addFragment(VideosFragment())   // index 1

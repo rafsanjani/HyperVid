@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.adapter
+package com.foreverrafs.rdownloader.ui.downloads
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
@@ -19,17 +19,21 @@ import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.Tools
+import com.foreverrafs.rdownloader.util.getDurationString
 import com.foreverrafs.rdownloader.util.gone
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
 import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
 import kotlin.math.abs
 
 
-class DownloadsAdapter(private val context: Context) :
+class DownloadsAdapter(
+    private val context: Context,
+    val completedListener: (video: FacebookVideo) -> Unit = {}
+) :
     ListAdapter<DownloadInfo, DownloadsAdapter.DownloadsViewHolder>(object :
         DiffUtil.ItemCallback<DownloadInfo>() {
         override fun areItemsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
@@ -43,7 +47,6 @@ class DownloadsAdapter(private val context: Context) :
 
 
     private val videoDownloader: VideoDownloader = VideoDownloader.getInstance(context)!!
-    private var downloadCompletedListener: DownloadCompletedListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
         val inflater = LayoutInflater.from(context)
@@ -56,11 +59,6 @@ class DownloadsAdapter(private val context: Context) :
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
         val downloadItem = getItem(position)
         holder.bind(downloadItem)
-    }
-
-
-    interface DownloadCompletedListener {
-        fun onDownloadCompleted(facebookVideo: FacebookVideo)
     }
 
     inner class DownloadsViewHolder(itemView: View) :
@@ -90,7 +88,7 @@ class DownloadsAdapter(private val context: Context) :
 
             itemView.tvStatus.text = context.getString(R.string.ready)
 
-            itemView.tvDuration.text = Tools.getDurationString(downloadItem.duration)
+            itemView.tvDuration.text = getDurationString(downloadItem.duration)
 
             itemView.tvMenu.setOnClickListener {
                 openPopupMenu()
@@ -128,7 +126,21 @@ class DownloadsAdapter(private val context: Context) :
                         return@setOnMenuItemClickListener true
                     }
                     R.id.delete -> {
-                        stopDownload()
+                        MaterialAlertDialogBuilder(context)
+                            .setTitle(context.getString(R.string.title_delete_video))
+                            .setIcon(R.drawable.ic_delete)
+                            .setMessage(context.getString(R.string.prompt_delete_video))
+                            .setPositiveButton(R.string.delete) { _, _ ->
+                                stopDownload()
+
+                                val newList = currentList.toMutableList().also {
+                                    it.removeAt(adapterPosition)
+                                }
+
+                                submitList(newList)
+                            }.setNegativeButton(android.R.string.cancel, null)
+                            .show()
+
                         return@setOnMenuItemClickListener true
                     }
                     R.id.stop -> {
@@ -156,7 +168,8 @@ class DownloadsAdapter(private val context: Context) :
             downloadId = videoDownloader.downloadFile(downloadItem, object :
                 DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
-                    itemView.tvPercentage.text = context.getString(R.string.percentage, percentage)
+                    itemView.tvPercentage.text =
+                        context.getString(R.string.percentage, percentage)
                     itemView.progressDownload.progress = percentage
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
@@ -179,7 +192,8 @@ class DownloadsAdapter(private val context: Context) :
                         getVideoFilePath(downloadItem)
                     )
 
-                    downloadCompletedListener?.onDownloadCompleted(facebookVideo)
+
+                    completedListener(facebookVideo)
 
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.btnStartPause.gone()

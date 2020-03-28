@@ -9,48 +9,59 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.adapter.VideosAdapter
+import com.foreverrafs.rdownloader.databinding.FragmentVideosBinding
+import com.foreverrafs.rdownloader.databinding.ListEmptyBinding
+import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
-import kotlinx.android.synthetic.main.fragment_downloads.*
-import kotlinx.android.synthetic.main.fragment_videos.*
-import kotlinx.android.synthetic.main.fragment_videos.layoutEmpty
-import kotlinx.android.synthetic.main.list_empty.*
 
 
 class VideosFragment : Fragment() {
     private val vm: MainViewModel by activityViewModels()
+    private lateinit var videosAdapter: VideosAdapter
+    private lateinit var videoBinding: FragmentVideosBinding
+    private lateinit var emptyListBinding: ListEmptyBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_videos, container, false)
+        videoBinding = FragmentVideosBinding.inflate(inflater)
+        emptyListBinding = videoBinding.emptyLayout
+
+        return videoBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        videoListRecyclerView.adapter = VideosAdapter(requireContext())
+
+        videosAdapter = VideosAdapter(requireContext())
+
+        videoBinding.videoListRecyclerView.adapter =
+            videosAdapter
 
         initEmptyLayoutTexts()
     }
 
     private fun initEmptyLayoutTexts() {
-        tvTitle.text = getString(R.string.empty_video)
-        tvDescription.text = getString(R.string.empty_video_desc)
+        emptyListBinding.apply {
+            tvDescription.text = getString(R.string.empty_video_desc)
+            tvTitle.text = getString(R.string.empty_video)
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        vm.downloadedList.observe(viewLifecycleOwner, Observer { downloadList ->
-            if (downloadList.isNotEmpty()) {
-                downloadListRecyclerView.visible()
-                layoutEmpty.invisible()
+        vm.videosList.observe(viewLifecycleOwner, Observer { videosList ->
+            if (videosList.isNotEmpty()) {
+                videoBinding.videoListRecyclerView.visible()
+                emptyListBinding.root.invisible()
+                videosAdapter.submitList(videosList)
 
             } else {
-                downloadListRecyclerView.invisible()
-                layoutEmpty.visible()
+                videoBinding.videoListRecyclerView.invisible()
+                emptyListBinding.root.visible()
             }
         })
     }
