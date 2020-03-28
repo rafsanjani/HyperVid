@@ -40,10 +40,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
-        android:backgroundTint="@color/lightgray"
         android:fontFamily="@font/salsa"
         android:text="@string/paste_link"
-        android:textColor="@android:color/black"
         app:layout_constraintEnd_toStartOf="@+id/btnAddToDownloads"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>
