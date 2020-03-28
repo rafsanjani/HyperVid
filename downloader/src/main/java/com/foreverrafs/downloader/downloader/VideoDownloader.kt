@@ -27,10 +27,6 @@ class VideoDownloader private constructor(private val context: Context) :
         }
     }
 
-    init {
-        setUpDownloader()
-    }
-
     private val listener = object : AbstractFetchListener() {
         override fun onCancelled(download: Download) {
             downloads[download.id]?.onCancelled()
@@ -80,6 +76,10 @@ class VideoDownloader private constructor(private val context: Context) :
         override fun onWaitingNetwork(download: Download) {
             downloads[download.id]?.onWaitingForNetwork()
         }
+    }
+    
+    init {
+        setUpDownloader()
     }
 
     private fun setUpDownloader() {
