@@ -25,8 +25,10 @@ import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
-import org.joda.time.format.DateTimeFormat
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.HashMap
 import kotlin.math.abs
 
 
@@ -76,10 +78,11 @@ class DownloadsAdapter(
                 if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
             )
 
-            val formatter = DateTimeFormat.forPattern("MMMM d, yyyy")
+            val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
 
-            itemView.tvDate.text =
-                downloadItem.dateAdded.toString(formatter)
+            val downloadDate = Date(downloadItem.dateAdded)
+
+            itemView.tvDate.text = formatter.format(downloadDate)
 
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(downloadItem.url, HashMap())
