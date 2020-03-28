@@ -15,8 +15,71 @@ class VideoDownloader private constructor(private val context: Context) :
     private lateinit var fetch: Fetch
     private var downloads = mutableMapOf<Int, DownloadEvents>()
 
+    companion object {
+        private var instance: VideoDownloader? = null
+
+        fun getInstance(context: Context): VideoDownloader? {
+            if (instance == null) {
+                instance =
+                    VideoDownloader(context)
+            }
+            return instance
+        }
+    }
+
     init {
         setUpDownloader()
+    }
+
+    private val listener = object : AbstractFetchListener() {
+        override fun onCancelled(download: Download) {
+            downloads[download.id]?.onCancelled()
+            downloads.remove(download.id)
+        }
+
+        override fun onCompleted(download: Download) {
+            downloads[download.id]?.onCompleted()
+            downloads.remove(download.id)
+        }
+
+        override fun onError(download: Download, error: Error, throwable: Throwable?) {
+            downloads[download.id]?.onError(
+                DownloadException(
+                    throwable?.message!!,
+                    DownloadException.ExceptionType.NETWORK_ERROR
+                )
+            )
+            Timber.e(throwable)
+        }
+
+        override fun onPaused(download: Download) {
+            downloads[download.id]?.onPause()
+        }
+
+        override fun onProgress(
+            download: Download,
+            etaInMilliSeconds: Long,
+            downloadedBytesPerSecond: Long
+        ) {
+            downloads[download.id]?.onProgressChanged(
+                download.downloaded,
+                download.progress
+            )
+
+            Timber.d(download.progress.toString())
+        }
+
+        override fun onStarted(
+            download: Download,
+            downloadBlocks: List<DownloadBlock>,
+            totalBlocks: Int
+        ) {
+            downloads[download.id]?.onStart()
+        }
+
+        override fun onWaitingNetwork(download: Download) {
+            downloads[download.id]?.onWaitingForNetwork()
+        }
     }
 
     private fun setUpDownloader() {
@@ -32,77 +95,11 @@ class VideoDownloader private constructor(private val context: Context) :
             .enableAutoStart(true)
             .enableLogging(true)
             .enableRetryOnNetworkGain(true)
-            .build();
+            .build()
 
         fetch = Fetch.getInstance(config)
 
-        fetch.addListener(object : AbstractFetchListener() {
-            override fun onCancelled(download: Download) {
-                downloads[download.id]?.onCancelled()
-            }
-
-            override fun onCompleted(download: Download) {
-                downloads[download.id]?.onCompleted()
-            }
-
-            override fun onDownloadBlockUpdated(
-                download: Download,
-                downloadBlock: DownloadBlock,
-                totalBlocks: Int
-            ) {
-            }
-
-            override fun onError(download: Download, error: Error, throwable: Throwable?) {
-                downloads[download.id]?.onError(
-                    DownloadException(
-                        throwable?.message!!,
-                        DownloadException.ExceptionType.NETWORK_ERROR
-                    )
-                )
-                Timber.e(throwable)
-            }
-
-            override fun onPaused(download: Download) {
-                downloads[download.id]?.onPause()
-            }
-
-            override fun onProgress(
-                download: Download,
-                etaInMilliSeconds: Long,
-                downloadedBytesPerSecond: Long
-            ) {
-                downloads[download.id]?.onProgressChanged(
-                    download.downloaded,
-                    download.progress
-                )
-
-                Timber.d(download.progress.toString())
-            }
-
-            override fun onStarted(
-                download: Download,
-                downloadBlocks: List<DownloadBlock>,
-                totalBlocks: Int
-            ) {
-                downloads[download.id]?.onStart()
-            }
-
-            override fun onWaitingNetwork(download: Download) {
-                downloads[download.id]?.onWaitingForNetwork()
-            }
-        })
-    }
-
-    companion object {
-        var instance: VideoDownloader? = null
-
-        fun getInstance(context: Context): VideoDownloader? {
-            if (instance == null) {
-                instance =
-                    VideoDownloader(context)
-            }
-            return instance
-        }
+        fetch.addListener(listener)
     }
 
     fun getDownloadDir(): String {
