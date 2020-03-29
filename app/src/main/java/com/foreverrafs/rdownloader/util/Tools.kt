@@ -13,4 +13,4 @@ fun getDurationString(duration: Long): String {
 
         String.format("00:%2d", seconds)
     }
-    }
+}

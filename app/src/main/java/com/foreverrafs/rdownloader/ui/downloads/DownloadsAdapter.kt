@@ -9,8 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import com.foreverrafs.downloader.downloader.DownloadEvents
@@ -33,24 +31,20 @@ import kotlin.math.abs
 
 
 class DownloadsAdapter(
-    private val context: Context,
+    val items: MutableList<DownloadInfo>,
     val completedListener: (video: FacebookVideo) -> Unit = {}
 ) :
-    ListAdapter<DownloadInfo, DownloadsAdapter.DownloadsViewHolder>(object :
-        DiffUtil.ItemCallback<DownloadInfo>() {
-        override fun areItemsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
-            return oldItem.url == newItem.url
-        }
-    }) {
+    RecyclerView.Adapter<DownloadsAdapter.DownloadsViewHolder>() {
 
 
-    private val videoDownloader: VideoDownloader = VideoDownloader.getInstance(context)!!
+    private lateinit var context: Context
+    private val videoDownloader: VideoDownloader by lazy {
+        VideoDownloader.getInstance(context)!!
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
+        context = parent.context
+
         val inflater = LayoutInflater.from(context)
         val itemView = inflater.inflate(R.layout.item_download__, parent, false)
 
@@ -59,7 +53,7 @@ class DownloadsAdapter(
 
 
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
-        val downloadItem = getItem(position)
+        val downloadItem = items[position]
         holder.bind(downloadItem)
     }
 
@@ -136,11 +130,8 @@ class DownloadsAdapter(
                             .setPositiveButton(R.string.delete) { _, _ ->
                                 stopDownload()
 
-                                val newList = currentList.toMutableList().also {
-                                    it.removeAt(adapterPosition)
-                                }
-
-                                submitList(newList)
+                                items.removeAt(adapterPosition)
+                                notifyItemRemoved(adapterPosition)
                             }.setNegativeButton(android.R.string.cancel, null)
                             .show()
 
@@ -174,6 +165,7 @@ class DownloadsAdapter(
                     itemView.tvPercentage.text =
                         context.getString(R.string.percentage, percentage)
                     itemView.progressDownload.progress = percentage
+
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
@@ -263,4 +255,7 @@ class DownloadsAdapter(
         }
     }
 
+    override fun getItemCount(): Int {
+        return items.size
+    }
 }
