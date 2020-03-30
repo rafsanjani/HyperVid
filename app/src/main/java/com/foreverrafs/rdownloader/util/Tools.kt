@@ -11,6 +11,6 @@ fun getDurationString(duration: Long): String {
     } catch (exception: ArithmeticException) {
         val seconds = TimeUnit.MILLISECONDS.toSeconds(duration)
 
-        String.format("00:%2d", seconds)
+        String.format("00:%02d", seconds)
     }
 }

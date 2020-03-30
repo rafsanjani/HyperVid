@@ -8,13 +8,14 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.getDurationString
+import com.foreverrafs.rdownloader.util.load
 import com.foreverrafs.rdownloader.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
@@ -29,7 +30,7 @@ class VideosAdapter(private val context: Context) :
         }
 
         override fun areContentsTheSame(oldItem: FacebookVideo, newItem: FacebookVideo): Boolean {
-            return oldItem == newItem
+            return oldItem.path == newItem.path
         }
     }) {
 
@@ -38,6 +39,7 @@ class VideosAdapter(private val context: Context) :
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video__, parent, false)
         return VideosViewHolder(view)
     }
+
 
 
     override fun onBindViewHolder(holder: VideosViewHolder, position: Int) {
@@ -66,7 +68,7 @@ class VideosAdapter(private val context: Context) :
             }
 
             itemView.btnShareWhatsapp.setOnClickListener {
-                context.shareFile(facebookVideo.path, "com.whatsapp_icon")
+                context.shareFile(facebookVideo.path, "com.whatsapp")
             }
 
             itemView.btnShare.setOnClickListener {

@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
+        android:id="@+id/urlInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -19,7 +19,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etFacebookUrl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_url" />
@@ -31,7 +30,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/salsa"
         android:text="@string/add_to_downloads"
-        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
+        app:layout_constraintEnd_toEndOf="@+id/urlInputLayout"
         app:layout_constraintTop_toTopOf="@+id/btnPaste" />
 
     <com.google.android.material.button.MaterialButton
@@ -43,5 +42,5 @@
         android:fontFamily="@font/salsa"
         android:text="@string/paste_link"
         app:layout_constraintEnd_toStartOf="@+id/btnAddToDownloads"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/urlInputLayout" />
 </androidx.constraintlayout.widget.ConstraintLayout>

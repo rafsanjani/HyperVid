@@ -65,6 +65,7 @@ fun Context.shareFile(path: String, packageName: String = "") {
     try {
         context.startActivity(videoShare)
     } catch (exception: ActivityNotFoundException) {
+        Toast.makeText(context, "Required App not found", Toast.LENGTH_SHORT).show()
         Timber.e("$packageName is not installed")
     }
 }

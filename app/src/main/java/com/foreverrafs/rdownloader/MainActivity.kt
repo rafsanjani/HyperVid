@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
@@ -14,18 +15,14 @@ import com.foreverrafs.rdownloader.androidext.requestStoragePermission
 import com.foreverrafs.rdownloader.ui.add.AddUrlFragment
 import com.foreverrafs.rdownloader.ui.downloads.DownloadsFragment
 import com.foreverrafs.rdownloader.ui.videos.VideosFragment
-import com.foreverrafs.rdownloader.util.fromJson
-import com.foreverrafs.rdownloader.util.toJson
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         const val STORAGE_REQ_CODE = 1000
-        const val PREF_KEY_DOWNLOADS = "download_list"
     }
 
     private lateinit var viewModel: MainViewModel
@@ -45,7 +42,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         initializeTabComponents()
-        retrieveDownloadList()
+        viewModel.retrieveDownloadList()
     }
 
 
@@ -68,53 +65,43 @@ class MainActivity : AppCompatActivity() {
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
-                0 -> tab.text = resources.getString(R.string.Url)
-                1 -> tab.text = resources.getString(R.string.Downloads)
-                2 -> tab.text = resources.getString(R.string.Videos)
+                0 -> tab.text = resources.getString(R.string.title_url)
+                1 -> tab.text = resources.getString(R.string.title_downloads)
+                2 -> tab.text = resources.getString(R.string.title_videos)
             }
         }.attach()
     }
 
     private fun setupViewPager(viewPager: ViewPager2) {
+        val fragments = listOf(
+            AddUrlFragment.newInstance {
+                navigateTo(it)
+            },
+
+            DownloadsFragment.newInstance {
+                navigateTo(it)
+            },
+            VideosFragment()
+        )
         val viewPagerAdapter = HomePagerAdapter(this)
-        viewPagerAdapter.addFragment(AddUrlFragment())    // index 0
-        viewPagerAdapter.addFragment(DownloadsFragment())   // index 1
-        viewPagerAdapter.addFragment(VideosFragment())   // index 1
+
+        fragments.forEach {
+            viewPagerAdapter.addFragment(it)
+        }
 
         viewPager.adapter = viewPagerAdapter
     }
 
+    private fun navigateTo(pageNumber: Int): Boolean {
+        Handler().postDelayed({
+            viewPager.setCurrentItem(pageNumber, true)
+        }, 500)
+
+        return true
+    }
+
     override fun onDestroy() {
         VideoDownloader.getInstance(this)?.close()
-        saveDownloadList()
         super.onDestroy()
-    }
-
-    private fun saveDownloadList() {
-        val downloadList = viewModel.downloadList.value
-
-        downloadList?.let { list ->
-            if (list.isNotEmpty()) {
-                val json = list.toJson()
-                preferences.edit().putString(PREF_KEY_DOWNLOADS, json).apply()
-                Timber.i("Saved ${list.size} download items")
-                return@let
-            }
-
-            Timber.i("Download list is empty")
-
-        } ?: Timber.e("Download list is null")
-
-
-    }
-
-    private fun retrieveDownloadList() {
-        val json = preferences.getString(PREF_KEY_DOWNLOADS, null)
-
-        json?.let { listJson ->
-            val list = listJson.fromJson()
-            viewModel.setDownloadList(list.toMutableList())
-            Timber.i("${list.size} downloads retrieved")
-        } ?: Timber.i("No previous download found")
     }
 }

@@ -11,7 +11,6 @@ import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.databinding.FragmentVideosBinding
 import com.foreverrafs.rdownloader.databinding.ListEmptyBinding
-import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
 
@@ -21,6 +20,7 @@ class VideosFragment : Fragment() {
     private lateinit var videosAdapter: VideosAdapter
     private lateinit var videoBinding: FragmentVideosBinding
     private lateinit var emptyListBinding: ListEmptyBinding
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,21 +42,13 @@ class VideosFragment : Fragment() {
             videosAdapter
 
         initEmptyLayoutTexts()
-    }
 
-    private fun initEmptyLayoutTexts() {
-        emptyListBinding.apply {
-            tvDescription.text = getString(R.string.empty_video_desc)
-            tvTitle.text = getString(R.string.empty_video)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
         vm.videosList.observe(viewLifecycleOwner, Observer { videosList ->
             if (videosList.isNotEmpty()) {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
+
+                videosAdapter.submitList(null)
                 videosAdapter.submitList(videosList)
 
             } else {
@@ -64,5 +56,12 @@ class VideosFragment : Fragment() {
                 emptyListBinding.root.visible()
             }
         })
+    }
+
+    private fun initEmptyLayoutTexts() {
+        emptyListBinding.apply {
+            tvDescription.text = getString(R.string.empty_video_desc)
+            tvTitle.text = getString(R.string.empty_video)
+        }
     }
 }

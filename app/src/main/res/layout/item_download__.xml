@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/DownloadsCard"
-    tools:context="com.foreverrafs.rdownloader.ui.downloads.DownloadsAdapter"
+    android:animateLayoutChanges="true"
+    tools:context="com.foreverrafs.rdownloader.ui.downloads.DownloadAdapter"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -100,6 +101,8 @@
             tools:text="Downloading:" />
 
         <TextView
+            android:visibility="gone"
+            tools:visibility="visible"
             android:id="@+id/tvDuration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

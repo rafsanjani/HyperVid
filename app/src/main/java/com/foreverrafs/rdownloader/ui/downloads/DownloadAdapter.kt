@@ -9,20 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import coil.api.load
 import com.foreverrafs.downloader.downloader.DownloadEvents
 import com.foreverrafs.downloader.downloader.DownloadException
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.getDurationString
-import com.foreverrafs.rdownloader.util.gone
-import com.foreverrafs.rdownloader.util.invisible
-import com.foreverrafs.rdownloader.util.visible
+import com.foreverrafs.rdownloader.util.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,11 +32,17 @@ import kotlin.collections.HashMap
 import kotlin.math.abs
 
 
-class DownloadsAdapter(
-    val items: MutableList<DownloadInfo>,
-    val completedListener: (video: FacebookVideo) -> Unit = {}
-) :
-    RecyclerView.Adapter<DownloadsAdapter.DownloadsViewHolder>() {
+class DownloadAdapter(val events: Events) :
+    ListAdapter<DownloadInfo, DownloadAdapter.DownloadsViewHolder>(object :
+        DiffUtil.ItemCallback<DownloadInfo>() {
+        override fun areItemsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
+            return oldItem.url == newItem.url
+        }
+    }) {
 
 
     private lateinit var context: Context
@@ -51,9 +59,11 @@ class DownloadsAdapter(
         return DownloadsViewHolder(itemView)
     }
 
+    val downloads: List<DownloadInfo>
+        get() = currentList
 
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
-        val downloadItem = items[position]
+        val downloadItem = getItem(position)
         holder.bind(downloadItem)
     }
 
@@ -68,24 +78,34 @@ class DownloadsAdapter(
         fun bind(downloadItem: DownloadInfo) {
             this.downloadItem = downloadItem
 
-            itemView.tvName.text = Html.fromHtml(
+            CoroutineScope(Dispatchers.IO).launch {
+
+                val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
+                val downloadDate = Date(downloadItem.dateAdded)
+                itemView.tvDate.text = formatter.format(downloadDate)
+
+                val retriever = MediaMetadataRetriever()
+                retriever.setDataSource(downloadItem.url, HashMap())
+                val durationString = getDurationString(downloadItem.duration)
+                val image = retriever.frameAtTime
+
+                withContext(Dispatchers.Main) {
+
+                    itemView.image.load(image)
+
+                    itemView.tvDuration.apply {
+                        text = durationString
+                        visible()
+                    }
+                }
+            }
+
+            val videoTitle = Html.fromHtml(
                 if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
             )
 
-            val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
-
-            val downloadDate = Date(downloadItem.dateAdded)
-
-            itemView.tvDate.text = formatter.format(downloadDate)
-
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(downloadItem.url, HashMap())
-
-            itemView.image.load(retriever.frameAtTime)
-
+            itemView.tvName.text = videoTitle
             itemView.tvStatus.text = context.getString(R.string.ready)
-
-            itemView.tvDuration.text = getDurationString(downloadItem.duration)
 
             itemView.tvMenu.setOnClickListener {
                 openPopupMenu()
@@ -129,9 +149,13 @@ class DownloadsAdapter(
                             .setMessage(context.getString(R.string.prompt_delete_video))
                             .setPositiveButton(R.string.delete) { _, _ ->
                                 stopDownload()
+                                val list = currentList.toMutableList()
+                                    .also { it.removeAt(adapterPosition) }
 
-                                items.removeAt(adapterPosition)
-                                notifyItemRemoved(adapterPosition)
+//                                submitList(list)
+//                                deletedListener(adapterPosition)
+                                events.onDeleted(adapterPosition)
+
                             }.setNegativeButton(android.R.string.cancel, null)
                             .show()
 
@@ -188,7 +212,8 @@ class DownloadsAdapter(
                     )
 
 
-                    completedListener(facebookVideo)
+//                    completedListener(facebookVideo)
+                    events.onSuccess(adapterPosition, facebookVideo)
 
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.btnStartPause.gone()
@@ -255,7 +280,9 @@ class DownloadsAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return items.size
+    interface Events {
+        fun onSuccess(position: Int, video: FacebookVideo)
+        fun onDeleted(position: Int)
+        fun onError(position: Int)
     }
 }

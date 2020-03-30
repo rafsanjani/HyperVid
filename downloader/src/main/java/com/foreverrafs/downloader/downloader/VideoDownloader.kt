@@ -19,13 +19,15 @@ class VideoDownloader private constructor(private val context: Context) :
         private var instance: VideoDownloader? = null
 
         fun getInstance(context: Context): VideoDownloader? {
-            if (instance == null) {
-                instance =
+            return (instance?.let {
+                if (it.isClosed)
                     VideoDownloader(context)
-            }
-            return instance
+            } ?: VideoDownloader(context)) as VideoDownloader?
         }
     }
+
+    val isClosed: Boolean
+        get() = fetch.isClosed
 
     private val listener = object : AbstractFetchListener() {
         override fun onCancelled(download: Download) {
@@ -125,6 +127,7 @@ class VideoDownloader private constructor(private val context: Context) :
 
         return request.id
     }
+
 
     override fun pauseDownload(downloadId: Int): Boolean {
         fetch.pause(downloadId)

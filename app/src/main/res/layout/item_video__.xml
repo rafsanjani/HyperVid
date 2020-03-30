@@ -49,7 +49,7 @@
 
         <TextView
             android:id="@+id/tvTitle"
-            style="@style/TextAppearance.AppCompat.Title"
+            style="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -69,24 +69,24 @@
 
         <ImageView
             android:id="@+id/btnShare"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginEnd="2dp"
             android:layout_marginBottom="5dp"
             android:tint="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnShareWhatsapp"
             app:srcCompat="@drawable/ic_share"
-            tools:ignore="ContentDescription,MissingPrefix" />
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/btnShareWhatsapp"
-            android:layout_width="50dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="25dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/btnShare"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            app:layout_constraintTop_toTopOf="@+id/btnShare"
             app:srcCompat="@drawable/whatsapp_icon"
             tools:ignore="ContentDescription" />
 
