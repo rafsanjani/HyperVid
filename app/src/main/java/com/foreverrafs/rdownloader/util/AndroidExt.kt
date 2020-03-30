@@ -3,10 +3,15 @@ package com.foreverrafs.rdownloader.util
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -74,4 +79,19 @@ fun String.fromJson(): List<DownloadInfo> {
     val type = object : TypeToken<List<DownloadInfo>>() {}.type
 
     return gson.fromJson(this, type)
+}
+
+fun ImageView.load(uri: String) {
+    Glide.with(this.context).load(uri).into(this)
+}
+
+fun ImageView.load(uri: Uri) {
+    Glide.with(this.context).load(uri).into(this)
+}
+
+fun ImageView.load(image: Bitmap) {
+    Glide.with(context)
+        .load(image)
+        .transition(DrawableTransitionOptions.withCrossFade())
+        .into(this)
 }
