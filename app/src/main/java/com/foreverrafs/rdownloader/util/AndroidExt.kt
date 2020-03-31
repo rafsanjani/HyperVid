@@ -12,9 +12,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.foreverrafs.downloader.model.DownloadInfo
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import timber.log.Timber
 import java.io.File
 
@@ -70,16 +68,9 @@ fun Context.shareFile(path: String, packageName: String = "") {
     }
 }
 
-fun List<DownloadInfo>.toJson(): String {
+fun List<Any>.toJson(): String {
     val gson = Gson()
     return gson.toJson(this)
-}
-
-fun String.fromJson(): List<DownloadInfo> {
-    val gson = Gson()
-    val type = object : TypeToken<List<DownloadInfo>>() {}.type
-
-    return gson.fromJson(this, type)
 }
 
 fun ImageView.load(uri: String) {

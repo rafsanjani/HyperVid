@@ -11,15 +11,17 @@ import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.databinding.FragmentVideosBinding
 import com.foreverrafs.rdownloader.databinding.ListEmptyBinding
+import com.foreverrafs.rdownloader.model.FacebookVideo
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
 
 
 class VideosFragment : Fragment() {
     private val vm: MainViewModel by activityViewModels()
-    private lateinit var videosAdapter: VideosAdapter
+    private lateinit var videoAdapter: VideoAdapter
     private lateinit var videoBinding: FragmentVideosBinding
     private lateinit var emptyListBinding: ListEmptyBinding
+    private var videoList = mutableListOf<FacebookVideo>()
 
 
     override fun onCreateView(
@@ -36,10 +38,10 @@ class VideosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        videosAdapter = VideosAdapter(requireContext())
+        videoAdapter = VideoAdapter(requireContext())
 
         videoBinding.videoListRecyclerView.adapter =
-            videosAdapter
+            videoAdapter
 
         initEmptyLayoutTexts()
 
@@ -48,8 +50,9 @@ class VideosFragment : Fragment() {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
 
-                videosAdapter.submitList(null)
-                videosAdapter.submitList(videosList)
+                this.videoList = videosList.toMutableList()
+
+                videoAdapter.submitList(videosList)
 
             } else {
                 videoBinding.videoListRecyclerView.invisible()
@@ -63,5 +66,10 @@ class VideosFragment : Fragment() {
             tvDescription.text = getString(R.string.empty_video_desc)
             tvTitle.text = getString(R.string.empty_video)
         }
+    }
+
+    override fun onPause() {
+        vm.saveVideoList(videoList)
+        super.onPause()
     }
 }

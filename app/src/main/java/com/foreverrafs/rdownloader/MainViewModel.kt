@@ -8,12 +8,15 @@ import androidx.preference.PreferenceManager
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.fromJson
 import com.foreverrafs.rdownloader.util.toJson
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import timber.log.Timber
+
 
 class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val preference = PreferenceManager.getDefaultSharedPreferences(app)
+    private val gson: Gson = Gson()
     private var _downloadList: MutableLiveData<List<DownloadInfo>> = MutableLiveData(emptyList())
     private var _videosList: MutableLiveData<List<FacebookVideo>> = MutableLiveData(
         emptyList()
@@ -21,6 +24,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     companion object {
         const val PREF_KEY_DOWNLOADS = "download_list"
+        const val PREF_KEY_VIDEOS = "videos_list"
     }
 
     val downloadList: LiveData<List<DownloadInfo>>
@@ -60,12 +64,44 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         Timber.i("Download list is empty")
     }
 
-    fun retrieveDownloadList() {
+    fun getDownloadList() {
         val json = preference.getString(PREF_KEY_DOWNLOADS, null)
         json?.let { listJson ->
-            val list = listJson.fromJson()
-            setDownloadList(list.toMutableList())
+
+            val list: MutableList<DownloadInfo> = gson.fromJson(
+                listJson,
+                object : TypeToken<List<DownloadInfo>>() {}.type
+            )
+
+            setDownloadList(list)
             Timber.i("${list.size} downloads retrieved")
         } ?: Timber.i("No previous download found")
     }
+
+    fun saveVideoList(videoList: List<FacebookVideo>) {
+        if (videoList.isNotEmpty()) {
+            val json = videoList.toJson()
+            preference.edit().putString(PREF_KEY_VIDEOS, json).apply()
+            Timber.i("Saved ${videoList.size} videos items")
+            return
+        } else {
+            preference.edit().putString(PREF_KEY_VIDEOS, null).apply()
+        }
+
+        Timber.i("videos list is empty")
+    }
+
+    fun getVideoList() {
+        val json = preference.getString(PREF_KEY_VIDEOS, null)
+        json?.let { listJson ->
+            val list: MutableList<FacebookVideo> = gson.fromJson(
+                listJson,
+                object : TypeToken<List<FacebookVideo>>() {}.type
+            )
+
+            setVideosList(list)
+            Timber.i("${list.size} videos retrieved")
+        } ?: Timber.i("no video found")
+    }
+
 }

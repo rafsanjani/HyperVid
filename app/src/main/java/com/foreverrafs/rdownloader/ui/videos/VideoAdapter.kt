@@ -8,7 +8,6 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -22,8 +21,8 @@ import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import java.io.File
 import kotlin.math.abs
 
-class VideosAdapter(private val context: Context) :
-    ListAdapter<FacebookVideo, VideosAdapter.VideosViewHolder>(object :
+class VideoAdapter(private val context: Context) :
+    ListAdapter<FacebookVideo, VideoAdapter.VideosViewHolder>(object :
         DiffUtil.ItemCallback<FacebookVideo>() {
         override fun areItemsTheSame(oldItem: FacebookVideo, newItem: FacebookVideo): Boolean {
             return oldItem == newItem
@@ -39,7 +38,6 @@ class VideosAdapter(private val context: Context) :
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video__, parent, false)
         return VideosViewHolder(view)
     }
-
 
 
     override fun onBindViewHolder(holder: VideosViewHolder, position: Int) {
@@ -85,5 +83,9 @@ class VideosAdapter(private val context: Context) :
                 context.startActivity(shareIntent)
             }
         }
+    }
+
+    interface Events {
+        fun onDeleted(position: Int)
     }
 }

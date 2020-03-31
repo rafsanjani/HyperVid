@@ -42,7 +42,8 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         initializeTabComponents()
-        viewModel.retrieveDownloadList()
+        viewModel.getDownloadList()
+        viewModel.getVideoList()
     }
 
 
