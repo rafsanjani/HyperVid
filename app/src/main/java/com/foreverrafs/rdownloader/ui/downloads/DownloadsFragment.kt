@@ -22,7 +22,7 @@ class DownloadsFragment private constructor() : Fragment(), DownloadAdapter.Even
     private var downloadsAdapter = DownloadAdapter(this)
 
     private val vm: MainViewModel by activityViewModels()
-    private val videosList = mutableListOf<FacebookVideo>()
+    private var videosList = mutableListOf<FacebookVideo>()
     private var downloadList = mutableListOf<DownloadInfo>()
 
     private lateinit var downloadBinding: FragmentDownloadsBinding
@@ -74,8 +74,11 @@ class DownloadsFragment private constructor() : Fragment(), DownloadAdapter.Even
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         vm.downloadList.observe(viewLifecycleOwner, downloadListObserver)
-    }
 
+        vm.videosList.observe(viewLifecycleOwner, Observer {
+            videosList = it.toMutableList()
+        })
+    }
 
     private fun showDownloads(downloadList: List<DownloadInfo>) {
         progressBar.invisible()
