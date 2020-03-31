@@ -53,7 +53,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun saveDownloadList(downloadList: List<DownloadInfo>) {
         if (downloadList.isNotEmpty()) {
-            val json = downloadList.toJson()
+            val json = downloadList.filter { !it.isCompleted }.toJson()
             preference.edit().putString(PREF_KEY_DOWNLOADS, json).apply()
             Timber.i("Saved ${downloadList.size} download items")
             return
