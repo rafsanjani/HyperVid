@@ -16,6 +16,7 @@ import com.foreverrafs.hyperdownloader.R
 import com.foreverrafs.hyperdownloader.util.disable
 import com.foreverrafs.hyperdownloader.util.enable
 import com.foreverrafs.hyperdownloader.util.showToast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import timber.log.Timber
 
@@ -25,7 +26,9 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
     private val vm: MainViewModel by activityViewModels()
     private var downloadList: MutableList<DownloadInfo> = mutableListOf()
 
+
     companion object {
+        const val FACEBOOK_URL = "https://www.facebook.com/"
         private lateinit var pageNavigator: (pageNumber: Int) -> Boolean
 
         fun newInstance(listener: (pageNumber: Int) -> Boolean = { true }): AddUrlFragment {
@@ -55,13 +58,14 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         //immediately. We wait for the user to interact with it in the downloads section before we download.
         btnAddToDownloads.setOnClickListener {
             extractVideo(urlInputLayout.editText?.text.toString())
-            btnAddToDownloads.text = getString(R.string.extracting)
-            btnAddToDownloads.disable()
-            urlInputLayout.disable()
         }
     }
 
     private fun extractVideo(videoURL: String) {
+        btnAddToDownloads.text = getString(R.string.extracting)
+        btnAddToDownloads.disable()
+        urlInputLayout.disable()
+
         vm.extractVideoDownloadUrl(
             videoURL,
             object : FacebookExtractor.ExtractionEvents {
@@ -125,12 +129,27 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
 
         clipBoardData = clipboardManager.primaryClip
 
+        clipBoardData?.getItemAt(0)?.text?.let {
+            if (it.contains(FACEBOOK_URL)) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Download Video?")
+                    .setMessage("Video found. Download now?")
+                    .setPositiveButton("Yes") { _, _ ->
+                        urlInputLayout.editText?.setText(it.toString())
+                        extractVideo(it.toString())
+                    }
+                    .setNegativeButton("No", null)
+                    .show()
+            }
+        }
+
+
         clipboardManager.addPrimaryClipChangedListener {
             clipBoardData = clipboardManager.primaryClip
             val clipText = clipBoardData?.getItemAt(0)?.text
 
             clipText?.let {
-                if (it.contains("facebook.com"))
+                if (it.contains(FACEBOOK_URL))
                     urlInputLayout.editText?.setText(clipText.toString())
             } ?: Timber.e("clipText is null")
         }
