@@ -28,4 +28,5 @@
     <string name="connecting">Connecting…</string>
     <string name="title_delete_video">Delete video</string>
     <string name="prompt_delete_video">Are you sure you want to delete this video?</string>
+    <string name="yes">Yes</string>
 </resources>
