@@ -9,47 +9,71 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.model.FacebookVideo
+import com.foreverrafs.rdownloader.util.ItemTouchCallback
 import com.foreverrafs.rdownloader.util.getDurationString
 import com.foreverrafs.rdownloader.util.load
 import com.foreverrafs.rdownloader.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
+import java.util.*
 import kotlin.math.abs
 
-class VideoAdapter(private val context: Context) :
-    ListAdapter<FacebookVideo, VideoAdapter.VideosViewHolder>(object :
-        DiffUtil.ItemCallback<FacebookVideo>() {
-        override fun areItemsTheSame(oldItem: FacebookVideo, newItem: FacebookVideo): Boolean {
-            return oldItem == newItem
-        }
+class VideoAdapter(
+    private val context: Context,
+    private val callback: VideoCallback
+) :
+    RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
+    ItemTouchCallback.ItemTouchHelperAdapter {
 
-        override fun areContentsTheSame(oldItem: FacebookVideo, newItem: FacebookVideo): Boolean {
-            return oldItem.path == newItem.path
-        }
-    }) {
-
+    val videos = mutableListOf<FacebookVideo>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video__, parent, false)
         return VideosViewHolder(view)
     }
 
+    private fun swapItems(fromPosition: Int, toPosition: Int) {
+        Collections.swap(videos, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
+        Timber.i("Moved from $fromPosition to $toPosition")
+    }
+
+    fun deleteVideo(video: FacebookVideo) {
+        val videoIndex = videos.indexOf(video)
+        videos.remove(video)
+        notifyItemRemoved(videoIndex)
+        Timber.i("Deleted item at position $videoIndex")
+    }
+
+    fun addVideo(video: FacebookVideo) {
+        videos.add(0, video)
+        notifyItemInserted(0)
+    }
 
     override fun onBindViewHolder(holder: VideosViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(videos[position])
     }
 
     inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(facebookVideo: FacebookVideo) {
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(facebookVideo.path)
 
-            itemView.imageCover.load(retriever.frameAtTime)
+            CoroutineScope(Dispatchers.IO).launch {
+                val retriever = MediaMetadataRetriever()
+                retriever.setDataSource(facebookVideo.path)
+
+                withContext(Dispatchers.Main) {
+                    itemView.imageCover.load(retriever.frameAtTime)
+                }
+            }
 
             itemView.tvTitle.text = Html.fromHtml(
                 if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
@@ -85,7 +109,31 @@ class VideoAdapter(private val context: Context) :
         }
     }
 
-    interface Events {
-        fun onDeleted(position: Int)
+    fun setList(newVideos: List<FacebookVideo>) {
+        val diffCallback =
+            VideoDiffCallback(
+                this.videos,
+                newVideos
+            )
+
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        videos.clear()
+        videos.addAll(newVideos)
+
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    override fun onItemMoved(fromPosition: Int, toPosition: Int) =
+        swapItems(fromPosition, toPosition)
+
+    override fun onItemDismiss(position: Int) = callback.deleteVideo(videos[position])
+
+    override fun getItemCount(): Int {
+        return videos.size
+    }
+
+    interface VideoCallback {
+        fun deleteVideo(video: FacebookVideo)
     }
 }
