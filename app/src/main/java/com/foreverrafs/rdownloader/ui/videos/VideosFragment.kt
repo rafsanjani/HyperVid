@@ -7,21 +7,24 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.foreverrafs.rdownloader.MainViewModel
 import com.foreverrafs.rdownloader.R
 import com.foreverrafs.rdownloader.databinding.FragmentVideosBinding
 import com.foreverrafs.rdownloader.databinding.ListEmptyBinding
 import com.foreverrafs.rdownloader.model.FacebookVideo
+import com.foreverrafs.rdownloader.util.ItemTouchCallback
 import com.foreverrafs.rdownloader.util.invisible
 import com.foreverrafs.rdownloader.util.visible
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.File
 
 
-class VideosFragment : Fragment() {
+class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     private val vm: MainViewModel by activityViewModels()
     private lateinit var videoAdapter: VideoAdapter
     private lateinit var videoBinding: FragmentVideosBinding
     private lateinit var emptyListBinding: ListEmptyBinding
-    private var videoList = mutableListOf<FacebookVideo>()
 
 
     override fun onCreateView(
@@ -38,10 +41,16 @@ class VideosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        videoAdapter = VideoAdapter(requireContext())
+        videoAdapter = VideoAdapter(requireContext(), this)
 
         videoBinding.videoListRecyclerView.adapter =
             videoAdapter
+
+        val itemTouchHelperCallback = ItemTouchCallback(videoAdapter)
+
+        val touchHelper = ItemTouchHelper(itemTouchHelperCallback)
+
+        touchHelper.attachToRecyclerView(videoBinding.videoListRecyclerView)
 
         initEmptyLayoutTexts()
 
@@ -50,9 +59,7 @@ class VideosFragment : Fragment() {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
 
-                this.videoList = videosList.toMutableList()
-
-                videoAdapter.submitList(videosList)
+                videoAdapter.setList(videosList)
 
             } else {
                 videoBinding.videoListRecyclerView.invisible()
@@ -69,7 +76,19 @@ class VideosFragment : Fragment() {
     }
 
     override fun onPause() {
-        vm.saveVideoList(videoList)
+        vm.saveVideoList(videoAdapter.videos)
         super.onPause()
+    }
+
+    override fun deleteVideo(video: FacebookVideo) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Video")
+            .setMessage("Are you sure you want to delete this video")
+            .setPositiveButton("Yes") { _, _ ->
+                videoAdapter.deleteVideo(video)
+                File(video.path).delete()
+            }
+            .setNegativeButton("No", null)
+            .show()
     }
 }
