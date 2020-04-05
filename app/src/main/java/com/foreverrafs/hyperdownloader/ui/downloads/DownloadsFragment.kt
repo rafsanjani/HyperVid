@@ -11,6 +11,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hyperdownloader.MainViewModel
+import com.foreverrafs.hyperdownloader.R
 import com.foreverrafs.hyperdownloader.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hyperdownloader.databinding.ListEmptyBinding
 import com.foreverrafs.hyperdownloader.model.FacebookVideo
@@ -113,7 +114,7 @@ class DownloadsFragment private constructor() : Fragment(), DownloadAdapter.Even
 
             }, 2000)
         } else {
-            Toast.makeText(requireContext(), "Duplicate Video", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT).show()
         }
     }
 
