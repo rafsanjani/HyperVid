@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader
+package com.foreverrafs.hyperdownloader
 
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -10,11 +10,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
-import com.foreverrafs.rdownloader.adapter.HomePagerAdapter
-import com.foreverrafs.rdownloader.androidext.requestStoragePermission
-import com.foreverrafs.rdownloader.ui.add.AddUrlFragment
-import com.foreverrafs.rdownloader.ui.downloads.DownloadsFragment
-import com.foreverrafs.rdownloader.ui.videos.VideosFragment
+import com.foreverrafs.hyperdownloader.adapter.HomePagerAdapter
+import com.foreverrafs.hyperdownloader.androidext.requestStoragePermission
+import com.foreverrafs.hyperdownloader.ui.add.AddUrlFragment
+import com.foreverrafs.hyperdownloader.ui.downloads.DownloadsFragment
+import com.foreverrafs.hyperdownloader.ui.videos.VideosFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 

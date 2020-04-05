@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.ui.add
+package com.foreverrafs.hyperdownloader.ui.add
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -11,11 +11,11 @@ import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
-import com.foreverrafs.rdownloader.MainViewModel
-import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.util.disable
-import com.foreverrafs.rdownloader.util.enable
-import com.foreverrafs.rdownloader.util.showToast
+import com.foreverrafs.hyperdownloader.MainViewModel
+import com.foreverrafs.hyperdownloader.R
+import com.foreverrafs.hyperdownloader.util.disable
+import com.foreverrafs.hyperdownloader.util.enable
+import com.foreverrafs.hyperdownloader.util.showToast
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import timber.log.Timber
 

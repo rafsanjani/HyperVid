@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.util
+package com.foreverrafs.hyperdownloader.util
 
 import java.util.concurrent.TimeUnit
 

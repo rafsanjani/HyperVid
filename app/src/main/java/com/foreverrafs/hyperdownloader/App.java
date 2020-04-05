@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader;
+package com.foreverrafs.hyperdownloader;
 
 import android.app.Application;
 

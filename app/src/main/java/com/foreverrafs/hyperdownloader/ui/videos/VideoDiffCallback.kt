@@ -1,7 +1,7 @@
-package com.foreverrafs.rdownloader.ui.videos
+package com.foreverrafs.hyperdownloader.ui.videos
 
 import androidx.recyclerview.widget.DiffUtil
-import com.foreverrafs.rdownloader.model.FacebookVideo
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
 
 
 /* Created by Rafsanjani on 02/04/2020. */

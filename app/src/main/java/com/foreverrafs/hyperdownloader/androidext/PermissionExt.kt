@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.androidext
+package com.foreverrafs.hyperdownloader.androidext
 
 import android.app.Activity
 import android.content.Context

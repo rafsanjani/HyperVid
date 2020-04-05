@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.ui.videos
+package com.foreverrafs.hyperdownloader.ui.videos
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,14 +8,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.foreverrafs.rdownloader.MainViewModel
-import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.databinding.FragmentVideosBinding
-import com.foreverrafs.rdownloader.databinding.ListEmptyBinding
-import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.ItemTouchCallback
-import com.foreverrafs.rdownloader.util.invisible
-import com.foreverrafs.rdownloader.util.visible
+import com.foreverrafs.hyperdownloader.MainViewModel
+import com.foreverrafs.hyperdownloader.R
+import com.foreverrafs.hyperdownloader.databinding.FragmentVideosBinding
+import com.foreverrafs.hyperdownloader.databinding.ListEmptyBinding
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
+import com.foreverrafs.hyperdownloader.util.ItemTouchCallback
+import com.foreverrafs.hyperdownloader.util.invisible
+import com.foreverrafs.hyperdownloader.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
 

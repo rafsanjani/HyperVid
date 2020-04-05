@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.ui.downloads
+package com.foreverrafs.hyperdownloader.ui.downloads
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
@@ -16,9 +16,9 @@ import com.foreverrafs.downloader.downloader.DownloadEvents
 import com.foreverrafs.downloader.downloader.DownloadException
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.*
+import com.foreverrafs.hyperdownloader.R
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
+import com.foreverrafs.hyperdownloader.util.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -149,11 +149,11 @@ class DownloadAdapter(val events: Events) :
                             .setMessage(context.getString(R.string.prompt_delete_video))
                             .setPositiveButton(R.string.delete) { _, _ ->
                                 stopDownload()
-                                val list = currentList.toMutableList()
-                                    .also { it.removeAt(adapterPosition) }
+                                currentList.toMutableList()
+                                    .also {
+                                        it.removeAt(adapterPosition)
+                                    }
 
-//                                submitList(list)
-//                                deletedListener(adapterPosition)
                                 events.onDeleted(adapterPosition)
 
                             }.setNegativeButton(android.R.string.cancel, null)

@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.util
+package com.foreverrafs.hyperdownloader.util
 
 import android.content.ActivityNotFoundException
 import android.content.Context

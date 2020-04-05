@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.adapter
+package com.foreverrafs.hyperdownloader.adapter
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity

@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader
+package com.foreverrafs.hyperdownloader
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.FacebookExtractor
-import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.toJson
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
+import com.foreverrafs.hyperdownloader.util.toJson
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import timber.log.Timber

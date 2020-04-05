@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.ui.videos
+package com.foreverrafs.hyperdownloader.ui.videos
 
 import android.content.Context
 import android.content.Intent
@@ -10,12 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.foreverrafs.rdownloader.R
-import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.ItemTouchCallback
-import com.foreverrafs.rdownloader.util.getDurationString
-import com.foreverrafs.rdownloader.util.load
-import com.foreverrafs.rdownloader.util.shareFile
+import com.foreverrafs.hyperdownloader.R
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
+import com.foreverrafs.hyperdownloader.util.ItemTouchCallback
+import com.foreverrafs.hyperdownloader.util.getDurationString
+import com.foreverrafs.hyperdownloader.util.load
+import com.foreverrafs.hyperdownloader.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import kotlinx.coroutines.CoroutineScope

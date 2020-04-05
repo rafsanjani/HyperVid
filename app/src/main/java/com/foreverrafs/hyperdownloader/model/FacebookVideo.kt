@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.model
+package com.foreverrafs.hyperdownloader.model
 
 
 data class FacebookVideo(

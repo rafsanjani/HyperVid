@@ -1,9 +1,9 @@
-package com.foreverrafs.rdownloader.util
+package com.foreverrafs.hyperdownloader.util
 
 import android.graphics.Canvas
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.foreverrafs.rdownloader.R
+import com.foreverrafs.hyperdownloader.R
 
 
 /* Created by Rafsanjani on 02/04/2020. */

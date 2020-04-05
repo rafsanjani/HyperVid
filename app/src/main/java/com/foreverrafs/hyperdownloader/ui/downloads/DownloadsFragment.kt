@@ -1,4 +1,4 @@
-package com.foreverrafs.rdownloader.ui.downloads
+package com.foreverrafs.hyperdownloader.ui.downloads
 
 import android.os.Bundle
 import android.os.Handler
@@ -10,12 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.rdownloader.MainViewModel
-import com.foreverrafs.rdownloader.databinding.FragmentDownloadsBinding
-import com.foreverrafs.rdownloader.databinding.ListEmptyBinding
-import com.foreverrafs.rdownloader.model.FacebookVideo
-import com.foreverrafs.rdownloader.util.invisible
-import com.foreverrafs.rdownloader.util.visible
+import com.foreverrafs.hyperdownloader.MainViewModel
+import com.foreverrafs.hyperdownloader.databinding.FragmentDownloadsBinding
+import com.foreverrafs.hyperdownloader.databinding.ListEmptyBinding
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
+import com.foreverrafs.hyperdownloader.util.invisible
+import com.foreverrafs.hyperdownloader.util.visible
 import kotlinx.android.synthetic.main.fragment_downloads.*
 
 class DownloadsFragment private constructor() : Fragment(), DownloadAdapter.Events {
