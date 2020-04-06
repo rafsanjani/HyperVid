@@ -6,7 +6,7 @@ import okhttp3.OkHttpClient
 
 
 class ParallelDownloader(okHttpClient: OkHttpClient) : OkHttpDownloader(okHttpClient) {
-    private val slices = 10
+    private val slices = 50
 
     override fun getFileSlicingCount(request: Downloader.ServerRequest, contentLength: Long): Int? {
         return slices
