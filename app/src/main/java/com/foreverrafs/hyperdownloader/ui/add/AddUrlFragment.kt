@@ -40,7 +40,6 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
-        initializeClipboard()
 
         vm.downloadList.observe(viewLifecycleOwner, Observer {
             this.downloadList = it.toMutableList()
