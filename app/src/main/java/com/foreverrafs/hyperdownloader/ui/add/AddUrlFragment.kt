@@ -25,6 +25,7 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
     private var clipBoardData: ClipData? = null
     private val vm: MainViewModel by activityViewModels()
     private var downloadList: MutableList<DownloadInfo> = mutableListOf()
+    private val suggestedLinks = mutableListOf<String>()
 
 
     companion object {
@@ -123,6 +124,11 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         btnAddToDownloads.enable()
     }
 
+    override fun onResume() {
+        super.onResume()
+        initializeClipboard()
+    }
+
     private fun initializeClipboard() {
         val clipboardManager =
             activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -130,15 +136,17 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         clipBoardData = clipboardManager.primaryClip
 
         clipBoardData?.getItemAt(0)?.text?.let {
-            if (it.contains(FACEBOOK_URL)) {
+            if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it)) {
                 MaterialAlertDialogBuilder(requireContext())
-                    .setTitle("Download Video?")
-                    .setMessage("Video found. Download now?")
-                    .setPositiveButton("Yes") { _, _ ->
-                        urlInputLayout.editText?.setText(it.toString())
-                        extractVideo(it.toString())
+                    .setTitle(R.string.title_download_video)
+                    .setMessage(getString(R.string.prompt_dowload_video))
+                    .setPositiveButton(android.R.string.yes) { _, _ ->
+                        val link = it.toString()
+                        urlInputLayout.editText?.setText(link)
+                        extractVideo(link)
+                        suggestedLinks.add(link)
                     }
-                    .setNegativeButton("No", null)
+                    .setNegativeButton(android.R.string.no, null)
                     .show()
             }
         }
