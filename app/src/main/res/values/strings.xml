@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">HyperVid: Video Downloader for FB</string>
-    <string name="title_url">Url</string>
+    <string name="title_url">Add Link</string>
     <string name="title_downloads">Downloads</string>
     <string name="hint_url">Facebook Video Url</string>
     <string name="download">Download</string>
