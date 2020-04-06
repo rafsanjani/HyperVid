@@ -83,10 +83,12 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     override fun deleteVideo(video: FacebookVideo) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_delete_video)
+            .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_video)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 videoAdapter.deleteVideo(video)
                 File(video.path).delete()
+                vm.setVideosList(videoAdapter.videos)
             }
             .setNegativeButton(android.R.string.no, null)
             .show()
