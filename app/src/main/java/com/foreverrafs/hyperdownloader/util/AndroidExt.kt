@@ -12,6 +12,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.foreverrafs.hyperdownloader.R
 import com.google.gson.Gson
 import timber.log.Timber
 import java.io.File
@@ -84,6 +85,7 @@ fun ImageView.load(uri: Uri) {
 fun ImageView.load(image: Bitmap) {
     Glide.with(context)
         .load(image)
+        .placeholder(R.drawable.ic_video)
         .transition(DrawableTransitionOptions.withCrossFade())
         .into(this)
 }
