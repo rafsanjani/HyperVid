@@ -66,50 +66,53 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         btnAddToDownloads.disable()
         urlInputLayout.disable()
 
+        val listener = object : FacebookExtractor.ExtractionEvents {
+            override fun onComplete(downloadableFile: DownloadableFile) {
+                val downloadInfo = DownloadInfo(
+                    downloadableFile.url,
+                    0,
+                    downloadableFile.author,
+                    downloadableFile.duration
+                )
+
+
+                val downloadExists = downloadList.any {
+                    it.url == downloadInfo.url
+                }
+
+                if (downloadExists) {
+                    Timber.e("Download exists. Unable to add to list")
+                    showToast("Link already extracted")
+                    resetUi()
+                    return
+                }
+
+
+                Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
+                showToast("Video added to download queue...")
+
+                downloadList.add(downloadInfo)
+                vm.setDownloadList(downloadList)
+
+                resetUi()
+                pageNavigator(1)
+            }
+
+            override fun onError(exception: Exception) {
+                Timber.e(exception)
+                showToast("Error loading video from link")
+                urlInputLayout.isErrorEnabled = true
+
+                btnAddToDownloads.text = getString(R.string.add_to_downloads)
+                btnAddToDownloads.enable()
+                urlInputLayout.enable()
+            }
+        }
+
         vm.extractVideoDownloadUrl(
             videoURL,
-            object : FacebookExtractor.ExtractionEvents {
-                override fun onComplete(downloadableFile: DownloadableFile) {
-                    val downloadInfo = DownloadInfo(
-                        downloadableFile.url,
-                        0,
-                        downloadableFile.author,
-                        downloadableFile.duration
-                    )
-
-
-                    val downloadExists = downloadList.any {
-                        it.url == downloadInfo.url
-                    }
-
-                    if (downloadExists) {
-                        Timber.e("Download exists. Unable to add to list")
-                        showToast("Link already extracted")
-                        resetUi()
-                        return
-                    }
-
-
-                    Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
-                    showToast("Video added to download queue...")
-
-                    downloadList.add(downloadInfo)
-                    vm.setDownloadList(downloadList)
-
-                    resetUi()
-                    pageNavigator(1)
-                }
-
-                override fun onError(exception: Exception) {
-                    Timber.e(exception)
-                    showToast("Error loading video from link")
-                    urlInputLayout.isErrorEnabled = true
-
-                    btnAddToDownloads.text = getString(R.string.add_to_downloads)
-                    btnAddToDownloads.enable()
-                    urlInputLayout.enable()
-                }
-            })
+            listener
+        )
     }
 
     private fun resetUi() {
