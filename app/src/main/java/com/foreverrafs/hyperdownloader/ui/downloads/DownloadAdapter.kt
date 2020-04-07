@@ -208,11 +208,10 @@ class DownloadAdapter(val events: Events) :
                 override fun onCompleted() {
                     val facebookVideo = FacebookVideo(
                         downloadItem.name, downloadItem.duration,
-                        getVideoFilePath(downloadItem)
+                        getVideoFilePath(downloadItem), downloadItem.url
                     )
 
 
-//                    completedListener(facebookVideo)
                     events.onSuccess(adapterPosition, facebookVideo)
 
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
