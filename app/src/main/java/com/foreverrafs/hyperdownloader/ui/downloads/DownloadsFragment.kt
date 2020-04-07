@@ -29,7 +29,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class DownloadsFragment private constructor() : Fragment(), DownloadAdapter.Events {
+class DownloadsFragment : Fragment(), DownloadAdapter.Events {
     private var downloadsAdapter = DownloadAdapter(this)
 
     private val vm: MainViewModel by activityViewModels()

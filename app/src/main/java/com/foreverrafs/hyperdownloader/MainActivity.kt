@@ -1,13 +1,12 @@
 package com.foreverrafs.hyperdownloader
 
-import android.content.SharedPreferences
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.hyperdownloader.adapter.HomePagerAdapter
@@ -26,10 +25,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var viewModel: MainViewModel
-
-    private val preferences: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(applicationContext)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,5 +99,15 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         VideoDownloader.getInstance(this)?.close()
         super.onDestroy()
+    }
+}
+
+
+class SplashActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 }

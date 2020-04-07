@@ -13,6 +13,7 @@ import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.hyperdownloader.MainViewModel
 import com.foreverrafs.hyperdownloader.R
+import com.foreverrafs.hyperdownloader.model.FacebookVideo
 import com.foreverrafs.hyperdownloader.util.disable
 import com.foreverrafs.hyperdownloader.util.enable
 import com.foreverrafs.hyperdownloader.util.showToast
@@ -20,11 +21,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import timber.log.Timber
 
-class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) {
+class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
     private val vm: MainViewModel by activityViewModels()
-    private var downloadList: MutableList<DownloadInfo> = mutableListOf()
+    private var downloadList = mutableListOf<DownloadInfo>()
+    private var videoList = mutableListOf<FacebookVideo>()
     private val suggestedLinks = mutableListOf<String>()
 
 
@@ -43,6 +45,10 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
 
         vm.downloadList.observe(viewLifecycleOwner, Observer {
             this.downloadList = it.toMutableList()
+        })
+
+        vm.videosList.observe(viewLifecycleOwner, Observer {
+            this.videoList = it.toMutableList()
         })
     }
 
@@ -138,7 +144,7 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         clipBoardData = clipboardManager.primaryClip
 
         clipBoardData?.getItemAt(0)?.text?.let {
-            if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it)) {
+            if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it) /*&& vm.hasVideo(it.toString())*/) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_dowload_video))
@@ -150,6 +156,8 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
                     }
                     .setNegativeButton(android.R.string.no, null)
                     .show()
+            } else {
+                Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
         }
 

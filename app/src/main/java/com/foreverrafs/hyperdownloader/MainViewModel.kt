@@ -91,6 +91,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         Timber.i("videos list is empty")
     }
 
+    //Check if a video with specified url has been downloaded already
+    fun hasVideo(url: String) = _videosList.value?.any { video -> video.url == url } ?: false
+
+
     fun getVideoList() {
         val json = preference.getString(PREF_KEY_VIDEOS, null)
         json?.let { listJson ->
