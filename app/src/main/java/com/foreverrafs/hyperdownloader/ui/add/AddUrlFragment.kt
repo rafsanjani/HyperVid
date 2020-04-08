@@ -176,7 +176,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         clipBoardData = clipboardManager.primaryClip
 
         clipBoardData?.getItemAt(0)?.text?.let {
-            if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it) /*&& vm.hasVideo(it.toString())*/) {
+            if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it) && vm.hasVideo(it.toString())) {
                 val link = it.toString()
 
                 MaterialAlertDialogBuilder(requireContext())
