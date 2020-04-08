@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,11 +14,13 @@ import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.hyperdownloader.MainViewModel
 import com.foreverrafs.hyperdownloader.R
+import com.foreverrafs.hyperdownloader.adapter.SlideShowAdapter
 import com.foreverrafs.hyperdownloader.model.FacebookVideo
 import com.foreverrafs.hyperdownloader.util.disable
 import com.foreverrafs.hyperdownloader.util.enable
 import com.foreverrafs.hyperdownloader.util.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import timber.log.Timber
 
@@ -50,6 +53,35 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         vm.videosList.observe(viewLifecycleOwner, Observer {
             this.videoList = it.toMutableList()
         })
+
+        initSlideShow()
+    }
+
+    private fun initSlideShow() {
+        val adapter = SlideShowAdapter()
+        slideShowPager.adapter = adapter
+
+        TabLayoutMediator(tabLayout, slideShowPager) { tab, position ->
+            tab.text = "${position + 1}"
+
+        }.attach()
+
+        timer.start()
+    }
+
+    private val timer = object : CountDownTimer(60 * 1000, 5 * 1000) {
+        override fun onTick(millisUntilFinished: Long) {
+            slideShowPager?.let {
+                if (slideShowPager.currentItem + 1 <= 2)
+                    slideShowPager.currentItem = slideShowPager.currentItem + 1
+                else
+                    slideShowPager.currentItem = 0
+            }
+        }
+
+        override fun onFinish() {
+            Timber.i("Stopping slideshow")
+        }
     }
 
     private fun initializeViews() {
@@ -154,7 +186,10 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                         extractVideo(link)
                         suggestedLinks.add(link)
                     }
-                    .setNegativeButton(android.R.string.no, null)
+                    .setNegativeButton(
+                        android.R.string.no,
+                        null
+                    ) //todo: add to suggested links even when discarded
                     .show()
             } else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
