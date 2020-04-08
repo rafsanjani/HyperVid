@@ -177,19 +177,21 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
         clipBoardData?.getItemAt(0)?.text?.let {
             if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it) /*&& vm.hasVideo(it.toString())*/) {
+                val link = it.toString()
+
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_dowload_video))
                     .setPositiveButton(android.R.string.yes) { _, _ ->
-                        val link = it.toString()
                         urlInputLayout.editText?.setText(link)
                         extractVideo(link)
                         suggestedLinks.add(link)
                     }
                     .setNegativeButton(
-                        android.R.string.no,
-                        null
-                    ) //todo: add to suggested links even when discarded
+                        android.R.string.no
+                    ) { _, _ ->
+                        suggestedLinks.add(link)
+                    }
                     .show()
             } else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
