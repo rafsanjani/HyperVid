@@ -94,6 +94,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     //Check if a video with specified url has been downloaded already
     fun hasVideo(url: String) = _videosList.value?.any { video -> video.url == url } ?: false
 
+    //Check if a downnload already exists
+    fun hasDownload(url: String) =
+        _downloadList.value?.any { download -> download.url == url } ?: false
+
 
     fun getVideoList() {
         val json = preference.getString(PREF_KEY_VIDEOS, null)

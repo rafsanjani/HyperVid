@@ -20,7 +20,7 @@ class VideoDiffCallback(
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
         val (_, oldDuration, oldPath) = oldList[oldItemPosition]
-        val (_, duration, path) = oldList[oldItemPosition]
+        val (_, duration, path) = newList[oldItemPosition]
 
         return oldDuration == duration && oldPath == path
     }

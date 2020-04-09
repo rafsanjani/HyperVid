@@ -59,7 +59,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
 
-                videoAdapter.setList(videosList)
+                videoAdapter.submitList(videosList)
 
             } else {
                 videoBinding.videoListRecyclerView.invisible()

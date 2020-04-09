@@ -109,7 +109,7 @@ class VideoAdapter(
         }
     }
 
-    fun setList(newVideos: List<FacebookVideo>) {
+    fun submitList(newVideos: List<FacebookVideo>) {
         val diffCallback =
             VideoDiffCallback(
                 this.videos,

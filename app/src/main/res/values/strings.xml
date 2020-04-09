@@ -31,5 +31,6 @@
     <string name="yes">Yes</string>
     <string name="duplcate_video">Duplicate Video</string>
     <string name="title_download_video">Download Video</string>
-    <string name="prompt_dowload_video">Video found. Download now?</string>
+    <string name="prompt_download_video">Video found. Download now?</string>
+    <string name="prompt_delete_download">Delete Download</string>
 </resources>

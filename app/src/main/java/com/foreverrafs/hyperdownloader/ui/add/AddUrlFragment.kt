@@ -99,6 +99,11 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
+    private fun isNotExtracted(url: String) =
+        !suggestedLinks.contains(url) && !vm.hasVideo(url) && !vm.hasDownload(
+            url
+        )
+
     private fun extractVideo(videoURL: String) {
         btnAddToDownloads.text = getString(R.string.extracting)
         btnAddToDownloads.disable()
@@ -176,12 +181,12 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         clipBoardData = clipboardManager.primaryClip
 
         clipBoardData?.getItemAt(0)?.text?.let {
-            if (it.contains(FACEBOOK_URL) && !suggestedLinks.contains(it) && vm.hasVideo(it.toString())) {
-                val link = it.toString()
+            val link = it.toString()
 
+            if (link.contains(FACEBOOK_URL) && isNotExtracted(link)) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
-                    .setMessage(getString(R.string.prompt_dowload_video))
+                    .setMessage(getString(R.string.prompt_download_video))
                     .setPositiveButton(android.R.string.yes) { _, _ ->
                         urlInputLayout.editText?.setText(link)
                         extractVideo(link)
