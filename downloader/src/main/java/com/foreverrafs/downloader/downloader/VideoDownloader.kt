@@ -143,6 +143,7 @@ class VideoDownloader private constructor(private val context: Context) :
 
     fun close() {
         fetch.pauseAll()
+        fetch.removeListener(listener)
         fetch.close()
     }
 }
