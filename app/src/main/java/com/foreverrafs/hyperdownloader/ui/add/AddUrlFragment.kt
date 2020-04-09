@@ -21,6 +21,7 @@ import com.foreverrafs.hyperdownloader.util.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.fragment_addurl.*
+import kotlinx.coroutines.Job
 import timber.log.Timber
 
 class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
@@ -30,7 +31,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private var downloadList = mutableListOf<DownloadInfo>()
     private var videoList = mutableListOf<FacebookVideo>()
     private val suggestedLinks = mutableListOf<String>()
-
 
     companion object {
         const val FACEBOOK_URL = "https://www.facebook.com/"
@@ -44,7 +44,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
-
         vm.downloadList.observe(viewLifecycleOwner, Observer {
             this.downloadList = it.toMutableList()
         })
@@ -67,6 +66,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
         timer.start()
     }
+
 
     private val timer = object : CountDownTimer(60 * 1000, 5 * 1000) {
         override fun onTick(millisUntilFinished: Long) {
@@ -103,58 +103,64 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             url
         )
 
+    private lateinit var job: Job
+
     private fun extractVideo(videoURL: String) {
         btnAddToDownloads.text = getString(R.string.extracting)
         btnAddToDownloads.disable()
         urlInputLayout.disable()
 
-        val listener = object : FacebookExtractor.ExtractionEvents {
-            override fun onComplete(downloadableFile: DownloadableFile) {
-                val downloadInfo = DownloadInfo(
-                    downloadableFile.url,
-                    0,
-                    downloadableFile.author,
-                    downloadableFile.duration
-                )
-
-
-                val downloadExists = downloadList.any {
-                    it.url == downloadInfo.url
-                }
-
-                if (downloadExists) {
-                    Timber.e("Download exists. Unable to add to list")
-                    showToast("Link already extracted")
-                    resetUi()
-                    return
-                }
-
-
-                Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
-                showToast("Video added to download queue...")
-
-                downloadList.add(downloadInfo)
-                vm.setDownloadList(downloadList)
-
-                resetUi()
-                pageNavigator(1)
-            }
-
-            override fun onError(exception: Exception) {
-                Timber.e(exception)
-                showToast("Error loading video from link")
-                urlInputLayout.isErrorEnabled = true
-
-                btnAddToDownloads.text = getString(R.string.add_to_downloads)
-                btnAddToDownloads.enable()
-                urlInputLayout.enable()
-            }
-        }
-
-        vm.extractVideoDownloadUrl(
+        job = vm.extractVideoDownloadUrl(
             videoURL,
             listener
         )
+
+        job.invokeOnCompletion {
+            Timber.i(it)
+        }
+    }
+
+    private var listener = object : FacebookExtractor.ExtractionEvents {
+        override fun onComplete(downloadableFile: DownloadableFile) {
+            val downloadInfo = DownloadInfo(
+                downloadableFile.url,
+                0,
+                downloadableFile.author,
+                downloadableFile.duration
+            )
+
+
+            val downloadExists = downloadList.any {
+                it.url == downloadInfo.url
+            }
+
+            if (downloadExists) {
+                Timber.e("Download exists. Unable to add to list")
+                showToast("Link already extracted")
+                resetUi()
+                return
+            }
+
+
+            Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
+            showToast("Video added to download queue...")
+
+            downloadList.add(downloadInfo)
+            vm.setDownloadList(downloadList)
+
+            resetUi()
+            pageNavigator(1)
+        }
+
+        override fun onError(exception: Exception) {
+            Timber.e(exception)
+            showToast("Error loading video from link")
+            urlInputLayout.isErrorEnabled = true
+
+            btnAddToDownloads.text = getString(R.string.add_to_downloads)
+            btnAddToDownloads.enable()
+            urlInputLayout.enable()
+        }
     }
 
     private fun resetUi() {
@@ -166,6 +172,11 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         btnAddToDownloads.enable()
         urlInputLayout.enable()
         btnAddToDownloads.enable()
+    }
+
+    override fun onDestroy() {
+        timer.cancel()
+        super.onDestroy()
     }
 
     override fun onResume() {
@@ -209,7 +220,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             clipText?.let {
                 if (it.contains(FACEBOOK_URL))
-                    urlInputLayout.editText?.setText(clipText.toString())
+                    urlInputLayout?.editText?.setText(clipText.toString())
             } ?: Timber.e("clipText is null")
         }
     }

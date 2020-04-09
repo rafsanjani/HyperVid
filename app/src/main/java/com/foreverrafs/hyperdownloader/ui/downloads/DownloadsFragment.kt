@@ -31,7 +31,7 @@ import java.io.FileInputStream
 import java.io.IOException
 
 class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
-    private var downloadsAdapter = DownloadAdapter(this)
+    private val downloadsAdapter = DownloadAdapter(this)
 
     private val vm: MainViewModel by activityViewModels()
     private var videosList = mutableListOf<FacebookVideo>()
@@ -86,6 +86,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         vm.downloadList.observe(viewLifecycleOwner, downloadListObserver)
 
         vm.videosList.observe(viewLifecycleOwner, Observer {

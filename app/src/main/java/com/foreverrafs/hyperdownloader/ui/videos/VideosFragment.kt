@@ -41,7 +41,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        videoAdapter = VideoAdapter(requireContext(), this)
+        videoAdapter = VideoAdapter(requireActivity().applicationContext, this)
 
         videoBinding.videoListRecyclerView.adapter =
             videoAdapter

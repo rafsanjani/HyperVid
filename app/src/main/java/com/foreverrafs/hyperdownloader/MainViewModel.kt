@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.FacebookExtractor
@@ -11,6 +12,8 @@ import com.foreverrafs.hyperdownloader.model.FacebookVideo
 import com.foreverrafs.hyperdownloader.util.toJson
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -44,10 +47,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun extractVideoDownloadUrl(
         streamUrl: String,
         listener: FacebookExtractor.ExtractionEvents
-    ) {
-        FacebookExtractor().apply {
-            addEventsListener(listener)
-            extract(streamUrl)
+    ): Job {
+        val extractor = FacebookExtractor()
+        extractor.addEventsListener(listener)
+
+        return viewModelScope.launch {
+            extractor.extract(streamUrl)
         }
     }
 

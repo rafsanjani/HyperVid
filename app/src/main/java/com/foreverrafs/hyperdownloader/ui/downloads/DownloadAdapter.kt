@@ -34,13 +34,12 @@ class DownloadAdapter(val interaction: Interaction) :
     RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
 
-    private lateinit var context: Context
     private val videoDownloader: VideoDownloader by lazy {
         VideoDownloader.getInstance(context)!!
     }
 
     val downloads = mutableListOf<DownloadInfo>()
-
+    private lateinit var context: Context
     fun submitList(newList: List<DownloadInfo>) {
         val diffCallback =
             DownloadDiffCallback(
