@@ -1,9 +1,8 @@
 package com.foreverrafs.extractor
 
 import android.media.MediaMetadataRetriever
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.BufferedReader
@@ -34,21 +33,24 @@ class FacebookExtractor {
         return null
     }
 
-    fun extract(facebookUrl: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val file = extractFBFileInfo(facebookUrl)
+    suspend fun extract(facebookUrl: String) = withContext(Dispatchers.IO) {
+        val file = extractFBFileInfo(facebookUrl)
 
-            if (file != null) {
+        ensureActive()
+
+        if (file != null) {
+            withContext(Dispatchers.Main) {
+                eventsListener?.onComplete(file)
+            }
+        } else {
+            exception?.let {
                 withContext(Dispatchers.Main) {
-                    eventsListener?.onComplete(file)
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    eventsListener?.onError(exception!!)
+                    eventsListener?.onError(it)
                 }
             }
         }
     }
+
 
     fun addEventsListener(listener: ExtractionEvents) {
         this.eventsListener = listener
@@ -103,6 +105,7 @@ class FacebookExtractor {
                     openUrl.disconnect()
                 }
             } else {
+                Timber.e("Video not found")
                 return null
             }
             if (metaTAGTitleMatcher.find()) {
