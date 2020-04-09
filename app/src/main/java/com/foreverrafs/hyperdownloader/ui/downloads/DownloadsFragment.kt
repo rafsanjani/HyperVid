@@ -65,10 +65,11 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
 
 
     private val downloadListObserver = Observer<List<DownloadInfo>> { list ->
+        vm.saveDownloadList(list)
+
         if (list.isNotEmpty()) {
             downloadList = list.toMutableList()
             emptyListBinding.root.invisible()
-
             Handler().postDelayed({
                 showDownloads(downloadList)
             }, 300)
@@ -97,11 +98,6 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         downloadBinding.downloadListRecyclerView.visible()
 
         downloadsAdapter.submitList(downloadList.toMutableList())
-    }
-
-    override fun onPause() {
-        vm.saveDownloadList(downloadList)
-        super.onPause()
     }
 
 
