@@ -14,7 +14,6 @@ import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.hyperdownloader.MainViewModel
 import com.foreverrafs.hyperdownloader.R
-import com.foreverrafs.hyperdownloader.adapter.SlideShowAdapter
 import com.foreverrafs.hyperdownloader.model.FacebookVideo
 import com.foreverrafs.hyperdownloader.util.disable
 import com.foreverrafs.hyperdownloader.util.enable

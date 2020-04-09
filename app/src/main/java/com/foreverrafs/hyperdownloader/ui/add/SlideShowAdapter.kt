@@ -1,4 +1,4 @@
-package com.foreverrafs.hyperdownloader.adapter
+package com.foreverrafs.hyperdownloader.ui.add
 
 import android.view.LayoutInflater
 import android.view.View
@@ -20,7 +20,7 @@ class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHold
             "Look for a Facebook video",
             "This applies to any public downloadable video from facebook. Some videos can be found at Videos on Watch"
         ),
-        SlideImage(R.drawable.walkthrough2, "Tap on the right menu\n(three dots)", ""),
+        SlideImage(R.drawable.walkthrough2, "Tap on the upper right menu\n(three dots)", ""),
         SlideImage(R.drawable.walkthrough3, "Tap \"Copy Link\"", "")
     )
 
