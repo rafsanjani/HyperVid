@@ -1,10 +1,10 @@
 package com.foreverrafs.extractor
 
 import android.media.MediaMetadataRetriever
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.BufferedReader
 import java.io.IOException
@@ -35,14 +35,15 @@ class FacebookExtractor {
     }
 
     fun extract(facebookUrl: String) {
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             val file = extractFBFileInfo(facebookUrl)
+
             if (file != null) {
-                runBlocking(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     eventsListener?.onComplete(file)
                 }
             } else {
-                runBlocking(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     eventsListener?.onError(exception!!)
                 }
             }
