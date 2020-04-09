@@ -23,13 +23,14 @@ import com.foreverrafs.hyperdownloader.databinding.ListEmptyBinding
 import com.foreverrafs.hyperdownloader.model.FacebookVideo
 import com.foreverrafs.hyperdownloader.util.invisible
 import com.foreverrafs.hyperdownloader.util.visible
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.fragment_downloads.*
 import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class DownloadsFragment : Fragment(), DownloadAdapter.Events {
+class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
     private var downloadsAdapter = DownloadAdapter(this)
 
     private val vm: MainViewModel by activityViewModels()
@@ -108,7 +109,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Events {
      * when a video has been successfully downloaded from the list. The adapter position of the downloaded
      * video together with the video item downloaded are received
      */
-    override fun onSuccess(position: Int, video: FacebookVideo) {
+    override fun onVideoDownloaded(position: Int, video: FacebookVideo) {
         val downloadExists = videosList.any {
             it.path == video.path
         }
@@ -208,16 +209,20 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Events {
      * When a download item is removed via the adapter, an event is propagated back to the fragment which is
      * used to resolve the UI
      */
-    override fun onDeleted(position: Int) {
-        downloadList.removeAt(position)
-
-        if (downloadList.isNotEmpty())
-            showDownloads(downloadList)
-        else
-            showEmptyScreen()
+    override fun deleteDownload(download: DownloadInfo) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.title_delete_video)
+            .setIcon(R.drawable.ic_delete)
+            .setMessage(R.string.prompt_delete_download)
+            .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                downloadsAdapter.deleteDownload(download)
+                vm.setDownloadList(downloadsAdapter.downloads)
+            }
+            .setNegativeButton(android.R.string.no, null)
+            .show()
     }
 
-    override fun onError(position: Int) {
+    override fun onDownloadError(position: Int) {
         //NO-OP
     }
 }

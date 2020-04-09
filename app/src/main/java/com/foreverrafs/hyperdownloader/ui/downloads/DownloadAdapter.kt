@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.downloader.downloader.DownloadEvents
 import com.foreverrafs.downloader.downloader.DownloadException
@@ -19,7 +18,6 @@ import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hyperdownloader.R
 import com.foreverrafs.hyperdownloader.model.FacebookVideo
 import com.foreverrafs.hyperdownloader.util.*
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.item_download__.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,22 +30,37 @@ import kotlin.collections.HashMap
 import kotlin.math.abs
 
 
-class DownloadAdapter(val events: Events) :
-    ListAdapter<DownloadInfo, DownloadAdapter.DownloadsViewHolder>(object :
-        DiffUtil.ItemCallback<DownloadInfo>() {
-        override fun areItemsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
-            return oldItem == newItem
-        }
-
-        override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
-            return oldItem.url == newItem.url
-        }
-    }) {
+class DownloadAdapter(val interaction: Interaction) :
+    RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
 
     private lateinit var context: Context
     private val videoDownloader: VideoDownloader by lazy {
         VideoDownloader.getInstance(context)!!
+    }
+
+    val downloads = mutableListOf<DownloadInfo>()
+
+    fun submitList(newList: List<DownloadInfo>) {
+        val diffCallback =
+            DownloadDiffCallback(
+                this.downloads,
+                newList
+            )
+
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        downloads.clear()
+        downloads.addAll(newList)
+
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    fun deleteDownload(download: DownloadInfo) {
+        val index = downloads.indexOf(download)
+        downloads.remove(download)
+        notifyItemRemoved(index)
+        Timber.i("Deleted item at position $index")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
@@ -59,11 +72,8 @@ class DownloadAdapter(val events: Events) :
         return DownloadsViewHolder(itemView)
     }
 
-    val downloads: List<DownloadInfo>
-        get() = currentList
-
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
-        val downloadItem = getItem(position)
+        val downloadItem = downloads[position]
         holder.bind(downloadItem)
     }
 
@@ -143,22 +153,7 @@ class DownloadAdapter(val events: Events) :
                         return@setOnMenuItemClickListener true
                     }
                     R.id.delete -> {
-                        MaterialAlertDialogBuilder(context)
-                            .setTitle(context.getString(R.string.title_delete_video))
-                            .setIcon(R.drawable.ic_delete)
-                            .setMessage(context.getString(R.string.prompt_delete_video))
-                            .setPositiveButton(R.string.delete) { _, _ ->
-                                stopDownload()
-                                currentList.toMutableList()
-                                    .also {
-                                        it.removeAt(adapterPosition)
-                                    }
-
-                                events.onDeleted(adapterPosition)
-
-                            }.setNegativeButton(android.R.string.cancel, null)
-                            .show()
-
+                        interaction.deleteDownload(downloads[adapterPosition])
                         return@setOnMenuItemClickListener true
                     }
                     R.id.stop -> {
@@ -212,7 +207,7 @@ class DownloadAdapter(val events: Events) :
                     )
 
 
-                    events.onSuccess(adapterPosition, facebookVideo)
+                    interaction.onVideoDownloaded(adapterPosition, facebookVideo)
 
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.btnStartPause.gone()
@@ -279,9 +274,11 @@ class DownloadAdapter(val events: Events) :
         }
     }
 
-    interface Events {
-        fun onSuccess(position: Int, video: FacebookVideo)
-        fun onDeleted(position: Int)
-        fun onError(position: Int)
+    interface Interaction {
+        fun onVideoDownloaded(position: Int, video: FacebookVideo)
+        fun deleteDownload(download: DownloadInfo)
+        fun onDownloadError(position: Int)
     }
+
+    override fun getItemCount(): Int = downloads.size
 }
