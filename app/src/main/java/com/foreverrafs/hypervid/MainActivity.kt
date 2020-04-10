@@ -51,12 +51,12 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.message_copyright_notice)
             )
             .setTitle(getString(R.string.title_copyright_notice))
-            .setPositiveButton(android.R.string.ok, null)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                viewModel.isFirstRun = false
+            }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
                 finish()
             }.show()
-
-        viewModel.isFirstRun = false
     }
 
     override fun onRequestPermissionsResult(
