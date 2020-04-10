@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/DownloadsCard"
     android:animateLayoutChanges="true"
-    tools:context="com.foreverrafs.hyperdownloader.ui.downloads.DownloadAdapter"
+    tools:context="com.foreverrafs.hypervid.ui.downloads.DownloadAdapter"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
