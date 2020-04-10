@@ -33,4 +33,10 @@
     <string name="title_download_video">Download Video</string>
     <string name="prompt_download_video">Video found. Download now?</string>
     <string name="prompt_delete_download">Delete Download</string>
+    <string name="title_copyright_notice">Copyright Notice</string>
+    <string name="message_copyright_notice">
+        This App is intended for general use and is meant to be used as a tool for downloading public Facebook videos.
+        The usage of this app must therefore be in compliance with the copyright notices of content providers.
+        \n \nDo you wish to proceed?
+    </string>
 </resources>

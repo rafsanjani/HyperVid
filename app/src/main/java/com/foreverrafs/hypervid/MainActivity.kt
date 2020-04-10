@@ -14,6 +14,7 @@ import com.foreverrafs.hypervid.androidext.requestStoragePermission
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -36,11 +37,27 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
+        if (viewModel.isFirstRun)
+            showDisclaimer()
+
         initializeTabComponents()
         viewModel.getDownloadList()
         viewModel.getVideoList()
     }
 
+    private fun showDisclaimer() {
+        MaterialAlertDialogBuilder(this)
+            .setMessage(
+                getString(R.string.message_copyright_notice)
+            )
+            .setTitle(getString(R.string.title_copyright_notice))
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel) { _, _ ->
+                finish()
+            }.show()
+
+        viewModel.isFirstRun = false
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

@@ -28,6 +28,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         const val PREF_KEY_DOWNLOADS = "download_list"
         const val PREF_KEY_VIDEOS = "videos_list"
+        const val PREF_KEY_FIRSTRUN = "firstrun"
     }
 
     val downloadList: LiveData<List<DownloadInfo>>
@@ -117,4 +118,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         } ?: Timber.i("no video found")
     }
 
+    var isFirstRun: Boolean
+        get() = preference.getBoolean(PREF_KEY_FIRSTRUN, true)
+        set(value) = preference.edit().putBoolean(PREF_KEY_FIRSTRUN, value).apply()
 }

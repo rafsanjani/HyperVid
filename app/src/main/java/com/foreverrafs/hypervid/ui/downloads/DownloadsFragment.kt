@@ -66,9 +66,9 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
 
     private val downloadListObserver = Observer<List<DownloadInfo>> { list ->
         vm.saveDownloadList(list)
+        downloadList = list.toMutableList()
 
         if (list.isNotEmpty()) {
-            downloadList = list.toMutableList()
             emptyListBinding.root.invisible()
             Handler().postDelayed({
                 showDownloads(downloadList)
@@ -212,8 +212,10 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
             .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_download)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                downloadsAdapter.deleteDownload(download)
-                vm.setDownloadList(downloadsAdapter.downloads)
+                downloadList.remove(download)
+//                downloadsAdapter.deleteDownload(download)
+
+                vm.setDownloadList(downloadList)
             }
             .setNegativeButton(android.R.string.no, null)
             .show()

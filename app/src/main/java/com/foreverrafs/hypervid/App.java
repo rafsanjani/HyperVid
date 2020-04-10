@@ -2,8 +2,6 @@ package com.foreverrafs.hypervid;
 
 import android.app.Application;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import timber.log.Timber;
 
 public class App extends Application {
