@@ -48,10 +48,10 @@ class VideoAdapter(
     }
 
     fun deleteVideo(video: FacebookVideo) {
-        val videoIndex = videos.indexOf(video)
+        val index = videos.indexOf(video)
         videos.remove(video)
-        notifyItemRemoved(videoIndex)
-        Timber.i("Deleted item at position $videoIndex")
+        notifyItemRemoved(index)
+        Timber.i("Deleted item at position $index")
     }
 
     fun addVideo(video: FacebookVideo) {

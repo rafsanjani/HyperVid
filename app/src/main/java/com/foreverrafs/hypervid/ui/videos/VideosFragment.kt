@@ -25,6 +25,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     private lateinit var videoAdapter: VideoAdapter
     private lateinit var videoBinding: FragmentVideosBinding
     private lateinit var emptyListBinding: ListEmptyBinding
+    private var videoList = mutableListOf<FacebookVideo>()
 
 
     override fun onCreateView(
@@ -55,6 +56,8 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
         initEmptyLayoutTexts()
 
         vm.videosList.observe(viewLifecycleOwner, Observer { videosList ->
+            this.videoList = videosList.toMutableList()
+
             if (videosList.isNotEmpty()) {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
@@ -86,11 +89,15 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
             .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_video)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                videoAdapter.deleteVideo(video)
+                videoList.remove(video)
+//                videoAdapter.deleteVideo(video)
                 File(video.path).delete()
-                vm.setVideosList(videoAdapter.videos)
+
+                vm.setVideosList(videoList)
             }
-            .setNegativeButton(android.R.string.no, null)
+            .setNegativeButton(android.R.string.no) { _, _ ->
+                videoAdapter.notifyDataSetChanged()
+            }
             .show()
     }
 }
