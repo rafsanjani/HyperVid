@@ -5,7 +5,6 @@
     <color name="colorPrimary">@color/brandColor</color>
     <color name="colorPrimaryDark">#455A64</color>
     <color name="colorAccent">#536DFE</color>
-    <color name="lightgray">#E6DCDB</color>
     <color name="tabColor">@color/brandColor</color>
 </resources>
 
