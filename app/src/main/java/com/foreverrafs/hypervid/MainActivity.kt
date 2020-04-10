@@ -67,8 +67,11 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             STORAGE_REQ_CODE ->
                 if (grantResults.isEmpty() && (grantResults[0] == PackageManager.PERMISSION_DENIED)) {
+                    //todo: do something more meaningful when permission is denied
+                    finish()
                     //request was denied so show user a friendly message telling him why the application will not work
-                    //without getting storage access. How will we store the downloaded files? mmmm
+                    //without getting storage access. How will we store the downloaded files?
+
                 }
         }
     }
