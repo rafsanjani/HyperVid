@@ -114,14 +114,18 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         if (!downloadExists) {
             saveVideoToGallery(video)
             videosList.add(video)
+
+
+            Handler().postDelayed({
+                downloadList.removeAt(position)
+                vm.setDownloadList(downloadList)
+            }, 800)
+
+
             vm.setVideosList(videosList)
 
             //navigate to the videos page : 2
             pageNavigator(2)
-
-            Handler().postDelayed({
-
-            }, 2000)
         } else {
             Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT)
                 .show()
