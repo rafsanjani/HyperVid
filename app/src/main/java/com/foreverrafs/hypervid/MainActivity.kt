@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigateTo(pageNumber: Int): Boolean {
         Handler().postDelayed({
             viewPager.setCurrentItem(pageNumber, true)
-        }, 500)
+        }, 2000)
 
         return true
     }
