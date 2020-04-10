@@ -1,4 +1,4 @@
 include ':extractor'
-rootProject.name='RDownloader'
+rootProject.name='HyperVid'
 include ':app'
 include ':downloader'

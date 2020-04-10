@@ -8,7 +8,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:657466605986:android:24d314158bc4e85962f2fb",
+        "mobilesdk_app_id": "1:657466605986:android:68f1d9f21d31733e62f2fb",
         "android_client_info": {
           "package_name": "com.foreverrafs.hypervid"
         }
@@ -19,43 +19,6 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.foreverrafs.hypervid",
-            "certificate_hash": "61db7bcba9866251cf889eaceddce82ecbc64360"
-          }
-        },
-        {
-          "client_id": "657466605986-23nqepo6ao59q1mut36slgkq8s6lv5en.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAp5OCaGnVFU172xZPYN1rB2Xa4pGabNPk"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "657466605986-23nqepo6ao59q1mut36slgkq8s6lv5en.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:657466605986:android:88594035805005fe62f2fb",
-        "android_client_info": {
-          "package_name": "com.foreverrafs.rdownloader"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "657466605986-8fd55hedm6b2k92udjfo2dv50fbnub2l.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.foreverrafs.rdownloader",
             "certificate_hash": "61db7bcba9866251cf889eaceddce82ecbc64360"
           }
         },
