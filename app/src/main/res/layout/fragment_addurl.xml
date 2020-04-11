@@ -30,6 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:fontFamily="@font/salsa"
+        android:enabled="false"
         android:text="@string/add_to_downloads"
         app:layout_constraintEnd_toEndOf="@+id/urlInputLayout"
         app:layout_constraintStart_toEndOf="@+id/btnPaste"

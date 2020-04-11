@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -96,6 +97,16 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         //immediately. We wait for the user to interact with it in the downloads section before we download.
         btnAddToDownloads.setOnClickListener {
             extractVideo(urlInputLayout.editText?.text.toString())
+        }
+
+        urlInputLayout.editText?.addTextChangedListener {
+            it?.let {
+                if (it.contains(FACEBOOK_URL))
+                    btnAddToDownloads.enable()
+                else
+                    btnAddToDownloads.disable()
+            }
+
         }
     }
 
