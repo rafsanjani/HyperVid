@@ -37,14 +37,14 @@ class FacebookExtractor {
         val file = extractFBFileInfo(facebookUrl)
 
         ensureActive()
-
-        if (file != null) {
-            withContext(Dispatchers.Main) {
-                eventsListener?.onComplete(file)
-            }
-        } else {
-            exception?.let {
-                withContext(Dispatchers.Main) {
+        withContext(Dispatchers.Main) {
+            file?.let {
+                if (it.duration <= 0)
+                    eventsListener?.onError(Exception("Invalid link"))
+                else
+                    eventsListener?.onComplete(it)
+            } ?: run {
+                exception?.let {
                     eventsListener?.onError(it)
                 }
             }
@@ -58,7 +58,7 @@ class FacebookExtractor {
 
     @Throws(IOException::class)
     private fun parseHtml(streamMap: String?): DownloadableFile? {
-       val facebookFile = DownloadableFile()
+        val facebookFile = DownloadableFile()
 
         if (streamMap == null) return null
         if (streamMap.contains("You must log in to continue.")) {
@@ -112,8 +112,9 @@ class FacebookExtractor {
                 val authorStr =
                     streamMap.substring(metaTAGTitleMatcher.start(), metaTAGTitleMatcher.end())
                 Timber.i("AUTHOR :: %s", authorStr)
-                facebookFile.author = authorStr.replace("<meta property=\"og:title\" content=\"", "")
-                    .replace("\" />", "")
+                facebookFile.author =
+                    authorStr.replace("<meta property=\"og:title\" content=\"", "")
+                        .replace("\" />", "")
             } else {
                 facebookFile.author = "fbdescription"
             }
