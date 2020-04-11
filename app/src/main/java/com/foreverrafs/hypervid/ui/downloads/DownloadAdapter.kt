@@ -93,19 +93,23 @@ class DownloadAdapter(val interaction: Interaction) :
                 val downloadDate = Date(downloadItem.dateAdded)
                 itemView.tvDate.text = formatter.format(downloadDate)
 
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(downloadItem.url, HashMap())
-                val durationString = getDurationString(downloadItem.duration)
-                val image = retriever.frameAtTime
+                try {
+                    val retriever = MediaMetadataRetriever()
+                    retriever.setDataSource(downloadItem.url, HashMap())
+                    val durationString = getDurationString(downloadItem.duration)
+                    val image = retriever.frameAtTime
 
-                withContext(Dispatchers.Main) {
+                    withContext(Dispatchers.Main) {
 
-                    itemView.image.load(image)
+                        itemView.image.load(image)
 
-                    itemView.tvDuration.apply {
-                        text = durationString
-                        visible()
+                        itemView.tvDuration.apply {
+                            text = durationString
+                            visible()
+                        }
                     }
+                } catch (e: Exception) {
+                    Timber.i(e)
                 }
             }
 
