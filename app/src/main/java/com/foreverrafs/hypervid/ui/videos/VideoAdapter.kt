@@ -1,5 +1,6 @@
 package com.foreverrafs.hypervid.ui.videos
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.media.MediaMetadataRetriever
@@ -8,6 +9,7 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
@@ -86,7 +88,12 @@ class VideoAdapter(
                 intent.setDataAndType(Uri.parse(facebookVideo.path), "video/*")
 
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(intent)
+                try {
+                    context.startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    Toast.makeText(context, "Unable to play video. Locate and play it from your gallery", Toast.LENGTH_SHORT).show()
+                    Timber.e(e)
+                }
             }
 
             itemView.btnShareWhatsapp.setOnClickListener {
