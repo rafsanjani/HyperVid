@@ -49,18 +49,6 @@ class VideoAdapter(
         Timber.i("Moved from $fromPosition to $toPosition")
     }
 
-    fun deleteVideo(video: FacebookVideo) {
-        val index = videos.indexOf(video)
-        videos.remove(video)
-        notifyItemRemoved(index)
-        Timber.i("Deleted item at position $index")
-    }
-
-    fun addVideo(video: FacebookVideo) {
-        videos.add(0, video)
-        notifyItemInserted(0)
-    }
-
     override fun onBindViewHolder(holder: VideosViewHolder, position: Int) {
         holder.bind(videos[position])
     }
