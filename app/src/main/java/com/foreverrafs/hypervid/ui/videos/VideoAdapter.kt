@@ -30,8 +30,8 @@ import java.util.*
 import kotlin.math.abs
 
 class VideoAdapter(
-    private val context: Context,
-    private val callback: VideoCallback
+        private val context: Context,
+        private val callback: VideoCallback
 ) :
     RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
     ItemTouchCallback.ItemTouchHelperAdapter {
@@ -55,18 +55,23 @@ class VideoAdapter(
 
     inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(facebookVideo: FacebookVideo) {
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val retriever = MediaMetadataRetriever()
+                    retriever.setDataSource(facebookVideo.path)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(facebookVideo.path)
 
-                withContext(Dispatchers.Main) {
-                    itemView.imageCover.load(retriever.frameAtTime)
+                    withContext(Dispatchers.Main) {
+                        itemView.imageCover.load(retriever.frameAtTime)
+                    }
                 }
+            } catch (e: Exception) {
+                Timber.e(e)
+                return
             }
 
             itemView.tvTitle.text = Html.fromHtml(
-                if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
+                    if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
             )
 
             itemView.tvDuration.text = getDurationString(facebookVideo.duration)

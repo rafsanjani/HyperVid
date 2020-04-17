@@ -55,13 +55,6 @@ class DownloadAdapter(val interaction: Interaction) :
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun deleteDownload(download: DownloadInfo) {
-        val index = downloads.indexOf(download)
-        downloads.remove(download)
-        notifyItemRemoved(index)
-        Timber.i("Deleted item at position $index")
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
         context = parent.context
 
@@ -100,7 +93,6 @@ class DownloadAdapter(val interaction: Interaction) :
                     val image = retriever.frameAtTime
 
                     withContext(Dispatchers.Main) {
-
                         itemView.image.load(image)
 
                         itemView.tvDuration.apply {
