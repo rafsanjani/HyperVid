@@ -7,14 +7,6 @@ apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    signingConfigs {
-        release {
-            storeFile file('/Users/Aziz/Desktop/myandrioidkeystore.jks')
-            storePassword 'NowyouseeMe1990'
-            keyAlias 'rafsanjani_downloader'
-            keyPassword 'Looking123'
-        }
-    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -22,8 +14,8 @@ android {
         applicationId "com.foreverrafs.hypervid"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 3
-        versionName "1.2.1"
+        versionCode 4
+        versionName "1.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -65,6 +57,7 @@ dependencies {
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
 
     //material design components
     implementation 'com.google.android.material:material:1.2.0-alpha05'

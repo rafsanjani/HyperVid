@@ -20,10 +20,7 @@ import com.foreverrafs.hypervid.util.load
 import com.foreverrafs.hypervid.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -55,26 +52,32 @@ class VideoAdapter(
 
     inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(facebookVideo: FacebookVideo) {
-            try {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val retriever = MediaMetadataRetriever()
-                    retriever.setDataSource(facebookVideo.path)
-
-
-                    withContext(Dispatchers.Main) {
-                        itemView.imageCover.load(retriever.frameAtTime)
-                    }
-                }
-            } catch (e: Exception) {
-                Timber.e(e)
-                return
+            val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
+                Timber.e(throwable)
             }
 
-            itemView.tvTitle.text = Html.fromHtml(
-                    if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
-            )
+            val job = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+                val retriever = MediaMetadataRetriever()
+                retriever.setDataSource(facebookVideo.path)
 
-            itemView.tvDuration.text = getDurationString(facebookVideo.duration)
+                withContext(Dispatchers.Main) {
+                    itemView.imageCover.load(retriever.frameAtTime)
+                }
+            }
+
+            job.invokeOnCompletion {
+                it?.let {
+
+                }
+
+                itemView.tvTitle.text = Html.fromHtml(
+                    if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
+                )
+
+                itemView.tvDuration.text = getDurationString(facebookVideo.duration)
+            }
+
+
 
             itemView.btnPlay.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)

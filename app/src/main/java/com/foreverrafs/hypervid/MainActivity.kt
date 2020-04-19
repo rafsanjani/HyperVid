@@ -31,10 +31,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestStoragePermission(STORAGE_REQ_CODE)
-        }
-
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         if (viewModel.isFirstRun)
@@ -52,7 +48,10 @@ class MainActivity : AppCompatActivity() {
             )
             .setTitle(getString(R.string.title_copyright_notice))
             .setPositiveButton(android.R.string.ok) { _, _ ->
-                viewModel.isFirstRun = false
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestStoragePermission(STORAGE_REQ_CODE)
+                    viewModel.isFirstRun = false
+                }
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
                 finish()
@@ -65,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         when (requestCode) {
-            STORAGE_REQ_CODE ->
+            STORAGE_REQ_CODE -> {
                 if (grantResults.isEmpty() && (grantResults[0] == PackageManager.PERMISSION_DENIED)) {
                     //todo: do something more meaningful when permission is denied
                     finish()
@@ -73,6 +72,7 @@ class MainActivity : AppCompatActivity() {
                     //without getting storage access. How will we store the downloaded files?
 
                 }
+            }
         }
     }
 
