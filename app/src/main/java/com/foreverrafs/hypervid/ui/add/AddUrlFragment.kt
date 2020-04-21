@@ -35,6 +35,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     companion object {
         const val FACEBOOK_URL = "https://www.facebook.com/"
+        const val FB_MOBILE_URL = "https://m.facebook.com/"
         private lateinit var pageNavigator: (pageNumber: Int) -> Boolean
 
         fun newInstance(listener: (pageNumber: Int) -> Boolean = { true }): AddUrlFragment {
@@ -220,7 +221,24 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                         suggestedLinks.add(link)
                     }
                     .show()
-            } else {
+            } //Added same method for facebook mobile url
+            else if (link.contains(FB_MOBILE_URL) && isNotExtracted(link)) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.title_download_video)
+                    .setMessage(getString(R.string.prompt_download_video))
+                    .setPositiveButton(android.R.string.yes) { _, _ ->
+                        urlInputLayout.editText?.setText(link)
+                        extractVideo(link)
+                        suggestedLinks.add(link)
+                    }
+                    .setNegativeButton(
+                        android.R.string.no
+                    ) { _, _ ->
+                        suggestedLinks.add(link)
+                    }
+                    .show()
+            }
+            else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
         }
@@ -231,8 +249,13 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             val clipText = clipBoardData?.getItemAt(0)?.text
 
             clipText?.let {
-                if (it.contains(FACEBOOK_URL))
-                    urlInputLayout?.editText?.setText(clipText.toString())
+                //Changed if to when statement
+                when {
+                    it.contains(FACEBOOK_URL) ->  urlInputLayout?.editText?.setText(clipText.toString())
+                    it.contains(FB_MOBILE_URL) ->  urlInputLayout?.editText?.setText(clipText.toString())
+                    else -> Timber.e("Enter a valid facebook url")
+                }
+
             } ?: Timber.e("clipText is null")
         }
     }
