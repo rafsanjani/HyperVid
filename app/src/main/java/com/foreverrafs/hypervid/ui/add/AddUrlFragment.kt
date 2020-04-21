@@ -35,6 +35,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     companion object {
         const val FACEBOOK_URL = "https://www.facebook.com/"
+        const val FACEBOOK_URL_MOBILE = "https://m.facebook.com/"
+
         private lateinit var pageNavigator: (pageNumber: Int) -> Boolean
 
         fun newInstance(listener: (pageNumber: Int) -> Boolean = { true }): AddUrlFragment {
@@ -179,7 +181,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         btnPaste.text = getString(R.string.paste_link)
         urlInputLayout.editText?.text?.clear()
 
-
         btnAddToDownloads.text = getString(R.string.add_to_downloads)
         btnAddToDownloads.enable()
         urlInputLayout.enable()
@@ -205,21 +206,21 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         clipBoardData?.getItemAt(0)?.text?.let {
             val link = it.toString()
 
-            if (link.contains(FACEBOOK_URL) && isNotExtracted(link)) {
+            if (isValidUrl(link) && isNotExtracted(link)) {
                 MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.title_download_video)
-                    .setMessage(getString(R.string.prompt_download_video))
-                    .setPositiveButton(android.R.string.yes) { _, _ ->
-                        urlInputLayout.editText?.setText(link)
-                        extractVideo(link)
-                        suggestedLinks.add(link)
-                    }
-                    .setNegativeButton(
-                        android.R.string.no
-                    ) { _, _ ->
-                        suggestedLinks.add(link)
-                    }
-                    .show()
+                        .setTitle(R.string.title_download_video)
+                        .setMessage(getString(R.string.prompt_download_video))
+                        .setPositiveButton(android.R.string.yes) { _, _ ->
+                            urlInputLayout.editText?.setText(link)
+                            extractVideo(link)
+                            suggestedLinks.add(link)
+                        }
+                        .setNegativeButton(
+                                android.R.string.no
+                        ) { _, _ ->
+                            suggestedLinks.add(link)
+                        }
+                        .show()
             } else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
@@ -231,9 +232,12 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             val clipText = clipBoardData?.getItemAt(0)?.text
 
             clipText?.let {
-                if (it.contains(FACEBOOK_URL))
+                if (isValidUrl(it.toString()))
                     urlInputLayout?.editText?.setText(clipText.toString())
+
             } ?: Timber.e("clipText is null")
         }
     }
+
+    private fun isValidUrl(url: String) = url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE)
 }
