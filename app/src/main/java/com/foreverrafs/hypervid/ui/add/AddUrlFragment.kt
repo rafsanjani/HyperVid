@@ -16,6 +16,7 @@ import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.hypervid.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FacebookVideo
+import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.foreverrafs.hypervid.util.disable
 import com.foreverrafs.hypervid.util.enable
 import com.foreverrafs.hypervid.util.showToast
@@ -118,6 +119,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private lateinit var job: Job
 
     private fun extractVideo(videoURL: String) {
+        EspressoIdlingResource.increment()
+
         btnAddToDownloads.text = getString(R.string.extracting)
         btnAddToDownloads.disable()
         urlInputLayout.disable()
@@ -165,6 +168,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
 
         override fun onError(exception: Exception) {
+            EspressoIdlingResource.decrement()
             Timber.e(exception)
             showToast("Error loading video from link")
             urlInputLayout.isErrorEnabled = true
@@ -184,6 +188,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         btnAddToDownloads.enable()
         urlInputLayout.enable()
         btnAddToDownloads.enable()
+        EspressoIdlingResource.decrement()
     }
 
     override fun onDestroy() {

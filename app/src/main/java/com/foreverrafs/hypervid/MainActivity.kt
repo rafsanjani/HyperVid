@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
@@ -14,6 +15,7 @@ import com.foreverrafs.hypervid.androidext.requestStoragePermission
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
+import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
@@ -111,6 +113,8 @@ class MainActivity : AppCompatActivity() {
     private fun navigateTo(pageNumber: Int): Boolean {
         Handler().postDelayed({
             viewPager.setCurrentItem(pageNumber, true)
+
+            EspressoIdlingResource.decrement()
         }, 2000)
 
         return true
