@@ -104,7 +104,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
         urlInputLayout.editText?.addTextChangedListener {
             it?.let {
-                if (it.contains(FACEBOOK_URL))
+                if (isValidUrl(it.toString()))
                     btnAddToDownloads.enable()
                 else
                     btnAddToDownloads.disable()
