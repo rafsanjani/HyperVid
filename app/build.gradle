@@ -14,8 +14,8 @@ android {
         applicationId "com.foreverrafs.hypervid"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 4
-        versionName "1.2.2"
+        versionCode 5
+        versionName "1.2.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -90,6 +90,6 @@ dependencies {
     implementation "androidx.fragment:fragment:$fragment_version"
 
     //firebase analytics
-    releaseImplementation 'com.google.firebase:firebase-analytics:17.3.0'
-    releaseImplementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta04'
+    releaseImplementation 'com.google.firebase:firebase-analytics:17.4.0'
+    releaseImplementation 'com.google.firebase:firebase-crashlytics:17.0.0'
 }
