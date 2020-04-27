@@ -79,13 +79,11 @@ class DownloadAdapter(val interaction: Interaction) :
 
         fun bind(downloadItem: DownloadInfo) {
             this.downloadItem = downloadItem
+            val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
+            val downloadDate = Date(downloadItem.dateAdded)
+            itemView.tvDate.text = formatter.format(downloadDate)
 
             CoroutineScope(Dispatchers.IO).launch {
-
-                val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
-                val downloadDate = Date(downloadItem.dateAdded)
-                itemView.tvDate.text = formatter.format(downloadDate)
-
                 try {
                     val retriever = MediaMetadataRetriever()
                     retriever.setDataSource(downloadItem.url, HashMap())

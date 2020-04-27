@@ -1,7 +1,9 @@
 package com.foreverrafs.hypervid
 
+import android.os.Environment
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -49,11 +51,10 @@ class MainActivityTest {
         onView(withId(R.id.btnAddToDownloads)).check(matches(isEnabled()))
     }
 
-    @Test
+    @Test 
     fun test_disableAddButtonWhenInvalidLinkIsTyped() {
         onView(withId(R.id.btnAddToDownloads)).check(matches(not(isEnabled())))
         onView(withHint(R.string.hint_url)).perform(typeText("https://www.foreverrafs.com/Magraheb/videos/228399154931246/?t=0"))
         onView(withId(R.id.btnAddToDownloads)).check(matches(not(isEnabled())))
     }
-
 }
