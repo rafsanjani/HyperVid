@@ -16,7 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.hypervid.MainViewModel
+import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding

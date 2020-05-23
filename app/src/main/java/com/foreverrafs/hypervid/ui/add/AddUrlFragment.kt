@@ -13,7 +13,7 @@ import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
-import com.foreverrafs.hypervid.MainViewModel
+import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.EspressoIdlingResource

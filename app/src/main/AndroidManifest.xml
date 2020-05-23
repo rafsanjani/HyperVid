@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name="com.foreverrafs.hypervid.App"
+        android:name="com.foreverrafs.hypervid.HyperVidApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="com.foreverrafs.hypervid.SplashActivity"
+            android:name="com.foreverrafs.hypervid.ui.SplashActivity"
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.foreverrafs.hypervid.MainActivity"
+            android:name="com.foreverrafs.hypervid.ui.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
         <provider

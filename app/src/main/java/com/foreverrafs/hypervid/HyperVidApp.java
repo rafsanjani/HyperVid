@@ -4,7 +4,7 @@ import android.app.Application;
 
 import timber.log.Timber;
 
-public class App extends Application {
+public class HyperVidApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();

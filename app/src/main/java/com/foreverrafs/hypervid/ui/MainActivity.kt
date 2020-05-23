@@ -1,4 +1,4 @@
-package com.foreverrafs.hypervid
+package com.foreverrafs.hypervid.ui
 
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
+import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.androidext.requestStoragePermission
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment

@@ -1,4 +1,4 @@
-package com.foreverrafs.hypervid
+package com.foreverrafs.hypervid.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
