@@ -12,7 +12,7 @@ import com.foreverrafs.hypervid.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentVideosBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
-import com.foreverrafs.hypervid.model.FacebookVideo
+import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.invisible
 import com.foreverrafs.hypervid.util.visible
@@ -25,7 +25,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     private lateinit var videoAdapter: VideoAdapter
     private lateinit var videoBinding: FragmentVideosBinding
     private lateinit var emptyListBinding: ListEmptyBinding
-    private var videoList = mutableListOf<FacebookVideo>()
+//    private var videoList = mutableListOf<FacebookVideo>()
 
 
     override fun onCreateView(
@@ -56,7 +56,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
         initEmptyLayoutTexts()
 
         vm.videosList.observe(viewLifecycleOwner, Observer { videosList ->
-            this.videoList = videosList.toMutableList()
+//            this.videoList = videosList.toMutableList()
 
             if (videosList.isNotEmpty()) {
                 videoBinding.videoListRecyclerView.visible()
@@ -79,21 +79,18 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     }
 
     override fun onPause() {
-        vm.saveVideoList(videoAdapter.videos)
+        vm.saveVideo(videoAdapter.videos)
         super.onPause()
     }
 
-    override fun deleteVideo(video: FacebookVideo) {
+    override fun deleteVideo(video: FBVideo) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_delete_video)
             .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_video)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                videoList.remove(video)
-//                videoAdapter.deleteVideo(video)
+                vm.deleteVideo(video)
                 File(video.path).delete()
-
-                vm.setVideosList(videoList)
             }
             .setNegativeButton(android.R.string.no) { _, _ ->
                 videoAdapter.notifyDataSetChanged()

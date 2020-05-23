@@ -15,7 +15,7 @@ import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
 import com.foreverrafs.hypervid.MainViewModel
 import com.foreverrafs.hypervid.R
-import com.foreverrafs.hypervid.model.FacebookVideo
+import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.foreverrafs.hypervid.util.disable
 import com.foreverrafs.hypervid.util.enable
@@ -30,8 +30,11 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
     private val vm: MainViewModel by activityViewModels()
+
     private var downloadList = mutableListOf<DownloadInfo>()
-    private var videoList = mutableListOf<FacebookVideo>()
+    private var videoList = mutableListOf<FBVideo>()
+
+
     private val suggestedLinks = mutableListOf<String>()
 
     companion object {
@@ -48,13 +51,15 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
+
         vm.downloadList.observe(viewLifecycleOwner, Observer {
-            this.downloadList = it.toMutableList()
+            downloadList = it.toMutableList()
         })
 
         vm.videosList.observe(viewLifecycleOwner, Observer {
-            this.videoList = it.toMutableList()
+            videoList = it.toMutableList()
         })
+
 
         initSlideShow()
     }
@@ -114,9 +119,9 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     }
 
     private fun isNotExtracted(url: String) =
-        !suggestedLinks.contains(url) && !vm.hasVideo(url) && !vm.hasDownload(
-            url
-        )
+            !suggestedLinks.contains(url) && !vm.hasVideo(url) && !vm.hasDownload(
+                    url
+            )
 
     private lateinit var job: Job
 
@@ -128,8 +133,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         urlInputLayout.disable()
 
         job = vm.extractVideoDownloadUrl(
-            videoURL,
-            listener
+                videoURL,
+                listener
         )
 
         job.invokeOnCompletion {
@@ -140,16 +145,15 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private var listener = object : FacebookExtractor.ExtractionEvents {
         override fun onComplete(downloadableFile: DownloadableFile) {
             val downloadInfo = DownloadInfo(
-                downloadableFile.url,
-                0,
-                downloadableFile.author,
-                downloadableFile.duration
+                    downloadableFile.url,
+                    0,
+                    downloadableFile.author,
+                    downloadableFile.duration
             )
-
 
             val downloadExists = downloadList.any {
                 it.url == downloadInfo.url
-            }
+            } || videoList.any { it.url == downloadInfo.url }
 
             if (downloadExists) {
                 Timber.e("Download exists. Unable to add to list")
@@ -161,9 +165,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
             showToast("Video added to download queue...")
+            vm.saveDownload(downloadInfo)
 
-            downloadList.add(downloadInfo)
-            vm.setDownloadList(downloadList)
 
             resetUi()
             pageNavigator(1)
@@ -204,7 +207,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     private fun initializeClipboard() {
         val clipboardManager =
-            activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
         clipBoardData = clipboardManager.primaryClip
 

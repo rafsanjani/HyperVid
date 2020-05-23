@@ -20,7 +20,7 @@ import com.foreverrafs.hypervid.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
-import com.foreverrafs.hypervid.model.FacebookVideo
+import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.invisible
 import com.foreverrafs.hypervid.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -34,8 +34,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
     private val downloadsAdapter = DownloadAdapter(this)
 
     private val vm: MainViewModel by activityViewModels()
-    private var videosList = mutableListOf<FacebookVideo>()
-    private var downloadList = mutableListOf<DownloadInfo>()
+    private var videosList = mutableListOf<FBVideo>()
 
     private lateinit var downloadBinding: FragmentDownloadsBinding
     private lateinit var emptyListBinding: ListEmptyBinding
@@ -65,13 +64,11 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
 
 
     private val downloadListObserver = Observer<List<DownloadInfo>> { list ->
-        vm.saveDownloadList(list)
-        downloadList = list.toMutableList()
-
         if (list.isNotEmpty()) {
             emptyListBinding.root.invisible()
+
             Handler().postDelayed({
-                showDownloads(downloadList)
+                showDownloads(list)
             }, 300)
 
         } else {
@@ -86,7 +83,6 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         vm.downloadList.observe(viewLifecycleOwner, downloadListObserver)
 
         vm.videosList.observe(viewLifecycleOwner, Observer {
@@ -106,23 +102,19 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
      * when a video has been successfully downloaded from the list. The adapter position of the downloaded
      * video together with the video item downloaded are received
      */
-    override fun onVideoDownloaded(position: Int, video: FacebookVideo) {
+    override fun onVideoDownloaded(position: Int, video: FBVideo, download: DownloadInfo) {
         val downloadExists = videosList.any {
             it.path == video.path
         }
 
         if (!downloadExists) {
             saveVideoToGallery(video)
-            videosList.add(video)
-
+            vm.saveVideo(video)
 
             Handler().postDelayed({
-                downloadList.removeAt(position)
-                vm.setDownloadList(downloadList)
+                vm.deleteDownload(download)
             }, 800)
 
-
-            vm.setVideosList(videosList)
 
             //navigate to the videos page : 2
             pageNavigator(2)
@@ -170,8 +162,8 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         } ?: return null
     }
 
-    private fun saveVideoToGallery(video: FacebookVideo): Uri? {
-
+    @RequiresApi(21)
+    private fun saveVideoToGallery(video: FBVideo): Uri? {
         var uri: Uri? = null
         try {
             uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -186,8 +178,9 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         return uri
     }
 
+    @RequiresApi(21)
+    @Suppress("DEPRECATION")
     private fun saveVideoToGallery(videoFile: File, title: String): Uri? {
-
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.TITLE, title)
             put(MediaStore.Images.Media.DISPLAY_NAME, title)
@@ -216,10 +209,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
             .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_download)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                downloadList.remove(download)
-//                downloadsAdapter.deleteDownload(download)
-
-                vm.setDownloadList(downloadList)
+                vm.deleteDownload(download)
             }
             .setNegativeButton(android.R.string.no, null)
             .show()

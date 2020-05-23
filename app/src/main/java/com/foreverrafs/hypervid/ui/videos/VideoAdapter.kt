@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
-import com.foreverrafs.hypervid.model.FacebookVideo
+import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.getDurationString
 import com.foreverrafs.hypervid.util.load
@@ -27,13 +27,13 @@ import java.util.*
 import kotlin.math.abs
 
 class VideoAdapter(
-        private val context: Context,
-        private val callback: VideoCallback
+    private val context: Context,
+    private val callback: VideoCallback
 ) :
     RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
     ItemTouchCallback.ItemTouchHelperAdapter {
 
-    val videos = mutableListOf<FacebookVideo>()
+    val videos = mutableListOf<FBVideo>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video__, parent, false)
@@ -51,56 +51,63 @@ class VideoAdapter(
     }
 
     inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(facebookVideo: FacebookVideo) {
-            val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
+        fun bind(FBVideo: FBVideo) {
+            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                 Timber.e(throwable)
             }
 
             val job = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
                 val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(facebookVideo.path)
+                retriever.setDataSource(FBVideo.path)
 
                 withContext(Dispatchers.Main) {
                     itemView.imageCover.load(retriever.frameAtTime)
                 }
             }
 
-            job.invokeOnCompletion {
-                it?.let {
-
+            job.invokeOnCompletion { error ->
+                if (error != null) {
+                    Timber.e(error)
+                    return@invokeOnCompletion
                 }
 
-                itemView.tvTitle.text = Html.fromHtml(
-                    if (facebookVideo.title.isEmpty()) "Facebook Video - ${abs(facebookVideo.hashCode())}" else facebookVideo.title
-                )
 
-                itemView.tvDuration.text = getDurationString(facebookVideo.duration)
+                val title =
+                    if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
+
+                itemView.tvTitle.text = Html.fromHtml(title)
+
+                itemView.tvDuration.text = getDurationString(FBVideo.duration)
             }
 
 
 
             itemView.btnPlay.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(facebookVideo.path), "video/*")
+                intent.setDataAndType(Uri.parse(FBVideo.path), "video/*")
 
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 try {
                     context.startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(context, "Unable to play video. Locate and play it from your gallery", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Unable to play video. Locate and play it from your gallery",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     Timber.e(e)
                 }
             }
 
             itemView.btnShareWhatsapp.setOnClickListener {
-                context.shareFile(facebookVideo.path, "com.whatsapp")
+                context.shareFile(FBVideo.path, "com.whatsapp")
             }
 
             itemView.btnShare.setOnClickListener {
-                val uri = Uri.fromFile(File(facebookVideo.path))
+                val uri = Uri.fromFile(File(FBVideo.path))
 
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    setDataAndType(Uri.parse(facebookVideo.path), "*/*")
+                    setDataAndType(Uri.parse(FBVideo.path), "*/*")
                     putExtra(Intent.EXTRA_STREAM, uri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
@@ -112,7 +119,7 @@ class VideoAdapter(
         }
     }
 
-    fun submitList(newVideos: List<FacebookVideo>) {
+    fun submitList(newVideos: List<FBVideo>) {
         val diffCallback =
             VideoDiffCallback(
                 this.videos,
@@ -137,6 +144,6 @@ class VideoAdapter(
     }
 
     interface VideoCallback {
-        fun deleteVideo(video: FacebookVideo)
+        fun deleteVideo(video: FBVideo)
     }
 }

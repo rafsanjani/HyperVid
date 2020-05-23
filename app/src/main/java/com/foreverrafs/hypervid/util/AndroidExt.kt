@@ -46,9 +46,9 @@ fun Context.shareFile(path: String, packageName: String = "") {
     val context = this
 
     val uri = FileProvider.getUriForFile(
-        context,
-        context.applicationContext.packageName + ".provider",
-        File(path)
+            context,
+            context.applicationContext.packageName + ".provider",
+            File(path)
     )
 
     val videoShare = Intent(Intent.ACTION_SEND).apply {
@@ -75,18 +75,23 @@ fun List<Any>.toJson(): String {
 }
 
 
+inline fun <reified T> String.fromJson() {
+    Gson().fromJson(this, T::class.java)
+}
+
+
 fun ImageView.load(image: Bitmap) {
     Glide.with(context)
-        .load(image)
-        .placeholder(R.drawable.ic_video)
-        .transition(DrawableTransitionOptions.withCrossFade())
-        .into(this)
+            .load(image)
+            .placeholder(R.drawable.ic_video)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(this)
 }
 
 fun ImageView.load(@DrawableRes image: Int) {
     Glide.with(context)
-        .load(image)
-        .fitCenter()
-        .transition(DrawableTransitionOptions.withCrossFade())
-        .into(this)
+            .load(image)
+            .fitCenter()
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(this)
 }

@@ -16,7 +16,7 @@ import com.foreverrafs.downloader.downloader.DownloadException
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
-import com.foreverrafs.hypervid.model.FacebookVideo
+import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.*
 import kotlinx.android.synthetic.main.item_download__.view.*
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.abs
+
 
 
 class DownloadAdapter(val interaction: Interaction) :
@@ -194,13 +195,12 @@ class DownloadAdapter(val interaction: Interaction) :
                 }
 
                 override fun onCompleted() {
-                    val facebookVideo = FacebookVideo(
+                    val facebookVideo = FBVideo(
                         downloadItem.name, downloadItem.duration,
                         getVideoFilePath(downloadItem), downloadItem.url
                     )
 
-
-                    interaction.onVideoDownloaded(adapterPosition, facebookVideo)
+                    interaction.onVideoDownloaded(adapterPosition, facebookVideo, downloadItem)
 
                     itemView.btnStartPause.setImageResource(R.drawable.ic_start)
                     itemView.btnStartPause.gone()
@@ -268,7 +268,7 @@ class DownloadAdapter(val interaction: Interaction) :
     }
 
     interface Interaction {
-        fun onVideoDownloaded(position: Int, video: FacebookVideo)
+        fun onVideoDownloaded(position: Int, video: FBVideo, download: DownloadInfo)
         fun deleteDownload(download: DownloadInfo)
         fun onDownloadError(position: Int)
     }
