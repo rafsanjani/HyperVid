@@ -238,7 +238,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                     }
                     .show()
             } //Added same method for facebook mobile url
-            else if (link.contains(FB_MOBILE_URL) && isNotExtracted(link)) {
+            else if (link.contains(FACEBOOK_URL_MOBILE) && isNotExtracted(link)) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_download_video))
@@ -253,8 +253,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                         suggestedLinks.add(link)
                     }
                     .show()
-            }
-            else {
+            } else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
         }
