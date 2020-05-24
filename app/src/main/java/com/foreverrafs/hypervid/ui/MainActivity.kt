@@ -19,28 +19,35 @@ import com.foreverrafs.hypervid.ui.videos.VideosFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     private val requestStorPermission: ActivityResultLauncher<String> =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-                if (!granted) {
-                    finish()
-                }
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                finish()
             }
+        }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (savedInstanceState == null) {
+            Timber.i("NULL")
+        } else {
+            Timber.i("NOT NULL")
+        }
+
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         if (viewModel.isFirstRun)
             showDisclaimer()
-
 
         initializeTabComponents()
 
@@ -75,19 +82,31 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDisclaimer() {
         MaterialAlertDialogBuilder(this)
-                .setMessage(
-                        getString(R.string.message_copyright_notice)
-                )
-                .setTitle(getString(R.string.title_copyright_notice))
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestStorPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        viewModel.isFirstRun = false
-                    }
+            .setMessage(
+                getString(R.string.message_copyright_notice)
+            )
+            .setTitle(getString(R.string.title_copyright_notice))
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestStorPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    viewModel.isFirstRun = false
                 }
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-                    finish()
-                }.show()
+            } else {
+                tabLayout.getTabAt(1)?.badge?.isVisible = false
+            }
+        })
+
+        viewModel.videosList.observe(this, Observer { videos ->
+            if (videos.isNotEmpty()) {
+                tabLayout.getTabAt(2)?.getOrCreateBadge()?.apply {
+                    isVisible = true
+                    backgroundColor = R.color.colorPrimary
+                    number = videos.size
+                }
+            } else {
+                tabLayout.getTabAt(1)?.badge?.isVisible = false
+            }
+        })
     }
 
     private fun initializeTabComponents() {

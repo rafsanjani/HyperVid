@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.downloader.downloader.DownloadEvents
@@ -37,26 +38,26 @@ import kotlin.math.abs
 class DownloadAdapter(val interaction: Interaction) :
         RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
-
     private val videoDownloader: VideoDownloader by lazy {
         VideoDownloader.getInstance(context)!!
     }
 
+    private val diffCallback = object : DiffUtil.ItemCallback<DownloadInfo>() {
+        override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areItemsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
+            return oldItem.url == newItem.url
+        }
+    }
+
+    private val asyncDiffer = AsyncListDiffer(this, diffCallback)
+
     val downloads = mutableListOf<DownloadInfo>()
     private lateinit var context: Context
     fun submitList(newList: List<DownloadInfo>) {
-        val diffCallback =
-                DownloadDiffCallback(
-                        this.downloads,
-                        newList
-                )
-
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        downloads.clear()
-        downloads.addAll(newList)
-
-        diffResult.dispatchUpdatesTo(this)
+        asyncDiffer.submitList(newList)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
