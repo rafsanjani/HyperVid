@@ -106,10 +106,13 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
         urlInputLayout.editText?.addTextChangedListener {
             it?.let {
-                if (isValidUrl(it.toString()))
+                if (isValidUrl(it.toString())) {
                     btnAddToDownloads.enable()
-                else
+                    urlInputLayout.isErrorEnabled = false
+                } else {
                     btnAddToDownloads.disable()
+                    urlInputLayout.isErrorEnabled = true
+                }
             }
 
         }
@@ -176,13 +179,16 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
         override fun onError(exception: Exception) {
             EspressoIdlingResource.decrement()
-            Timber.e(exception)
+
             showToast("Error loading video from link")
             urlInputLayout.isErrorEnabled = true
+            urlInputLayout.error = "Invalid Link"
 
             btnAddToDownloads.text = getString(R.string.add_to_downloads)
             btnAddToDownloads.enable()
             urlInputLayout.enable()
+
+            Timber.e(exception)
         }
     }
 
