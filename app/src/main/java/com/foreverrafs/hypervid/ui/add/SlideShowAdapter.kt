@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.SlideImage
-import com.foreverrafs.hypervid.util.load
 import kotlinx.android.synthetic.main.item_slideshow__.view.*
+import load
 
 
 /* Created by Rafsanjani on 08/04/2020. */

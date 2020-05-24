@@ -10,30 +10,38 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.getDurationString
-import com.foreverrafs.hypervid.util.load
-import com.foreverrafs.hypervid.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import kotlinx.coroutines.*
+import load
+import shareFile
 import timber.log.Timber
 import java.io.File
 import java.util.*
 import kotlin.math.abs
 
 class VideoAdapter(
-    private val context: Context,
-    private val callback: VideoCallback
+        private val context: Context,
+        private val callback: VideoCallback
 ) :
-    RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
-    ItemTouchCallback.ItemTouchHelperAdapter {
+        RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
+        ItemTouchCallback.ItemTouchHelperAdapter {
 
     val videos = mutableListOf<FBVideo>()
+
+    private val diffCallback = object : DiffUtil.ItemCallback<FBVideo>() {
+        override fun areContentsTheSame(oldItem: FBVideo, newItem: FBVideo) = oldItem == newItem
+        override fun areItemsTheSame(oldItem: FBVideo, newItem: FBVideo) = oldItem.url == newItem.url
+    }
+
+    private val asyncDiffer = AsyncListDiffer(this, diffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video__, parent, false)
@@ -73,7 +81,7 @@ class VideoAdapter(
 
 
                 val title =
-                    if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
+                        if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
 
                 itemView.tvTitle.text = Html.fromHtml(title)
 
@@ -91,9 +99,9 @@ class VideoAdapter(
                     context.startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
                     Toast.makeText(
-                        context,
-                        "Unable to play video. Locate and play it from your gallery",
-                        Toast.LENGTH_SHORT
+                            context,
+                            "Unable to play video. Locate and play it from your gallery",
+                            Toast.LENGTH_SHORT
                     ).show()
                     Timber.e(e)
                 }
@@ -119,23 +127,12 @@ class VideoAdapter(
         }
     }
 
-    fun submitList(newVideos: List<FBVideo>) {
-        val diffCallback =
-            VideoDiffCallback(
-                this.videos,
-                newVideos
-            )
-
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        videos.clear()
-        videos.addAll(newVideos)
-
-        diffResult.dispatchUpdatesTo(this)
+    fun submitList(videos: List<FBVideo>) {
+        asyncDiffer.submitList(videos)
     }
 
     override fun onItemMoved(fromPosition: Int, toPosition: Int) =
-        swapItems(fromPosition, toPosition)
+            swapItems(fromPosition, toPosition)
 
     override fun onItemDismiss(position: Int) = callback.deleteVideo(videos[position])
 

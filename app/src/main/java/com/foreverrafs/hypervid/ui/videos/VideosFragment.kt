@@ -14,9 +14,9 @@ import com.foreverrafs.hypervid.databinding.FragmentVideosBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
-import com.foreverrafs.hypervid.util.invisible
-import com.foreverrafs.hypervid.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import invisible
+import visible
 import java.io.File
 
 

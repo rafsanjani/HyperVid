@@ -23,12 +23,12 @@ import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainActivity
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
-import com.foreverrafs.hypervid.util.invisible
-import com.foreverrafs.hypervid.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import invisible
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_downloads.*
 import timber.log.Timber
+import visible
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
