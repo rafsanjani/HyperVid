@@ -25,7 +25,6 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
     private lateinit var videoAdapter: VideoAdapter
     private lateinit var videoBinding: FragmentVideosBinding
     private lateinit var emptyListBinding: ListEmptyBinding
-//    private var videoList = mutableListOf<FacebookVideo>()
 
 
     override fun onCreateView(
@@ -56,8 +55,6 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
         initEmptyLayoutTexts()
 
         vm.videosList.observe(viewLifecycleOwner, Observer { videosList ->
-//            this.videoList = videosList.toMutableList()
-
             if (videosList.isNotEmpty()) {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()

@@ -95,13 +95,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager(viewPager: ViewPager2) {
         val fragments = listOf(
-            AddUrlFragment.newInstance {
-                navigateTo(it)
-            },
-
-            DownloadsFragment.newInstance {
-                navigateTo(it)
-            },
+            AddUrlFragment(),
+            DownloadsFragment(),
             VideosFragment()
         )
         val viewPagerAdapter = HomePagerAdapter(this)
@@ -111,16 +106,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewPager.adapter = viewPagerAdapter
-    }
-
-    private fun navigateTo(pageNumber: Int): Boolean {
-        Handler().postDelayed({
-            viewPager.setCurrentItem(pageNumber, true)
-
-            EspressoIdlingResource.decrement()
-        }, 2000)
-
-        return true
     }
 
     override fun onDestroy() {

@@ -16,14 +16,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
+import com.foreverrafs.hypervid.ui.MainActivity
+import com.foreverrafs.hypervid.ui.MainViewModel
+import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.foreverrafs.hypervid.util.invisible
 import com.foreverrafs.hypervid.util.visible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_downloads.*
 import timber.log.Timber
 import java.io.File
@@ -39,15 +42,6 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
     private lateinit var downloadBinding: FragmentDownloadsBinding
     private lateinit var emptyListBinding: ListEmptyBinding
 
-
-    companion object {
-        private lateinit var pageNavigator: (pageNumber: Int) -> Boolean
-
-        fun newInstance(listener: (pageNumber: Int) -> Boolean = { true }): DownloadsFragment {
-            this.pageNavigator = listener
-            return DownloadsFragment()
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -117,7 +111,12 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
 
 
             //navigate to the videos page : 2
-            pageNavigator(2)
+            Handler().postDelayed({
+                (requireActivity() as MainActivity).viewPager.currentItem = 2
+
+                EspressoIdlingResource.decrement()
+            }, 2000)
+
         } else {
             Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT)
                 .show()

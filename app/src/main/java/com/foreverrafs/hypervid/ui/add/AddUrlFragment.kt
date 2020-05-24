@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
 import android.view.View
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -13,20 +14,28 @@ import androidx.lifecycle.Observer
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
-import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
+import com.foreverrafs.hypervid.ui.MainActivity
+import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.foreverrafs.hypervid.util.disable
 import com.foreverrafs.hypervid.util.enable
 import com.foreverrafs.hypervid.util.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_addurl.*
+import kotlinx.android.synthetic.main.fragment_addurl.tabLayout
 import kotlinx.coroutines.Job
 import timber.log.Timber
 
 class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
+    companion object {
+        const val FACEBOOK_URL = "https://www.facebook.com/"
+        const val FACEBOOK_URL_MOBILE = "https://m.facebook.com/"
+    }
+
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
     private val vm: MainViewModel by activityViewModels()
@@ -36,18 +45,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
 
     private val suggestedLinks = mutableListOf<String>()
-
-    companion object {
-        const val FACEBOOK_URL = "https://www.facebook.com/"
-        const val FACEBOOK_URL_MOBILE = "https://m.facebook.com/"
-
-        private lateinit var pageNavigator: (pageNumber: Int) -> Boolean
-
-        fun newInstance(listener: (pageNumber: Int) -> Boolean = { true }): AddUrlFragment {
-            this.pageNavigator = listener
-            return AddUrlFragment()
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
@@ -119,9 +116,9 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     }
 
     private fun isNotExtracted(url: String) =
-            !suggestedLinks.contains(url) && !vm.hasVideo(url) && !vm.hasDownload(
-                    url
-            )
+        !suggestedLinks.contains(url) && !vm.hasVideo(url) && !vm.hasDownload(
+            url
+        )
 
     private lateinit var job: Job
 
@@ -133,8 +130,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         urlInputLayout.disable()
 
         job = vm.extractVideoDownloadUrl(
-                videoURL,
-                listener
+            videoURL,
+            listener
         )
 
         job.invokeOnCompletion {
@@ -145,10 +142,10 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private var listener = object : FacebookExtractor.ExtractionEvents {
         override fun onComplete(downloadableFile: DownloadableFile) {
             val downloadInfo = DownloadInfo(
-                    downloadableFile.url,
-                    0,
-                    downloadableFile.author,
-                    downloadableFile.duration
+                downloadableFile.url,
+                0,
+                downloadableFile.author,
+                downloadableFile.duration
             )
 
             val downloadExists = downloadList.any {
@@ -169,7 +166,12 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
 
             resetUi()
-            pageNavigator(1)
+
+            Handler().postDelayed({
+                (requireActivity() as MainActivity).viewPager.currentItem = 1
+
+                EspressoIdlingResource.decrement()
+            }, 2000)
         }
 
         override fun onError(exception: Exception) {
@@ -207,7 +209,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     private fun initializeClipboard() {
         val clipboardManager =
-                activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
         clipBoardData = clipboardManager.primaryClip
 
@@ -216,19 +218,19 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             if (isValidUrl(link) && isNotExtracted(link)) {
                 MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(R.string.title_download_video)
-                        .setMessage(getString(R.string.prompt_download_video))
-                        .setPositiveButton(android.R.string.yes) { _, _ ->
-                            urlInputLayout.editText?.setText(link)
-                            extractVideo(link)
-                            suggestedLinks.add(link)
-                        }
-                        .setNegativeButton(
-                                android.R.string.no
-                        ) { _, _ ->
-                            suggestedLinks.add(link)
-                        }
-                        .show()
+                    .setTitle(R.string.title_download_video)
+                    .setMessage(getString(R.string.prompt_download_video))
+                    .setPositiveButton(android.R.string.yes) { _, _ ->
+                        urlInputLayout.editText?.setText(link)
+                        extractVideo(link)
+                        suggestedLinks.add(link)
+                    }
+                    .setNegativeButton(
+                        android.R.string.no
+                    ) { _, _ ->
+                        suggestedLinks.add(link)
+                    }
+                    .show()
             } else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
@@ -247,5 +249,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
-    private fun isValidUrl(url: String) = url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE)
+    private fun isValidUrl(url: String) =
+        url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE)
 }
