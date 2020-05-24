@@ -19,7 +19,7 @@ class FacebookExtractor {
         "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36"
 
     private var eventsListener: ExtractionEvents? = null
-    private var exception: java.lang.Exception? = null
+    private var exception: Exception? = null
 
 
     private fun extractFBFileInfo(url: String): DownloadableFile? {
@@ -35,7 +35,6 @@ class FacebookExtractor {
 
     suspend fun extract(facebookUrl: String) = withContext(Dispatchers.IO) {
         val file = extractFBFileInfo(facebookUrl)
-
         ensureActive()
         withContext(Dispatchers.Main) {
             file?.let {
@@ -106,6 +105,7 @@ class FacebookExtractor {
                 }
             } else {
                 Timber.e("Video not found")
+                exception = IllegalArgumentException("Video not found")
                 return null
             }
             if (metaTAGTitleMatcher.find()) {
