@@ -26,11 +26,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
 
     private val requestStorPermission: ActivityResultLauncher<String> =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) {
-                finish()
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (!granted) {
+                    finish()
+                }
             }
-        }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,31 +82,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDisclaimer() {
         MaterialAlertDialogBuilder(this)
-            .setMessage(
-                getString(R.string.message_copyright_notice)
-            )
-            .setTitle(getString(R.string.title_copyright_notice))
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestStorPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    viewModel.isFirstRun = false
+                .setMessage(
+                        getString(R.string.message_copyright_notice)
+                )
+                .setTitle(getString(R.string.title_copyright_notice))
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestStorPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        viewModel.isFirstRun = false
+                    }
                 }
-            } else {
-                tabLayout.getTabAt(1)?.badge?.isVisible = false
-            }
-        })
-
-        viewModel.videosList.observe(this, Observer { videos ->
-            if (videos.isNotEmpty()) {
-                tabLayout.getTabAt(2)?.getOrCreateBadge()?.apply {
-                    isVisible = true
-                    backgroundColor = R.color.colorPrimary
-                    number = videos.size
-                }
-            } else {
-                tabLayout.getTabAt(1)?.badge?.isVisible = false
-            }
-        })
+                .setNegativeButton(android.R.string.cancel) { _, _ ->
+                    finish()
+                }.show()
     }
 
     private fun initializeTabComponents() {
