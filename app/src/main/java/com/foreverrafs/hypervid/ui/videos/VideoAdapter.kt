@@ -16,11 +16,11 @@ import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.getDurationString
-import com.foreverrafs.hypervid.util.load
-import com.foreverrafs.hypervid.util.shareFile
 import kotlinx.android.synthetic.main.item_video__.view.*
 import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import kotlinx.coroutines.*
+import load
+import shareFile
 import timber.log.Timber
 import java.io.File
 import java.util.*

@@ -1,33 +1,35 @@
 package com.foreverrafs.hypervid.ui
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
+import androidx.activity.invoke
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
-import com.foreverrafs.hypervid.androidext.requestStoragePermission
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
-import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
-
-    companion object {
-        const val STORAGE_REQ_CODE = 1000
-    }
-
     private lateinit var viewModel: MainViewModel
+
+    private val requestStorPermission: ActivityResultLauncher<String> =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                if (!granted) {
+                    finish()
+                }
+            }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,44 +43,51 @@ class MainActivity : AppCompatActivity() {
 
 
         initializeTabComponents()
+
+        showCounterBadges()
+    }
+
+    private fun showCounterBadges() {
+        viewModel.downloadList.observe(this, Observer { downloads ->
+            if (downloads.isNotEmpty()) {
+                tabLayout.getTabAt(1)?.getOrCreateBadge()?.apply {
+                    isVisible = true
+                    backgroundColor = R.color.colorPrimary
+                    number = downloads.size
+                }
+            } else {
+                tabLayout.getTabAt(1)?.badge?.isVisible = false
+            }
+        })
+
+        viewModel.videosList.observe(this, Observer { videos ->
+            if (videos.isNotEmpty()) {
+                tabLayout.getTabAt(2)?.getOrCreateBadge()?.apply {
+                    isVisible = true
+                    backgroundColor = R.color.colorPrimary
+                    number = videos.size
+                }
+            } else {
+                tabLayout.getTabAt(1)?.badge?.isVisible = false
+            }
+        })
     }
 
     private fun showDisclaimer() {
         MaterialAlertDialogBuilder(this)
-            .setMessage(
-                getString(R.string.message_copyright_notice)
-            )
-            .setTitle(getString(R.string.title_copyright_notice))
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestStoragePermission(STORAGE_REQ_CODE)
-                    viewModel.isFirstRun = false
+                .setMessage(
+                        getString(R.string.message_copyright_notice)
+                )
+                .setTitle(getString(R.string.title_copyright_notice))
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestStorPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        viewModel.isFirstRun = false
+                    }
                 }
-            }
-            .setNegativeButton(android.R.string.cancel) { _, _ ->
-                finish()
-            }.show()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            STORAGE_REQ_CODE -> {
-                if (grantResults.isEmpty() && (grantResults[0] == PackageManager.PERMISSION_DENIED)) {
-                    //todo: do something more meaningful when permission is denied
+                .setNegativeButton(android.R.string.cancel) { _, _ ->
                     finish()
-                    //request was denied so show user a friendly message telling him why the application will not work
-                    //without getting storage access. How will we store the downloaded files?
-
-                }
-            }
-            else -> {
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-            }
-        }
+                }.show()
     }
 
     private fun initializeTabComponents() {
@@ -95,9 +104,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager(viewPager: ViewPager2) {
         val fragments = listOf(
-            AddUrlFragment(),
-            DownloadsFragment(),
-            VideosFragment()
+                AddUrlFragment(),
+                DownloadsFragment(),
+                VideosFragment()
         )
         val viewPagerAdapter = HomePagerAdapter(this)
 

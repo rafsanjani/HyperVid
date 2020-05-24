@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Handler
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,15 +20,15 @@ import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainActivity
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
-import com.foreverrafs.hypervid.util.disable
-import com.foreverrafs.hypervid.util.enable
-import com.foreverrafs.hypervid.util.showToast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
+import disable
+import enable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import kotlinx.android.synthetic.main.fragment_addurl.tabLayout
 import kotlinx.coroutines.Job
+import showToast
 import timber.log.Timber
 
 class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
@@ -42,7 +43,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     private var downloadList = mutableListOf<DownloadInfo>()
     private var videoList = mutableListOf<FBVideo>()
-
 
     private val suggestedLinks = mutableListOf<String>()
 
@@ -167,7 +167,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             showToast("Video added to download queue...")
             vm.saveDownload(downloadInfo)
 
-
             resetUi()
 
             Handler().postDelayed({
@@ -223,22 +222,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             val link = it.toString()
 
             if (isValidUrl(link) && isNotExtracted(link)) {
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.title_download_video)
-                    .setMessage(getString(R.string.prompt_download_video))
-                    .setPositiveButton(android.R.string.yes) { _, _ ->
-                        urlInputLayout.editText?.setText(link)
-                        extractVideo(link)
-                        suggestedLinks.add(link)
-                    }
-                    .setNegativeButton(
-                        android.R.string.no
-                    ) { _, _ ->
-                        suggestedLinks.add(link)
-                    }
-                    .show()
-            } //Added same method for facebook mobile url
-            else if (link.contains(FACEBOOK_URL_MOBILE) && isNotExtracted(link)) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_download_video))

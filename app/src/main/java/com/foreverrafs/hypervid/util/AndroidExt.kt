@@ -1,5 +1,3 @@
-package com.foreverrafs.hypervid.util
-
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -13,7 +11,6 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.foreverrafs.hypervid.R
-import com.google.gson.Gson
 import timber.log.Timber
 import java.io.File
 
@@ -28,7 +25,6 @@ fun View.gone() {
 fun View.visible() {
     this.visibility = View.VISIBLE
 }
-
 
 fun Fragment.showToast(message: String) {
     Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
@@ -46,9 +42,9 @@ fun Context.shareFile(path: String, packageName: String = "") {
     val context = this
 
     val uri = FileProvider.getUriForFile(
-            context,
-            context.applicationContext.packageName + ".provider",
-            File(path)
+        context,
+        context.applicationContext.packageName + ".provider",
+        File(path)
     )
 
     val videoShare = Intent(Intent.ACTION_SEND).apply {
@@ -69,29 +65,18 @@ fun Context.shareFile(path: String, packageName: String = "") {
     }
 }
 
-fun List<Any>.toJson(): String {
-    val gson = Gson()
-    return gson.toJson(this)
-}
-
-
-inline fun <reified T> String.fromJson() {
-    Gson().fromJson(this, T::class.java)
-}
-
-
 fun ImageView.load(image: Bitmap) {
     Glide.with(context)
-            .load(image)
-            .placeholder(R.drawable.ic_video)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .into(this)
+        .load(image)
+        .placeholder(R.drawable.ic_video)
+        .transition(DrawableTransitionOptions.withCrossFade())
+        .into(this)
 }
 
 fun ImageView.load(@DrawableRes image: Int) {
     Glide.with(context)
-            .load(image)
-            .fitCenter()
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .into(this)
+        .load(image)
+        .fitCenter()
+        .transition(DrawableTransitionOptions.withCrossFade())
+        .into(this)
 }

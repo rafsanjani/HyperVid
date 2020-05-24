@@ -17,22 +17,25 @@ import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
-import com.foreverrafs.hypervid.util.*
+import com.foreverrafs.hypervid.util.getDurationString
+import gone
+import invisible
 import kotlinx.android.synthetic.main.item_download__.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import load
 import timber.log.Timber
+import visible
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.math.abs
 
 
-
 class DownloadAdapter(val interaction: Interaction) :
-    RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
+        RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
 
     private val videoDownloader: VideoDownloader by lazy {
@@ -43,10 +46,10 @@ class DownloadAdapter(val interaction: Interaction) :
     private lateinit var context: Context
     fun submitList(newList: List<DownloadInfo>) {
         val diffCallback =
-            DownloadDiffCallback(
-                this.downloads,
-                newList
-            )
+                DownloadDiffCallback(
+                        this.downloads,
+                        newList
+                )
 
         val diffResult = DiffUtil.calculateDiff(diffCallback)
 
@@ -71,7 +74,7 @@ class DownloadAdapter(val interaction: Interaction) :
     }
 
     inner class DownloadsViewHolder(itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
+            RecyclerView.ViewHolder(itemView) {
 
         private lateinit var downloadItem: DownloadInfo
         private var isDownloading: Boolean = false
@@ -105,7 +108,7 @@ class DownloadAdapter(val interaction: Interaction) :
             }
 
             val videoTitle = Html.fromHtml(
-                if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
+                    if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
             )
 
             itemView.tvName.text = videoTitle
@@ -173,17 +176,17 @@ class DownloadAdapter(val interaction: Interaction) :
             itemView.btnStartPause.setImageResource(R.drawable.ic_pause)
 
             downloadId = videoDownloader.downloadFile(downloadItem, object :
-                DownloadEvents {
+                    DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
                     itemView.tvPercentage.text =
-                        context.getString(R.string.percentage, percentage)
+                            context.getString(R.string.percentage, percentage)
                     itemView.progressDownload.progress = percentage
 
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
                     itemView.tvDownloadedSize.text =
-                        if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
+                            if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
                 }
 
                 override fun onPause() {
@@ -196,8 +199,8 @@ class DownloadAdapter(val interaction: Interaction) :
 
                 override fun onCompleted() {
                     val facebookVideo = FBVideo(
-                        downloadItem.name, downloadItem.duration,
-                        getVideoFilePath(downloadItem), downloadItem.url
+                            downloadItem.name, downloadItem.duration,
+                            getVideoFilePath(downloadItem), downloadItem.url
                     )
 
                     interaction.onVideoDownloaded(adapterPosition, facebookVideo, downloadItem)
@@ -252,10 +255,10 @@ class DownloadAdapter(val interaction: Interaction) :
             constraintSet.apply {
                 clone(itemView.constraintLayout)
                 connect(
-                    R.id.tvDownloadedSize,
-                    ConstraintSet.TOP,
-                    R.id.tvDate,
-                    ConstraintSet.TOP
+                        R.id.tvDownloadedSize,
+                        ConstraintSet.TOP,
+                        R.id.tvDate,
+                        ConstraintSet.TOP
                 )
                 applyTo(itemView.constraintLayout)
             }
