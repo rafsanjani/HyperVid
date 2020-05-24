@@ -237,7 +237,24 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                         suggestedLinks.add(link)
                     }
                     .show()
-            } else {
+            } //Added same method for facebook mobile url
+            else if (link.contains(FB_MOBILE_URL) && isNotExtracted(link)) {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.title_download_video)
+                    .setMessage(getString(R.string.prompt_download_video))
+                    .setPositiveButton(android.R.string.yes) { _, _ ->
+                        urlInputLayout.editText?.setText(link)
+                        extractVideo(link)
+                        suggestedLinks.add(link)
+                    }
+                    .setNegativeButton(
+                        android.R.string.no
+                    ) { _, _ ->
+                        suggestedLinks.add(link)
+                    }
+                    .show()
+            }
+            else {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
         }
