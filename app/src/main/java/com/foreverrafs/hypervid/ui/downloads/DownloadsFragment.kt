@@ -88,7 +88,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         progressBar.invisible()
         downloadBinding.downloadListRecyclerView.visible()
 
-        downloadsAdapter.submitList(downloadList.toMutableList())
+        downloadsAdapter.submitList(downloadList)
     }
 
 

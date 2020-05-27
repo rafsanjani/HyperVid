@@ -75,10 +75,10 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
         }
     }
 
-    override fun onPause() {
-        vm.saveVideo(videoAdapter.videos)
-        super.onPause()
-    }
+//    override fun onPause() {
+//        vm.saveVideo(videoAdapter.videos)
+//        super.onPause()
+//    }
 
     override fun deleteVideo(video: FBVideo) {
         MaterialAlertDialogBuilder(requireContext())

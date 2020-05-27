@@ -35,4 +35,5 @@
         The usage of this app must therefore be in compliance with the copyright notices of content providers.
         \n \nDo you wish to proceed?
     </string>
+    <string name="exit">Exit</string>
 </resources>
