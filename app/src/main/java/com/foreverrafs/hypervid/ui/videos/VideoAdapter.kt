@@ -28,17 +28,17 @@ import java.util.*
 import kotlin.math.abs
 
 class VideoAdapter(
-        private val context: Context,
-        private val callback: VideoCallback
+    private val context: Context,
+    private val callback: VideoCallback
 ) :
-        RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
-        ItemTouchCallback.ItemTouchHelperAdapter {
+    RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
+    ItemTouchCallback.ItemTouchHelperAdapter {
 
-    val videos = mutableListOf<FBVideo>()
 
     private val diffCallback = object : DiffUtil.ItemCallback<FBVideo>() {
         override fun areContentsTheSame(oldItem: FBVideo, newItem: FBVideo) = oldItem == newItem
-        override fun areItemsTheSame(oldItem: FBVideo, newItem: FBVideo) = oldItem.url == newItem.url
+        override fun areItemsTheSame(oldItem: FBVideo, newItem: FBVideo) =
+            oldItem.url == newItem.url
     }
 
     private val asyncDiffer = AsyncListDiffer(this, diffCallback)
@@ -49,13 +49,15 @@ class VideoAdapter(
     }
 
     private fun swapItems(fromPosition: Int, toPosition: Int) {
-        Collections.swap(videos, fromPosition, toPosition)
-        notifyItemMoved(fromPosition, toPosition)
+        val list = asyncDiffer.currentList.toMutableList()
+
+        Collections.swap(list, fromPosition, toPosition)
+        submitList(list)
         Timber.i("Moved from $fromPosition to $toPosition")
     }
 
     override fun onBindViewHolder(holder: VideosViewHolder, position: Int) {
-        holder.bind(videos[position])
+        holder.bind(asyncDiffer.currentList[position])
     }
 
     inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -81,13 +83,12 @@ class VideoAdapter(
 
 
                 val title =
-                        if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
+                    if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
 
                 itemView.tvTitle.text = Html.fromHtml(title)
 
                 itemView.tvDuration.text = getDurationString(FBVideo.duration)
             }
-
 
 
             itemView.btnPlay.setOnClickListener {
@@ -99,9 +100,9 @@ class VideoAdapter(
                     context.startActivity(intent)
                 } catch (e: ActivityNotFoundException) {
                     Toast.makeText(
-                            context,
-                            "Unable to play video. Locate and play it from your gallery",
-                            Toast.LENGTH_SHORT
+                        context,
+                        "Unable to play video. Locate and play it from your gallery",
+                        Toast.LENGTH_SHORT
                     ).show()
                     Timber.e(e)
                 }
@@ -132,12 +133,13 @@ class VideoAdapter(
     }
 
     override fun onItemMoved(fromPosition: Int, toPosition: Int) =
-            swapItems(fromPosition, toPosition)
+        swapItems(fromPosition, toPosition)
 
-    override fun onItemDismiss(position: Int) = callback.deleteVideo(videos[position])
+    override fun onItemDismiss(position: Int) =
+        callback.deleteVideo(asyncDiffer.currentList[position])
 
     override fun getItemCount(): Int {
-        return videos.size
+        return asyncDiffer.currentList.size
     }
 
     interface VideoCallback {
