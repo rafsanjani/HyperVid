@@ -3,7 +3,6 @@ package com.foreverrafs.hypervid.ui
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -12,7 +11,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
-import androidx.activity.invoke
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
@@ -24,18 +22,10 @@ import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
-    val requestStoragePermission =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-
-            } else {
-
-            }
-        }
-
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
@@ -47,9 +37,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
-        if (viewModel.isFirstRun)
-            showDisclaimer()
 
         initializeTabComponents()
 
@@ -83,23 +70,22 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-
-    private fun showDisclaimer() {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(
-                getString(R.string.message_copyright_notice)
-            )
-            .setTitle(getString(R.string.title_copyright_notice))
-            .setPositiveButton(android.R.string.ok) { _, _ ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    requestStoragePermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    viewModel.isFirstRun = false
-                }
-            }
-            .setNegativeButton(android.R.string.cancel) { _, _ ->
-                finish()
-            }.show()
-    }
+//
+//    private fun showDisclaimer() {
+//        MaterialAlertDialogBuilder(this)
+//            .setMessage(
+//                getString(R.string.message_copyright_notice)
+//            )
+//            .setTitle(getString(R.string.title_copyright_notice))
+//            .setPositiveButton(android.R.string.ok) { _, _ ->
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    viewModel.isFirstRun = false
+//                }
+//            }
+//            .setNegativeButton(android.R.string.cancel) { _, _ ->
+//                finish()
+//            }.show()
+//    }
 
     private fun initializeTabComponents() {
         setupViewPager(viewPager)
