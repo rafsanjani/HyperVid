@@ -31,7 +31,9 @@ class ItemTouchCallback(private val adapter: ItemTouchHelperAdapter) :
         viewHolder: RecyclerView.ViewHolder
     ): Int {
         val swipeFlags = ItemTouchHelper.START
-        return makeMovementFlags(0, swipeFlags)
+        val dragFlags = ItemTouchHelper.DOWN or ItemTouchHelper.UP
+
+        return makeMovementFlags(dragFlags, swipeFlags)
     }
 
     override fun onChildDraw(
