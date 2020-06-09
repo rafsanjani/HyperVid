@@ -29,7 +29,6 @@ import enable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import kotlinx.android.synthetic.main.fragment_addurl.tabLayout
-import kotlinx.coroutines.Job
 import showToast
 import timber.log.Timber
 
@@ -70,8 +69,9 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
 
-        if (mainViewModel.isFirstRun)
+        if (mainViewModel.isFirstRun) {
             showDisclaimer()
+        }
 
         mainViewModel.downloadList.observe(viewLifecycleOwner, Observer {
             downloadList = it.toMutableList()
@@ -147,8 +147,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             url
         )
 
-    private lateinit var job: Job
-
     private fun extractVideo(videoURL: String) {
         EspressoIdlingResource.increment()
 
@@ -156,12 +154,10 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         btnAddToDownloads.disable()
         urlInputLayout.disable()
 
-        job = mainViewModel.extractVideoDownloadUrl(
+        mainViewModel.extractVideoDownloadUrl(
             videoURL,
             extractionListener
-        )
-
-        job.invokeOnCompletion {
+        ).invokeOnCompletion {
             Timber.i(it)
         }
     }
@@ -236,6 +232,9 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         if (dismissDialog.isShowing)
             return
 
+        if (mainViewModel.isFirstRun)
+            return
+
         initializeClipboard()
     }
 
@@ -254,7 +253,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                     .setMessage(getString(R.string.prompt_download_video))
                     .setPositiveButton(android.R.string.yes) { _, _ ->
                         urlInputLayout.editText?.setText(link)
-                        extractVideo(link)
+//                        extractVideo(link)
+                        requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         suggestedLinks.add(link)
                     }
                     .setNegativeButton(

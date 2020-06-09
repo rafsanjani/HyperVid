@@ -70,22 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-//
-//    private fun showDisclaimer() {
-//        MaterialAlertDialogBuilder(this)
-//            .setMessage(
-//                getString(R.string.message_copyright_notice)
-//            )
-//            .setTitle(getString(R.string.title_copyright_notice))
-//            .setPositiveButton(android.R.string.ok) { _, _ ->
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    viewModel.isFirstRun = false
-//                }
-//            }
-//            .setNegativeButton(android.R.string.cancel) { _, _ ->
-//                finish()
-//            }.show()
-//    }
+
 
     private fun initializeTabComponents() {
         setupViewPager(viewPager)
