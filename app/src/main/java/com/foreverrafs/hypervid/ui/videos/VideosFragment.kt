@@ -75,11 +75,6 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
         }
     }
 
-//    override fun onPause() {
-//        vm.saveVideo(videoAdapter.videos)
-//        super.onPause()
-//    }
-
     override fun deleteVideo(video: FBVideo) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_delete_video)
@@ -89,7 +84,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
                 vm.deleteVideo(video)
                 File(video.path).delete()
             }
-            .setNegativeButton(android.R.string.no) { _, _ ->
+            .setNegativeButton(R.string.cancel) { _, _ ->
                 videoAdapter.notifyDataSetChanged()
             }
             .show()

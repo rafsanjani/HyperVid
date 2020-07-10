@@ -95,7 +95,7 @@ class DownloadAdapter(val interaction: Interaction) :
                     val image = retriever.frameAtTime
 
                     withContext(Dispatchers.Main) {
-                        itemView.image.load(image)
+                        itemView.image.load(image!!)
 
                         itemView.tvDuration.apply {
                             text = durationString

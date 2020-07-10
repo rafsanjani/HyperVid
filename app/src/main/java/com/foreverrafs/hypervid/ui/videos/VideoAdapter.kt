@@ -71,7 +71,7 @@ class VideoAdapter(
                 retriever.setDataSource(FBVideo.path)
 
                 withContext(Dispatchers.Main) {
-                    itemView.imageCover.load(retriever.frameAtTime)
+                    itemView.imageCover.load(retriever.frameAtTime!!)
                 }
             }
 

@@ -6,7 +6,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -14,6 +13,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
@@ -29,6 +29,8 @@ import enable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import kotlinx.android.synthetic.main.fragment_addurl.tabLayout
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import showToast
 import timber.log.Timber
 
@@ -189,11 +191,11 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             resetUi()
 
-            Handler().postDelayed({
+            lifecycleScope.launch {
+                delay(2000)
                 (requireActivity() as MainActivity).viewPager.currentItem = 1
-
                 EspressoIdlingResource.decrement()
-            }, 2000)
+            }
         }
 
         override fun onError(exception: Exception) {
@@ -251,14 +253,13 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_download_video))
-                    .setPositiveButton(android.R.string.yes) { _, _ ->
+                    .setPositiveButton(R.string.yes) { _, _ ->
                         urlInputLayout.editText?.setText(link)
-//                        extractVideo(link)
                         requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         suggestedLinks.add(link)
                     }
                     .setNegativeButton(
-                        android.R.string.no
+                        R.string.no
                     ) { _, _ ->
                         suggestedLinks.add(link)
                     }
