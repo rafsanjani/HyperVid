@@ -15,7 +15,7 @@ android {
         applicationId "com.foreverrafs.hypervid"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
+        versionCode 7
         versionName "1.2.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
