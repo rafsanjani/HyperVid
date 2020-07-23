@@ -15,7 +15,7 @@
         tools:itemCount="3"
         tools:layout_editor_absoluteX="1dp"
         tools:layout_editor_absoluteY="1dp"
-        tools:listitem="@layout/item_video__" />
+        tools:listitem="@layout/item_video" />
 
     <include
         android:id="@+id/emptyLayout"

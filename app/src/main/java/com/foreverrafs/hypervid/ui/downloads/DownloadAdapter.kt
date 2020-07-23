@@ -21,7 +21,7 @@ import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.getDurationString
 import gone
 import invisible
-import kotlinx.android.synthetic.main.item_download__.view.*
+import kotlinx.android.synthetic.main.item_download.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -63,7 +63,7 @@ class DownloadAdapter(val interaction: Interaction) :
         context = parent.context
 
         val inflater = LayoutInflater.from(context)
-        val itemView = inflater.inflate(R.layout.item_download__, parent, false)
+        val itemView = inflater.inflate(R.layout.item_download, parent, false)
 
         return DownloadsViewHolder(itemView)
     }
