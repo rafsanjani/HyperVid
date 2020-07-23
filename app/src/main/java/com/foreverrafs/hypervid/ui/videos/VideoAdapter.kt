@@ -112,6 +112,10 @@ class VideoAdapter(
                 context.shareFile(FBVideo.path, "com.whatsapp")
             }
 
+            itemView.btnDelete.setOnClickListener {
+                callback.deleteVideo(asyncDiffer.currentList[adapterPosition])
+            }
+
             itemView.btnShare.setOnClickListener {
                 val uri = Uri.fromFile(File(FBVideo.path))
 
@@ -127,6 +131,7 @@ class VideoAdapter(
             }
         }
     }
+
 
     fun submitList(videos: List<FBVideo>) {
         asyncDiffer.submitList(videos)

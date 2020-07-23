@@ -1,7 +1,6 @@
 package com.foreverrafs.hypervid.ui
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -14,7 +13,6 @@ import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
@@ -46,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private fun showCounterBadges() {
         viewModel.downloadList.observe(this, Observer { downloads ->
             if (downloads.isNotEmpty()) {
-                tabLayout.getTabAt(1)?.getOrCreateBadge()?.apply {
+                tabLayout.getTabAt(1)?.orCreateBadge?.apply {
                     isVisible = true
                     backgroundColor =
                         ContextCompat.getColor(applicationContext, R.color.colorPrimary)
@@ -59,14 +57,14 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.videosList.observe(this, Observer { videos ->
             if (videos.isNotEmpty()) {
-                tabLayout.getTabAt(2)?.getOrCreateBadge()?.apply {
+                tabLayout.getTabAt(2)?.orCreateBadge?.apply {
                     isVisible = true
                     backgroundColor =
                         ContextCompat.getColor(applicationContext, R.color.colorPrimary)
                     number = videos.size
                 }
             } else {
-                tabLayout.getTabAt(1)?.badge?.isVisible = false
+                tabLayout.getTabAt(2)?.badge?.isVisible = false
             }
         })
     }
