@@ -90,7 +90,7 @@ android {
         kapt "com.github.bumptech.glide:compiler:4.11.0"
 
         //firebase analytics
-        releaseImplementation 'com.google.firebase:firebase-analytics:17.4.4'
+        releaseImplementation 'com.google.firebase:firebase-analytics:17.5.0'
         releaseImplementation 'com.google.firebase:firebase-crashlytics:17.1.1'
     }
 }
