@@ -45,5 +45,5 @@ dependencies {
     implementation 'com.mindorks.android:prdownloader:0.6.0'
     implementation "androidx.tonyodev.fetch2:xfetch2:3.1.5-preview2"
     implementation "androidx.tonyodev.fetch2okhttp:xfetch2okhttp:3.1.5-preview2"
-    implementation 'joda-time:joda-time:2.10.6'
+    implementation 'joda-time:joda-time:2.10.7'
 }
