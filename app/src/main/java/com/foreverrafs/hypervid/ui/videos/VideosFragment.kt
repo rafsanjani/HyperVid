@@ -6,14 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.ItemTouchHelper
-import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentVideosBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
-import com.foreverrafs.hypervid.util.ItemTouchCallback
+import com.foreverrafs.hypervid.ui.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import invisible
 import visible
@@ -46,15 +43,10 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
         videoBinding.videoListRecyclerView.adapter =
             videoAdapter
 
-        val itemTouchHelperCallback = ItemTouchCallback(videoAdapter)
-
-        val touchHelper = ItemTouchHelper(itemTouchHelperCallback)
-
-        touchHelper.attachToRecyclerView(videoBinding.videoListRecyclerView)
 
         initEmptyLayoutTexts()
 
-        vm.videosList.observe(viewLifecycleOwner, Observer { videosList ->
+        vm.videosList.observe(viewLifecycleOwner) { videosList ->
             if (videosList.isNotEmpty()) {
                 videoBinding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
@@ -65,7 +57,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
                 videoBinding.videoListRecyclerView.invisible()
                 emptyListBinding.root.visible()
             }
-        })
+        }
     }
 
     private fun initEmptyLayoutTexts() {
