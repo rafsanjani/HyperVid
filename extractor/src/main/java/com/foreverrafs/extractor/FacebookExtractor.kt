@@ -146,7 +146,7 @@ class FacebookExtractor {
                     HashMap()
                 )
                 facebookFile.duration =
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()!!
             } catch (E: Exception) {
                 facebookFile.duration = 0L
             }
