@@ -30,7 +30,7 @@ License
 
     MIT License
 
-    Copyright (c) 2017 Rafsanjani Aziz
+    Copyright (c) 2019 Rafsanjani Aziz
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
