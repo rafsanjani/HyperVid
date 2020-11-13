@@ -28,7 +28,7 @@ jobs:
 
       - name: Sign AAB
         id: sign
-        uses: r0adkll/sign-android-release@v1
+        uses: thomastvedt/sign-android-release@v2.2
         with:
           releaseDirectory: app/build/outputs/bundle/release
           signingKeyBase64: ${{secrets.SIGNING_KEY}}

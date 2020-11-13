@@ -1,6 +1,6 @@
 # HyperVid ![Android CI](https://github.com/rafsanjani/HyperVid/workflows/Android%20CI/badge.svg)
 
-[<img align="right" alt="Get it on Google Play" height="120" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png">](https://play.google.com/store/apps/details?id=com.foreverrafs.hypervid)
+[<img align="right" alt="Get it on Google Play" height="100" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png">](https://play.google.com/store/apps/details?id=com.foreverrafs.hypervid)
 
 HyperVid Facebook Video Downloader
 
