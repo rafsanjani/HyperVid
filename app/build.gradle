@@ -70,7 +70,7 @@ android {
         implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
 
         //Kotlin Android Coroutines
-        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2-native-mt"
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3-native-mt"
 
         implementation "android.arch.lifecycle:extensions:1.1.1"
 
