@@ -1,12 +1,9 @@
 package com.foreverrafs.hypervid.ui
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
-import androidx.activity.invoke
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -16,24 +13,17 @@ import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var viewModel: MainViewModel
 
-    private val requestStorPermission: ActivityResultLauncher<String> =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-                if (!granted) {
-                    finish()
-                }
-            }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) {
@@ -46,9 +36,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        if (viewModel.isFirstRun)
-            showDisclaimer()
-
         initializeTabComponents()
 
         showCounterBadges()
@@ -57,9 +44,10 @@ class MainActivity : AppCompatActivity() {
     private fun showCounterBadges() {
         viewModel.downloadList.observe(this, Observer { downloads ->
             if (downloads.isNotEmpty()) {
-                tabLayout.getTabAt(1)?.getOrCreateBadge()?.apply {
+                tabLayout.getTabAt(1)?.orCreateBadge?.apply {
                     isVisible = true
-                    backgroundColor = R.color.colorPrimary
+                    backgroundColor =
+                        ContextCompat.getColor(applicationContext, R.color.colorPrimary)
                     number = downloads.size
                 }
             } else {
@@ -69,33 +57,18 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.videosList.observe(this, Observer { videos ->
             if (videos.isNotEmpty()) {
-                tabLayout.getTabAt(2)?.getOrCreateBadge()?.apply {
+                tabLayout.getTabAt(2)?.orCreateBadge?.apply {
                     isVisible = true
-                    backgroundColor = R.color.colorPrimary
+                    backgroundColor =
+                        ContextCompat.getColor(applicationContext, R.color.colorPrimary)
                     number = videos.size
                 }
             } else {
-                tabLayout.getTabAt(1)?.badge?.isVisible = false
+                tabLayout.getTabAt(2)?.badge?.isVisible = false
             }
         })
     }
 
-    private fun showDisclaimer() {
-        MaterialAlertDialogBuilder(this)
-                .setMessage(
-                        getString(R.string.message_copyright_notice)
-                )
-                .setTitle(getString(R.string.title_copyright_notice))
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestStorPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        viewModel.isFirstRun = false
-                    }
-                }
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-                    finish()
-                }.show()
-    }
 
     private fun initializeTabComponents() {
         setupViewPager(viewPager)

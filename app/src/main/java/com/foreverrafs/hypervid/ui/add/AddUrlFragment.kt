@@ -3,15 +3,17 @@ package com.foreverrafs.hypervid.ui.add
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.DownloadableFile
 import com.foreverrafs.extractor.FacebookExtractor
@@ -27,7 +29,8 @@ import enable
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_addurl.*
 import kotlinx.android.synthetic.main.fragment_addurl.tabLayout
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import showToast
 import timber.log.Timber
 
@@ -39,21 +42,44 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     private lateinit var clipboardText: String
     private var clipBoardData: ClipData? = null
-    private val vm: MainViewModel by activityViewModels()
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     private var downloadList = mutableListOf<DownloadInfo>()
     private var videoList = mutableListOf<FBVideo>()
 
     private val suggestedLinks = mutableListOf<String>()
 
+    private val dismissDialog: AlertDialog by lazy {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setMessage("This app cannot function properly without allowing all the requested permissions")
+            .setIcon(R.drawable.ic_error)
+            .setPositiveButton(R.string.exit) { _, _ ->
+                requireActivity().finish()
+            }
+            .create()
+    }
+
+    private val requestStoragePermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                extractVideo(urlInputLayout.editText?.text.toString())
+            } else {
+                dismissDialog.show()
+            }
+        }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initializeViews()
 
-        vm.downloadList.observe(viewLifecycleOwner, Observer {
+        if (mainViewModel.isFirstRun) {
+            showDisclaimer()
+        }
+
+        mainViewModel.downloadList.observe(viewLifecycleOwner, Observer {
             downloadList = it.toMutableList()
         })
 
-        vm.videosList.observe(viewLifecycleOwner, Observer {
+        mainViewModel.videosList.observe(viewLifecycleOwner, Observer {
             videoList = it.toMutableList()
         })
 
@@ -101,7 +127,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         //add the download job to the download list when the button is clicked. We don't start downloading
         //immediately. We wait for the user to interact with it in the downloads section before we download.
         btnAddToDownloads.setOnClickListener {
-            extractVideo(urlInputLayout.editText?.text.toString())
+            requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
 
         urlInputLayout.editText?.addTextChangedListener {
@@ -119,11 +145,9 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     }
 
     private fun isNotExtracted(url: String) =
-        !suggestedLinks.contains(url) && !vm.hasVideo(url) && !vm.hasDownload(
+        !suggestedLinks.contains(url) && !mainViewModel.hasVideo(url) && !mainViewModel.hasDownload(
             url
         )
-
-    private lateinit var job: Job
 
     private fun extractVideo(videoURL: String) {
         EspressoIdlingResource.increment()
@@ -132,17 +156,15 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         btnAddToDownloads.disable()
         urlInputLayout.disable()
 
-        job = vm.extractVideoDownloadUrl(
+        mainViewModel.extractVideoDownloadUrl(
             videoURL,
-            listener
-        )
-
-        job.invokeOnCompletion {
+            extractionListener
+        ).invokeOnCompletion {
             Timber.i(it)
         }
     }
 
-    private var listener = object : FacebookExtractor.ExtractionEvents {
+    private var extractionListener = object : FacebookExtractor.ExtractionEvents {
         override fun onComplete(downloadableFile: DownloadableFile) {
             val downloadInfo = DownloadInfo(
                 downloadableFile.url,
@@ -165,15 +187,15 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
             showToast("Video added to download queue...")
-            vm.saveDownload(downloadInfo)
+            mainViewModel.saveDownload(downloadInfo)
 
             resetUi()
 
-            Handler().postDelayed({
+            lifecycleScope.launch {
+                delay(2000)
                 (requireActivity() as MainActivity).viewPager.currentItem = 1
-
                 EspressoIdlingResource.decrement()
-            }, 2000)
+            }
         }
 
         override fun onError(exception: Exception) {
@@ -209,6 +231,12 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     override fun onResume() {
         super.onResume()
+        if (dismissDialog.isShowing)
+            return
+
+        if (mainViewModel.isFirstRun)
+            return
+
         initializeClipboard()
     }
 
@@ -225,13 +253,13 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_download_video))
-                    .setPositiveButton(android.R.string.yes) { _, _ ->
+                    .setPositiveButton(R.string.yes) { _, _ ->
                         urlInputLayout.editText?.setText(link)
-                        extractVideo(link)
+                        requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         suggestedLinks.add(link)
                     }
                     .setNegativeButton(
-                        android.R.string.no
+                        R.string.no
                     ) { _, _ ->
                         suggestedLinks.add(link)
                     }
@@ -240,7 +268,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                 Timber.i("Clipboard link has already been downloaded. Suggestion discarded")
             }
         }
-
 
         clipboardManager.addPrimaryClipChangedListener {
             clipBoardData = clipboardManager.primaryClip
@@ -252,6 +279,24 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             } ?: Timber.e("clipText is null")
         }
+    }
+
+
+    private fun showDisclaimer() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setMessage(
+                getString(R.string.message_copyright_notice)
+            )
+            .setTitle(getString(R.string.title_copyright_notice))
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    mainViewModel.isFirstRun = false
+                    initializeClipboard()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel) { _, _ ->
+                requireActivity().finish()
+            }.show()
     }
 
     private fun isValidUrl(url: String) =

@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.SlideImage
-import kotlinx.android.synthetic.main.item_slideshow__.view.*
+import kotlinx.android.synthetic.main.item_slideshow.view.*
 import load
 
 
@@ -27,7 +27,7 @@ class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHold
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SlideShowViewHolder {
         return SlideShowViewHolder(
             LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_slideshow__, parent, false)
+                .inflate(R.layout.item_slideshow, parent, false)
         )
     }
 

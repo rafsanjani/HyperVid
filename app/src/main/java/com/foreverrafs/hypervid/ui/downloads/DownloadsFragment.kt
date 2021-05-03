@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.Handler
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +14,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
@@ -27,6 +27,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import invisible
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_downloads.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import visible
 import java.io.File
@@ -61,9 +63,10 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         if (list.isNotEmpty()) {
             emptyListBinding.root.invisible()
 
-            Handler().postDelayed({
+            lifecycleScope.launch {
+                delay(3000)
                 showDownloads(list)
-            }, 300)
+            }
 
         } else {
             showEmptyScreen()
@@ -88,7 +91,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
         progressBar.invisible()
         downloadBinding.downloadListRecyclerView.visible()
 
-        downloadsAdapter.submitList(downloadList.toMutableList())
+        downloadsAdapter.submitList(downloadList)
     }
 
 
@@ -105,17 +108,18 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
             saveVideoToGallery(video)
             vm.saveVideo(video)
 
-            Handler().postDelayed({
+            lifecycleScope.launch {
+                delay(800)
                 vm.deleteDownload(download)
-            }, 800)
-
+            }
 
             //navigate to the videos page : 2
-            Handler().postDelayed({
+            lifecycleScope.launch {
+                delay(2000)
                 (requireActivity() as MainActivity).viewPager.currentItem = 2
 
                 EspressoIdlingResource.decrement()
-            }, 2000)
+            }
 
         } else {
             Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT)
@@ -210,7 +214,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
                 vm.deleteDownload(download)
             }
-            .setNegativeButton(android.R.string.no, null)
+            .setNegativeButton(R.string.no, null)
             .show()
     }
 

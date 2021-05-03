@@ -51,7 +51,7 @@ class MainActivityTest {
         onView(withId(R.id.btnAddToDownloads)).check(matches(isEnabled()))
     }
 
-    @Test 
+    @Test
     fun test_disableAddButtonWhenInvalidLinkIsTyped() {
         onView(withId(R.id.btnAddToDownloads)).check(matches(not(isEnabled())))
         onView(withHint(R.string.hint_url)).perform(typeText("https://www.foreverrafs.com/Magraheb/videos/228399154931246/?t=0"))

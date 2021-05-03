@@ -8,6 +8,9 @@
     <string name="start_pause">Start/Pause</string>
     <string name="stop">Stop</string>
     <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="add_to_downloads">Add to Downloads</string>
     <string name="downloading">Downloading:</string>
     <string name="paused">Paused</string>
@@ -24,7 +27,6 @@
     <string name="connecting">Connecting…</string>
     <string name="title_delete_video">Delete video</string>
     <string name="prompt_delete_video">Are you sure you want to delete this video?</string>
-    <string name="yes">Yes</string>
     <string name="duplcate_video">Duplicate Video</string>
     <string name="title_download_video">Download Video</string>
     <string name="prompt_download_video">Video found. Download now?</string>
@@ -35,4 +37,5 @@
         The usage of this app must therefore be in compliance with the copyright notices of content providers.
         \n \nDo you wish to proceed?
     </string>
+    <string name="exit">Exit</string>
 </resources>

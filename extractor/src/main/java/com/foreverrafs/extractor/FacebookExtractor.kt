@@ -116,7 +116,7 @@ class FacebookExtractor {
                     authorStr.replace("<meta property=\"og:title\" content=\"", "")
                         .replace("\" />", "")
             } else {
-                facebookFile.author = "fbdescription"
+                facebookFile.author = "fbauthor" + UUID.randomUUID().toString()
             }
             if (metaTAGDescriptionMatcher.find()) {
                 var name = streamMap.substring(
@@ -128,7 +128,7 @@ class FacebookExtractor {
                     .replace("\" />", "")
                 facebookFile.filename = name
             } else {
-                facebookFile.filename = "fbdescription"
+                facebookFile.filename = "fbdescription" + UUID.randomUUID().toString()
             }
             if (metaTAGTypeMatcher.find()) {
                 val extStr =
@@ -146,7 +146,7 @@ class FacebookExtractor {
                     HashMap()
                 )
                 facebookFile.duration =
-                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()!!
             } catch (E: Exception) {
                 facebookFile.duration = 0L
             }

@@ -21,7 +21,7 @@ import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.getDurationString
 import gone
 import invisible
-import kotlinx.android.synthetic.main.item_download__.view.*
+import kotlinx.android.synthetic.main.item_download.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,7 +36,7 @@ import kotlin.math.abs
 
 
 class DownloadAdapter(val interaction: Interaction) :
-        RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
+    RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
     private val videoDownloader: VideoDownloader by lazy {
         VideoDownloader.getInstance(context)!!
@@ -54,7 +54,6 @@ class DownloadAdapter(val interaction: Interaction) :
 
     private val asyncDiffer = AsyncListDiffer(this, diffCallback)
 
-    val downloads = mutableListOf<DownloadInfo>()
     private lateinit var context: Context
     fun submitList(newList: List<DownloadInfo>) {
         asyncDiffer.submitList(newList)
@@ -64,18 +63,18 @@ class DownloadAdapter(val interaction: Interaction) :
         context = parent.context
 
         val inflater = LayoutInflater.from(context)
-        val itemView = inflater.inflate(R.layout.item_download__, parent, false)
+        val itemView = inflater.inflate(R.layout.item_download, parent, false)
 
         return DownloadsViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
-        val downloadItem = downloads[position]
+        val downloadItem = asyncDiffer.currentList[position]
         holder.bind(downloadItem)
     }
 
     inner class DownloadsViewHolder(itemView: View) :
-            RecyclerView.ViewHolder(itemView) {
+        RecyclerView.ViewHolder(itemView) {
 
         private lateinit var downloadItem: DownloadInfo
         private var isDownloading: Boolean = false
@@ -96,7 +95,7 @@ class DownloadAdapter(val interaction: Interaction) :
                     val image = retriever.frameAtTime
 
                     withContext(Dispatchers.Main) {
-                        itemView.image.load(image)
+                        itemView.image.load(image!!)
 
                         itemView.tvDuration.apply {
                             text = durationString
@@ -109,7 +108,7 @@ class DownloadAdapter(val interaction: Interaction) :
             }
 
             val videoTitle = Html.fromHtml(
-                    if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
+                if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
             )
 
             itemView.tvName.text = videoTitle
@@ -151,7 +150,7 @@ class DownloadAdapter(val interaction: Interaction) :
                         return@setOnMenuItemClickListener true
                     }
                     R.id.delete -> {
-                        interaction.deleteDownload(downloads[adapterPosition])
+                        interaction.deleteDownload(asyncDiffer.currentList[adapterPosition])
                         return@setOnMenuItemClickListener true
                     }
                     R.id.stop -> {
@@ -177,17 +176,17 @@ class DownloadAdapter(val interaction: Interaction) :
             itemView.btnStartPause.setImageResource(R.drawable.ic_pause)
 
             downloadId = videoDownloader.downloadFile(downloadItem, object :
-                    DownloadEvents {
+                DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
                     itemView.tvPercentage.text =
-                            context.getString(R.string.percentage, percentage)
+                        context.getString(R.string.percentage, percentage)
                     itemView.progressDownload.progress = percentage
 
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
                     itemView.tvDownloadedSize.text =
-                            if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
+                        if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
                 }
 
                 override fun onPause() {
@@ -200,8 +199,8 @@ class DownloadAdapter(val interaction: Interaction) :
 
                 override fun onCompleted() {
                     val facebookVideo = FBVideo(
-                            downloadItem.name, downloadItem.duration,
-                            getVideoFilePath(downloadItem), downloadItem.url
+                        downloadItem.name, downloadItem.duration,
+                        getVideoFilePath(downloadItem), downloadItem.url
                     )
 
                     interaction.onVideoDownloaded(adapterPosition, facebookVideo, downloadItem)
@@ -256,10 +255,10 @@ class DownloadAdapter(val interaction: Interaction) :
             constraintSet.apply {
                 clone(itemView.constraintLayout)
                 connect(
-                        R.id.tvDownloadedSize,
-                        ConstraintSet.TOP,
-                        R.id.tvDate,
-                        ConstraintSet.TOP
+                    R.id.tvDownloadedSize,
+                    ConstraintSet.TOP,
+                    R.id.tvDate,
+                    ConstraintSet.TOP
                 )
                 applyTo(itemView.constraintLayout)
             }
@@ -277,5 +276,5 @@ class DownloadAdapter(val interaction: Interaction) :
         fun onDownloadError(position: Int)
     }
 
-    override fun getItemCount(): Int = downloads.size
+    override fun getItemCount(): Int = asyncDiffer.currentList.size
 }

@@ -31,10 +31,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         const val PREF_KEY_FIRSTRUN = "firstrun"
     }
 
-    fun saveVideo(list: List<FBVideo>) = viewModelScope.launch(dispatcher) {
-        repository.saveVideos(list)
-    }
-
     fun saveVideo(video: FBVideo) = viewModelScope.launch(dispatcher) {
         repository.saveVideo(video)
     }
@@ -43,14 +39,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         repository.deleteVideo(video)
     }
 
-    fun updateVideo(video: FBVideo) = viewModelScope.launch(dispatcher) {
-        repository.updateVideo(video)
-    }
-
-
-    fun saveDownload(list: List<DownloadInfo>) = viewModelScope.launch(dispatcher) {
-        repository.saveDownload(list)
-    }
 
     fun saveDownload(download: DownloadInfo) = viewModelScope.launch(dispatcher) {
         repository.saveDownload(download)
@@ -58,10 +46,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun deleteDownload(download: DownloadInfo) = viewModelScope.launch(dispatcher) {
         repository.deleteDownload(download)
-    }
-
-    fun updateDownload(download: DownloadInfo) = viewModelScope.launch(dispatcher) {
-        repository.updateDownload(download)
     }
 
     val downloadList: LiveData<List<DownloadInfo>>
