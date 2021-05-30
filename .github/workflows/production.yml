@@ -19,39 +19,42 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Build with Gradle
-        id: build
-        run:  ./gradlew build
+      - name: Create Google Play JSON file
+        run: echo ${{secrets.SERVICE_ACCOUNT_JSON}} >> google-services.json
 
-      - name: Build Release AAB
-        id: buildRelease
-        run: ./gradlew bundleRelease
-
-      - name: Sign AAB
-        id: sign
-        uses: thomastvedt/sign-android-release@v2.2
-        with:
-          releaseDirectory: app/build/outputs/bundle/release
-          signingKeyBase64: ${{secrets.SIGNING_KEY}}
-          alias: ${{secrets.ALIAS}}
-          keyStorePassword: ${{secrets.KEYSTORE_PASSWORD}}
-          keyPassword: ${{secrets.KEY_PASSWORD}}
-
-      - name: Upload AAB
-        id: uploadArtifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: app
-          path: app/build/outputs/bundle/release/app-release.aab
-
-      - name: Deploy to Play Store (BETA)
-        id: deploy
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{secrets.SERVICE_ACCOUNT_JSON}}
-          packageName: com.foreverrafs.hypervid
-          releaseFile: app/build/outputs/bundle/release/app-release.aab
-          whatsNewDirectory: whatsnew/
+      - name: Publish Bundle to Open Beta
+        run: ./gradlew publishReleaseBundle
+#
+#      - name: Build Release AAB
+#        id: buildRelease
+#        run: ./gradlew bundleRelease
+#
+#      - name: Sign AAB
+#        id: sign
+#        uses: thomastvedt/sign-android-release@v2.2
+#        with:
+#          releaseDirectory: app/build/outputs/bundle/release
+#          signingKeyBase64: ${{secrets.SIGNING_KEY}}
+#          alias: ${{secrets.ALIAS}}
+#          keyStorePassword: ${{secrets.KEYSTORE_PASSWORD}}
+#          keyPassword: ${{secrets.KEY_PASSWORD}}
+#
+#      - name: Upload AAB
+#        id: uploadArtifact
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: app
+#          path: app/build/outputs/bundle/release/app-release.aab
+#
+#      - name: Deploy to Play Store (BETA)
+#        id: deploy
+#        uses: r0adkll/upload-google-play@v1
+#        with:
+#          serviceAccountJsonPlainText: ${{secrets.SERVICE_ACCOUNT_JSON}}
+#          releaseFiles: app/build/outputs/bundle/release/*.aab
+#          packageName: com.foreverrafs.hypervid
+#          track: beta
+#          whatsNewDirectory: whatsnew/
 
 
 
