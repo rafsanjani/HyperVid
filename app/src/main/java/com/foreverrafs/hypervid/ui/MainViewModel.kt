@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.extractor.FacebookExtractor
+import com.foreverrafs.extractor.Downloadable
+import com.foreverrafs.extractor.Extractor
+import com.foreverrafs.extractor.VideoExtractor
 import com.foreverrafs.hypervid.data.AppDb
 import com.foreverrafs.hypervid.data.AppRepository
 import com.foreverrafs.hypervid.model.FBVideo
@@ -55,14 +57,24 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         get() = repository.getVideos()
 
     fun extractVideoDownloadUrl(
-        streamUrl: String,
-        listener: FacebookExtractor.ExtractionEvents
+        videoUrl: String,
+        listener: Extractor.ExtractionEvents
     ): Job {
-        val extractor = FacebookExtractor()
-        extractor.addEventsListener(listener)
+        val extractor = VideoExtractor()
 
         return viewModelScope.launch {
-            extractor.extract(streamUrl)
+            try {
+                val downloadable = extractor.extractVideoUrl(videoUrl)
+
+                listener.onComplete(
+                    Downloadable(
+                        url = downloadable.url,
+                        filename = downloadable.filename,
+                    )
+                )
+            } catch (e: Exception) {
+                listener.onError(e)
+            }
         }
     }
 

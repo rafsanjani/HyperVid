@@ -1,4 +1,8 @@
 <resources>
+    <string name="facebook_app_id">792809298107532</string>
+    <string name="fb_login_protocol_scheme">fb792809298107532</string>
+
+
     <string name="app_name">HyperVid: Video Downloader for FB</string>
     <string name="title_url">Add Link</string>
     <string name="title_downloads">Downloads</string>
@@ -39,3 +43,4 @@
     </string>
     <string name="exit">Exit</string>
 </resources>
+

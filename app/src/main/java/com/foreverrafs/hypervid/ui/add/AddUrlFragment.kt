@@ -12,11 +12,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.extractor.DownloadableFile
-import com.foreverrafs.extractor.FacebookExtractor
+import com.foreverrafs.extractor.Downloadable
+import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainActivity
@@ -38,6 +37,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     companion object {
         const val FACEBOOK_URL = "https://www.facebook.com/"
         const val FACEBOOK_URL_MOBILE = "https://m.facebook.com/"
+        const val FACEBOOK_URL_SHORT = "https://fb.watch/"
     }
 
     private lateinit var clipboardText: String
@@ -75,14 +75,13 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             showDisclaimer()
         }
 
-        mainViewModel.downloadList.observe(viewLifecycleOwner, Observer {
+        mainViewModel.downloadList.observe(viewLifecycleOwner) {
             downloadList = it.toMutableList()
-        })
+        }
 
-        mainViewModel.videosList.observe(viewLifecycleOwner, Observer {
+        mainViewModel.videosList.observe(viewLifecycleOwner) {
             videoList = it.toMutableList()
-        })
-
+        }
 
         initSlideShow()
     }
@@ -100,7 +99,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     }
 
 
-    private val timer = object : CountDownTimer(60 * 1000, 5 * 1000) {
+    private val timer = object : CountDownTimer(60 * 1000L, 5 * 1000L) {
         override fun onTick(millisUntilFinished: Long) {
             slideShowPager?.let {
                 if (slideShowPager.currentItem + 1 <= 2)
@@ -140,7 +139,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                     urlInputLayout.isErrorEnabled = true
                 }
             }
-
         }
     }
 
@@ -149,7 +147,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             url
         )
 
-    private fun extractVideo(videoURL: String) {
+
+    private fun extractVideo(videoURL: String) = lifecycleScope.launch {
         EspressoIdlingResource.increment()
 
         btnAddToDownloads.text = getString(R.string.extracting)
@@ -164,15 +163,15 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
-    private var extractionListener = object : FacebookExtractor.ExtractionEvents {
-        override fun onComplete(downloadableFile: DownloadableFile) {
+    private var extractionListener = object : Extractor.ExtractionEvents {
+        override fun onComplete(downloadable: Downloadable) {
             val downloadInfo = DownloadInfo(
-                downloadableFile.url,
-                0,
-                downloadableFile.author,
-                downloadableFile.duration
+                url = downloadable.url,
+                name = downloadable.filename,
+                downloadId = 0,
             )
 
+            //Check if the extracted link exists either in the download list or the videos list.
             val downloadExists = downloadList.any {
                 it.url == downloadInfo.url
             } || videoList.any { it.url == downloadInfo.url }
@@ -198,7 +197,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             }
         }
 
-        override fun onError(exception: Exception) {
+        override fun onError(error: Exception) {
             EspressoIdlingResource.decrement()
 
             showToast("Error loading video from link")
@@ -209,7 +208,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             btnAddToDownloads.enable()
             urlInputLayout.enable()
 
-            Timber.e(exception)
+            Timber.e(error)
         }
     }
 
@@ -300,5 +299,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     }
 
     private fun isValidUrl(url: String) =
-        url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE)
+        url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE) or url.contains(
+            FACEBOOK_URL_SHORT
+        )
 }

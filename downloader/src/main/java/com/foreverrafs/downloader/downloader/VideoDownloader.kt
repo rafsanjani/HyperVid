@@ -8,6 +8,7 @@ import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.FetchLogger
 import okhttp3.OkHttpClient
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 
 class VideoDownloader private constructor(private val context: Context) :
@@ -18,7 +19,7 @@ class VideoDownloader private constructor(private val context: Context) :
     companion object {
         private var instance: VideoDownloader? = null
 
-        fun getInstance(context: Context): VideoDownloader? {
+        fun getInstance(context: Context): Downloader? {
             return (instance?.let {
                 if (it.isClosed)
                     VideoDownloader(context)
@@ -36,11 +37,15 @@ class VideoDownloader private constructor(private val context: Context) :
         }
 
         override fun onCompleted(download: Download) {
-            downloads[download.id]?.onCompleted()
+            downloads[download.id]?.onCompleted(download.file)
             downloads.remove(download.id)
         }
 
-        override fun onError(download: Download, error: Error, throwable: Throwable?) {
+        override fun onError(
+            download: Download,
+            error: Error,
+            throwable: Throwable?
+        ) {
             downloads[download.id]?.onError(
                 DownloadException(
                     throwable?.message!!,
@@ -79,7 +84,7 @@ class VideoDownloader private constructor(private val context: Context) :
             downloads[download.id]?.onWaitingForNetwork()
         }
     }
-    
+
     init {
         setUpDownloader()
     }
@@ -90,7 +95,8 @@ class VideoDownloader private constructor(private val context: Context) :
             .setLogger(FetchLogger())
             .setHttpDownloader(
                 ParallelDownloader(
-                    OkHttpClient()
+                    OkHttpClient.Builder().connectTimeout(1, TimeUnit.MINUTES)
+                        .build()
                 )
             ) // set custom downloader
             .setDownloadConcurrentLimit(4)

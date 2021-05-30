@@ -2,6 +2,8 @@ package com.foreverrafs.hypervid.ui.downloads
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
+import android.os.Environment
 import android.text.Html
 import android.transition.TransitionManager
 import android.view.LayoutInflater
@@ -12,9 +14,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.foreverrafs.downloader.downloader.DownloadEvents
-import com.foreverrafs.downloader.downloader.DownloadException
-import com.foreverrafs.downloader.downloader.VideoDownloader
+import com.foreverrafs.downloader.downloader.*
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.model.FBVideo
@@ -38,9 +38,8 @@ import kotlin.math.abs
 class DownloadAdapter(val interaction: Interaction) :
     RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
-    private val videoDownloader: VideoDownloader by lazy {
-        VideoDownloader.getInstance(context)!!
-    }
+    private val videoDownloader: Downloader by lazy { VideoDownloader.getInstance(context)!! }
+
 
     private val diffCallback = object : DiffUtil.ItemCallback<DownloadInfo>() {
         override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
@@ -91,7 +90,10 @@ class DownloadAdapter(val interaction: Interaction) :
                 try {
                     val retriever = MediaMetadataRetriever()
                     retriever.setDataSource(downloadItem.url, HashMap())
-                    val durationString = getDurationString(downloadItem.duration)
+
+                    val durationString = getDurationString(
+                        retriever.extractMetadata(METADATA_KEY_DURATION)!!.toLong()
+                    )
                     val image = retriever.frameAtTime
 
                     withContext(Dispatchers.Main) {
@@ -124,7 +126,7 @@ class DownloadAdapter(val interaction: Interaction) :
         }
 
         private fun getVideoFilePath(downloadItem: DownloadInfo): String {
-            return "${videoDownloader.getDownloadDir()}/${downloadItem.name}.mp4"
+            return "${getDownloadDir()}/${downloadItem.name}.mp4"
         }
 
         private fun toggleDownload() {
@@ -197,10 +199,11 @@ class DownloadAdapter(val interaction: Interaction) :
 
                 }
 
-                override fun onCompleted() {
+                override fun onCompleted(path: String) {
                     val facebookVideo = FBVideo(
-                        downloadItem.name, downloadItem.duration,
-                        getVideoFilePath(downloadItem), downloadItem.url
+                        title = downloadItem.name,
+                        path = path,
+                        url = downloadItem.url
                     )
 
                     interaction.onVideoDownloaded(adapterPosition, facebookVideo, downloadItem)
@@ -268,6 +271,14 @@ class DownloadAdapter(val interaction: Interaction) :
             itemView.btnStartPause.setImageResource(R.drawable.ic_start)
             videoDownloader.pauseDownload(downloadId)
         }
+    }
+
+    private fun getVideoFilePath(name: String): String {
+        return "${getDownloadDir()}/${name}.mp4"
+    }
+
+    private fun getDownloadDir(): String {
+        return context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.absolutePath!!
     }
 
     interface Interaction {

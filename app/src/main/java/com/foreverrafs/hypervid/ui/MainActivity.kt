@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
-import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
@@ -39,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         initializeTabComponents()
 
         showCounterBadges()
+
+
     }
 
     private fun showCounterBadges() {
@@ -84,9 +85,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager(viewPager: ViewPager2) {
         val fragments = listOf(
-                AddUrlFragment(),
-                DownloadsFragment(),
-                VideosFragment()
+            AddUrlFragment(),
+            DownloadsFragment(),
+            VideosFragment()
         )
         val viewPagerAdapter = HomePagerAdapter(this)
 
@@ -97,10 +98,10 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = viewPagerAdapter
     }
 
-    override fun onDestroy() {
-        VideoDownloader.getInstance(this)?.close()
-        super.onDestroy()
-    }
+//    override fun onDestroy() {
+////        VideoDownloader.getInstance(this)?.close()
+//        super.onDestroy()
+//    }
 }
 
 

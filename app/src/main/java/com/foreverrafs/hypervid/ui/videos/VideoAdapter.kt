@@ -72,6 +72,11 @@ class VideoAdapter(
 
                 withContext(Dispatchers.Main) {
                     itemView.imageCover.load(retriever.frameAtTime!!)
+                    itemView.tvDuration.text = getDurationString(
+                        retriever.extractMetadata(
+                            MediaMetadataRetriever.METADATA_KEY_DURATION
+                        )!!.toLong()
+                    )
                 }
             }
 
@@ -87,7 +92,6 @@ class VideoAdapter(
 
                 itemView.tvTitle.text = Html.fromHtml(title)
 
-                itemView.tvDuration.text = getDurationString(FBVideo.duration)
             }
 
 

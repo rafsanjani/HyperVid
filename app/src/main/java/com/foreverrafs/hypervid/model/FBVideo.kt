@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "videos")
 data class FBVideo(
     val title: String,
-    val duration: Long,
+    val duration: Long = 0L,
     val path: String,
     val url: String,
 
