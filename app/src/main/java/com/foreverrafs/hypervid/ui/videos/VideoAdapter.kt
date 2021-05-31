@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
@@ -22,7 +21,6 @@ import shareFile
 import timber.log.Timber
 import java.io.File
 import java.util.*
-import kotlin.math.abs
 
 class VideoAdapter(
     private val context: Context,
@@ -85,10 +83,7 @@ class VideoAdapter(
                     return@invokeOnCompletion
                 }
 
-
-                val title =
-                    if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
-                tvTitle.text = Html.fromHtml(title)
+                tvTitle.text = FBVideo.title
             }
 
 

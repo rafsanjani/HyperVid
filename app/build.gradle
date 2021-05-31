@@ -89,8 +89,11 @@ android {
         implementation 'com.github.MindorksOpenSource:PRDownloader:v1.0'
 
         //firebase analytics
-        releaseImplementation 'com.google.firebase:firebase-analytics:19.0.0'
-        releaseImplementation 'com.google.firebase:firebase-crashlytics:18.0.0'
+        implementation platform('com.google.firebase:firebase-bom:28.0.1')
+        releaseImplementation 'com.google.firebase:firebase-analytics-ktx'
+        releaseImplementation 'com.google.firebase:firebase-crashlytics-ktx'
+
+        //viewBinding delegate
         implementation 'com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.0'
     }
 }
