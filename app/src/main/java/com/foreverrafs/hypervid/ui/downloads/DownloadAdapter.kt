@@ -3,7 +3,6 @@ package com.foreverrafs.hypervid.ui.downloads
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
-import android.text.Html
 import android.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -30,7 +29,6 @@ import visible
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
-import kotlin.math.abs
 
 
 class DownloadAdapter(val interaction: Interaction) :
@@ -109,9 +107,7 @@ class DownloadAdapter(val interaction: Interaction) :
                 }
             }
 
-            val videoTitle = Html.fromHtml(
-                if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
-            )
+            val videoTitle = downloadItem.name
 
             tvName.text = videoTitle
             tvStatus.text = context.getString(R.string.ready)
