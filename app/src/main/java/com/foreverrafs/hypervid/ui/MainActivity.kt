@@ -4,14 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
-import com.foreverrafs.hypervid.ui.add.AddUrlFragment
-import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
-import com.foreverrafs.hypervid.ui.videos.VideosFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 import timber.log.Timber
@@ -43,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCounterBadges() {
-        viewModel.downloadList.observe(this, Observer { downloads ->
+        viewModel.downloadList.observe(this) { downloads ->
             if (downloads.isNotEmpty()) {
                 tabLayout.getTabAt(1)?.orCreateBadge?.apply {
                     isVisible = true
@@ -54,9 +50,9 @@ class MainActivity : AppCompatActivity() {
             } else {
                 tabLayout.getTabAt(1)?.badge?.isVisible = false
             }
-        })
+        }
 
-        viewModel.videosList.observe(this, Observer { videos ->
+        viewModel.videosList.observe(this) { videos ->
             if (videos.isNotEmpty()) {
                 tabLayout.getTabAt(2)?.orCreateBadge?.apply {
                     isVisible = true
@@ -67,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             } else {
                 tabLayout.getTabAt(2)?.badge?.isVisible = false
             }
-        })
+        }
     }
 
 
@@ -84,24 +80,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewPager(viewPager: ViewPager2) {
-        val fragments = listOf(
-            AddUrlFragment(),
-            DownloadsFragment(),
-            VideosFragment()
-        )
         val viewPagerAdapter = HomePagerAdapter(this)
-
-        fragments.forEach {
-            viewPagerAdapter.addFragment(it)
-        }
-
         viewPager.adapter = viewPagerAdapter
     }
-
-//    override fun onDestroy() {
-////        VideoDownloader.getInstance(this)?.close()
-//        super.onDestroy()
-//    }
 }
 
 

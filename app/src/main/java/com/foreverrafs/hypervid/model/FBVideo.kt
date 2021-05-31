@@ -3,7 +3,6 @@ package com.foreverrafs.hypervid.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
 @Entity(tableName = "videos")
 data class FBVideo(
     val title: String,

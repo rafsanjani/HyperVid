@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
-import com.foreverrafs.hypervid.model.SlideImage
+import com.foreverrafs.hypervid.model.SlideShowImage
 import kotlinx.android.synthetic.main.item_slideshow.view.*
 import load
 
@@ -14,14 +14,14 @@ import load
 
 class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHolder>() {
 
-    private var data: List<SlideImage> = listOf(
-        SlideImage(
+    private var data: List<SlideShowImage> = listOf(
+        SlideShowImage(
             R.drawable.walkthrough1,
             "Look for a Facebook video",
             "This applies to any public downloadable video from facebook. Some videos can be found at Videos on Watch"
         ),
-        SlideImage(R.drawable.walkthrough2, "Tap on the upper right menu\n(three dots)", ""),
-        SlideImage(R.drawable.walkthrough3, "Tap \"Copy Link\"", "")
+        SlideShowImage(R.drawable.walkthrough2, "Tap on the upper right menu\n(three dots)", ""),
+        SlideShowImage(R.drawable.walkthrough3, "Tap \"Copy Link\"", "")
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SlideShowViewHolder {
@@ -37,7 +37,7 @@ class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHold
         holder.bind(data[position])
 
     inner class SlideShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item: SlideImage) = with(itemView) {
+        fun bind(item: SlideShowImage) = with(itemView) {
             title.text = item.title
             image.load(item.imageRes)
         }

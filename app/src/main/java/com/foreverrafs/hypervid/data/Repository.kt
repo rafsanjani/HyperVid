@@ -1,6 +1,5 @@
 package com.foreverrafs.hypervid.data
 
-import androidx.annotation.WorkerThread
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.model.FBVideo
 import timber.log.Timber
@@ -8,7 +7,6 @@ import timber.log.Timber
 
 /* Created by Rafsanjani on 29/03/2020. */
 
-@WorkerThread
 class AppRepository(appDb: AppDb) {
 
     private val videoDao = appDb.videoDao()
