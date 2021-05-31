@@ -1,8 +1,6 @@
-import com.github.triplet.gradle.androidpublisher.ResolutionStrategy
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.github.triplet.play' version '3.4.0'
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
     id 'com.google.gms.google-services'
@@ -96,19 +94,4 @@ android {
         releaseImplementation 'com.google.firebase:firebase-analytics:19.0.0'
         releaseImplementation 'com.google.firebase:firebase-crashlytics:18.0.0'
     }
-}
-
-play {
-    def serviceAccountFile = new File("play-service-account.json")
-    println serviceAccountFile
-    def isPluginEnabled = serviceAccountFile.exists()
-
-    if (!isPluginEnabled) {
-        println "WARNING: Google Play Service Account File not found. Disabling Play Publisher Plugin"
-    }
-
-    enabled.set(true)
-    track.set("alpha")
-    serviceAccountCredentials.set(serviceAccountFile)
-//    resolutionStrategy.set(ResolutionStrategy.AUTO)
 }
