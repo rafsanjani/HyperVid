@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:id="@+id/addUrl"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:viewBindingIgnore="true"
     android:layout_height="match_parent">
 
     <com.google.android.material.textfield.TextInputLayout

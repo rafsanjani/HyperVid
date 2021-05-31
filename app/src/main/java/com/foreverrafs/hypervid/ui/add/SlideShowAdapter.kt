@@ -1,12 +1,11 @@
 package com.foreverrafs.hypervid.ui.add
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.hypervid.R
+import com.foreverrafs.hypervid.databinding.ItemSlideshowBinding
 import com.foreverrafs.hypervid.model.SlideShowImage
-import kotlinx.android.synthetic.main.item_slideshow.view.*
 import load
 
 
@@ -26,8 +25,7 @@ class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHold
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SlideShowViewHolder {
         return SlideShowViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_slideshow, parent, false)
+            ItemSlideshowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
     }
 
@@ -36,8 +34,9 @@ class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHold
     override fun onBindViewHolder(holder: SlideShowViewHolder, position: Int) =
         holder.bind(data[position])
 
-    inner class SlideShowViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(item: SlideShowImage) = with(itemView) {
+    inner class SlideShowViewHolder(private val binding: ItemSlideshowBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: SlideShowImage) = with(binding) {
             title.text = item.title
             image.load(item.imageRes)
         }

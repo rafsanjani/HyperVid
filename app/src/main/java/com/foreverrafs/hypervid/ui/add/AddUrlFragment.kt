@@ -9,27 +9,22 @@ import android.os.CountDownTimer
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.Downloadable
 import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.hypervid.R
+import com.foreverrafs.hypervid.databinding.FragmentAddurlBinding
 import com.foreverrafs.hypervid.model.FBVideo
-import com.foreverrafs.hypervid.ui.MainActivity
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import disable
 import enable
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_addurl.*
-import kotlinx.android.synthetic.main.fragment_addurl.tabLayout
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import showToast
 import timber.log.Timber
 
@@ -49,6 +44,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     private val suggestedLinks = mutableListOf<String>()
 
+    private val binding by viewBinding(FragmentAddurlBinding::bind)
+
     private val dismissDialog: AlertDialog by lazy {
         MaterialAlertDialogBuilder(requireActivity())
             .setMessage("This app cannot function properly without allowing all the requested permissions")
@@ -62,7 +59,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private val requestStoragePermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
-                extractVideo(urlInputLayout.editText?.text.toString())
+                extractVideo(binding.urlInputLayout.editText?.text.toString())
             } else {
                 dismissDialog.show()
             }
@@ -86,7 +83,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         initSlideShow()
     }
 
-    private fun initSlideShow() {
+    private fun initSlideShow() = with(binding) {
         val adapter = SlideShowAdapter()
         slideShowPager.adapter = adapter
 
@@ -100,8 +97,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
 
     private val timer = object : CountDownTimer(60 * 1000L, 5 * 1000L) {
-        override fun onTick(millisUntilFinished: Long) {
-            slideShowPager?.let {
+        override fun onTick(millisUntilFinished: Long) = with(binding) {
+            slideShowPager.let {
                 if (slideShowPager.currentItem + 1 <= 2)
                     slideShowPager.currentItem = slideShowPager.currentItem + 1
                 else
@@ -114,7 +111,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
-    private fun initializeViews() {
+    private fun initializeViews() = with(binding) {
         btnPaste.setOnClickListener {
             if (clipBoardData != null) {
                 clipboardText = clipBoardData?.getItemAt(0)?.text.toString()
@@ -129,7 +126,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
 
-        urlInputLayout.editText?.addTextChangedListener {
+        urlInputLayout.editText?.doAfterTextChanged {
             it?.let {
                 if (isValidUrl(it.toString())) {
                     btnAddToDownloads.enable()
@@ -148,12 +145,14 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         )
 
 
-    private fun extractVideo(videoURL: String) = lifecycleScope.launch {
+    private fun extractVideo(videoURL: String) {
         EspressoIdlingResource.increment()
 
-        btnAddToDownloads.text = getString(R.string.extracting)
-        btnAddToDownloads.disable()
-        urlInputLayout.disable()
+        with(binding) {
+            btnAddToDownloads.text = getString(R.string.extracting)
+            btnAddToDownloads.disable()
+            urlInputLayout.disable()
+        }
 
         mainViewModel.extractVideoDownloadUrl(
             videoURL,
@@ -190,14 +189,14 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             resetUi()
 
-            lifecycleScope.launch {
-                delay(2000)
-                (requireActivity() as MainActivity).viewPager.currentItem = 1
-                EspressoIdlingResource.decrement()
-            }
+//            lifecycleScope.launch {
+//                delay(2000)
+//                (requireActivity() as MainActivity).viewPager.currentItem = 1
+//                EspressoIdlingResource.decrement()
+//            }
         }
 
-        override fun onError(error: Exception) {
+        override fun onError(error: Exception) = with(binding) {
             EspressoIdlingResource.decrement()
 
             showToast("Error loading video from link")
@@ -212,7 +211,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
-    private fun resetUi() {
+    private fun resetUi() = with(binding) {
         btnPaste.text = getString(R.string.paste_link)
         urlInputLayout.editText?.text?.clear()
 
@@ -253,7 +252,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_download_video))
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        urlInputLayout.editText?.setText(link)
+                        binding.urlInputLayout.editText?.setText(link)
                         requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         suggestedLinks.add(link)
                     }
@@ -274,7 +273,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             clipText?.let {
                 if (isValidUrl(it.toString()))
-                    urlInputLayout?.editText?.setText(clipText.toString())
+                    binding.urlInputLayout.editText?.setText(clipText.toString())
 
             } ?: Timber.e("clipText is null")
         }

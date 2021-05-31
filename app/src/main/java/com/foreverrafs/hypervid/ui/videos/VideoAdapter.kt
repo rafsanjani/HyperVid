@@ -7,18 +7,15 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.text.Html
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.foreverrafs.hypervid.R
+import com.foreverrafs.hypervid.databinding.ItemVideoBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.getDurationString
-import kotlinx.android.synthetic.main.item_video.view.*
-import kotlinx.android.synthetic.main.list_empty.view.tvTitle
 import kotlinx.coroutines.*
 import load
 import shareFile
@@ -44,8 +41,9 @@ class VideoAdapter(
     private val asyncDiffer = AsyncListDiffer(this, diffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video, parent, false)
-        return VideosViewHolder(view)
+        return VideosViewHolder(
+            ItemVideoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
     }
 
     private fun swapItems(fromPosition: Int, toPosition: Int) {
@@ -60,8 +58,9 @@ class VideoAdapter(
         holder.bind(asyncDiffer.currentList[position])
     }
 
-    inner class VideosViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(FBVideo: FBVideo) {
+    inner class VideosViewHolder(private val binding: ItemVideoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(FBVideo: FBVideo) = with(binding) {
             val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
                 Timber.e(throwable)
             }
@@ -71,8 +70,8 @@ class VideoAdapter(
                 retriever.setDataSource(FBVideo.path)
 
                 withContext(Dispatchers.Main) {
-                    itemView.imageCover.load(retriever.frameAtTime!!)
-                    itemView.tvDuration.text = getDurationString(
+                    imageCover.load(retriever.frameAtTime!!)
+                    tvDuration.text = getDurationString(
                         retriever.extractMetadata(
                             MediaMetadataRetriever.METADATA_KEY_DURATION
                         )!!.toLong()
@@ -89,13 +88,11 @@ class VideoAdapter(
 
                 val title =
                     if (FBVideo.title.isEmpty()) "Facebook Video - ${abs(FBVideo.hashCode())}" else FBVideo.title
-
-                itemView.tvTitle.text = Html.fromHtml(title)
-
+                tvTitle.text = Html.fromHtml(title)
             }
 
 
-            itemView.btnPlay.setOnClickListener {
+            btnPlay.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.setDataAndType(Uri.parse(FBVideo.path), "video/*")
 
@@ -112,15 +109,15 @@ class VideoAdapter(
                 }
             }
 
-            itemView.btnShareWhatsapp.setOnClickListener {
+            btnShareWhatsapp.setOnClickListener {
                 context.shareFile(FBVideo.path, "com.whatsapp")
             }
 
-            itemView.btnDelete.setOnClickListener {
-                callback.deleteVideo(asyncDiffer.currentList[adapterPosition])
+            btnDelete.setOnClickListener {
+                callback.deleteVideo(asyncDiffer.currentList[bindingAdapterPosition])
             }
 
-            itemView.btnShare.setOnClickListener {
+            btnShare.setOnClickListener {
                 val uri = Uri.fromFile(File(FBVideo.path))
 
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {

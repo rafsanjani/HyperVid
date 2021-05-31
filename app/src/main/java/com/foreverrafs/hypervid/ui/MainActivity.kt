@@ -1,45 +1,46 @@
 package com.foreverrafs.hypervid.ui
 
-import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
+import com.foreverrafs.hypervid.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.activity_main.*
-import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
 
-        if (savedInstanceState == null) {
-            Timber.i("NULL")
-        } else {
-            Timber.i("NOT NULL")
-        }
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        setContentView(R.layout.activity_main)
-
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-
-        initializeTabComponents()
-
-        showCounterBadges()
-
-
+        initializeTabLayout()
     }
 
-    private fun showCounterBadges() {
-        viewModel.downloadList.observe(this) { downloads ->
+    private fun initializeTabLayout() = with(binding) {
+        setupViewPager(viewPager)
+
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            when (position) {
+                0 -> tab.text = resources.getString(R.string.title_url)
+                1 -> tab.text = resources.getString(R.string.title_downloads)
+                2 -> tab.text = resources.getString(R.string.title_videos)
+            }
+        }.attach()
+
+        showCounterBadges()
+    }
+
+    private fun showCounterBadges() = with(binding) {
+        viewModel.downloadList.observe(this@MainActivity) { downloads ->
             if (downloads.isNotEmpty()) {
                 tabLayout.getTabAt(1)?.orCreateBadge?.apply {
                     isVisible = true
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.videosList.observe(this) { videos ->
+        viewModel.videosList.observe(this@MainActivity) { videos ->
             if (videos.isNotEmpty()) {
                 tabLayout.getTabAt(2)?.orCreateBadge?.apply {
                     isVisible = true
@@ -67,30 +68,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun initializeTabComponents() {
-        setupViewPager(viewPager)
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            when (position) {
-                0 -> tab.text = resources.getString(R.string.title_url)
-                1 -> tab.text = resources.getString(R.string.title_downloads)
-                2 -> tab.text = resources.getString(R.string.title_videos)
-            }
-        }.attach()
-    }
-
     private fun setupViewPager(viewPager: ViewPager2) {
         val viewPagerAdapter = HomePagerAdapter(this)
         viewPager.adapter = viewPagerAdapter
-    }
-}
-
-
-class SplashActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        startActivity(Intent(this, MainActivity::class.java))
-        finish()
     }
 }

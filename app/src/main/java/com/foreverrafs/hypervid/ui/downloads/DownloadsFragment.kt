@@ -6,11 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -20,13 +19,10 @@ import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
-import com.foreverrafs.hypervid.ui.MainActivity
 import com.foreverrafs.hypervid.ui.MainViewModel
-import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import invisible
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_downloads.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -35,36 +31,21 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
+class DownloadsFragment : Fragment(R.layout.fragment_downloads), DownloadAdapter.Interaction {
     private val downloadsAdapter = DownloadAdapter(this)
 
-    private val vm: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by activityViewModels()
     private var videosList = mutableListOf<FBVideo>()
 
-    private lateinit var downloadBinding: FragmentDownloadsBinding
+    private val binding by viewBinding(FragmentDownloadsBinding::bind)
+
     private lateinit var emptyListBinding: ListEmptyBinding
-
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        downloadBinding = FragmentDownloadsBinding.inflate(inflater)
-        emptyListBinding = downloadBinding.layoutEmpty
-
-        downloadBinding.downloadListRecyclerView.adapter = downloadsAdapter
-
-        return downloadBinding.root
-    }
-
 
     private val downloadListObserver = Observer<List<DownloadInfo>> { list ->
         if (list.isNotEmpty()) {
             emptyListBinding.root.invisible()
 
-            lifecycleScope.launch {
-                delay(3000)
+            binding.downloadListRecyclerView.doOnLayout {
                 showDownloads(list)
             }
 
@@ -74,22 +55,25 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
     }
 
     private fun showEmptyScreen() {
-        downloadBinding.downloadListRecyclerView.invisible()
+        binding.downloadListRecyclerView.invisible()
         emptyListBinding.root.visible()
-        progressBar.invisible()
+        binding.progressBar.invisible()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        vm.downloadList.observe(viewLifecycleOwner, downloadListObserver)
+        emptyListBinding = binding.layoutEmpty
+        binding.downloadListRecyclerView.adapter = downloadsAdapter
 
-        vm.videosList.observe(viewLifecycleOwner, Observer {
+        viewModel.downloadList.observe(viewLifecycleOwner, downloadListObserver)
+
+        viewModel.videosList.observe(viewLifecycleOwner) {
             videosList = it.toMutableList()
-        })
+        }
     }
 
     private fun showDownloads(downloadList: List<DownloadInfo>) {
-        progressBar.invisible()
-        downloadBinding.downloadListRecyclerView.visible()
+        binding.progressBar.invisible()
+        binding.downloadListRecyclerView.visible()
 
         downloadsAdapter.submitList(downloadList)
     }
@@ -106,20 +90,19 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
 
         if (!downloadExists) {
             saveVideoToGallery(video)
-            vm.saveVideo(video)
+            viewModel.saveVideo(video)
 
             lifecycleScope.launch {
-                delay(800)
-                vm.deleteDownload(download)
+                viewModel.deleteDownload(download)
             }
 
             //navigate to the videos page : 2
-            lifecycleScope.launch {
-                delay(2000)
-                (requireActivity() as MainActivity).viewPager.currentItem = 2
-
-                EspressoIdlingResource.decrement()
-            }
+//            lifecycleScope.launch {
+//                delay(2000)
+//                (requireActivity() as MainActivity).viewPager.currentItem = 2
+//
+//                EspressoIdlingResource.decrement()
+//            }
 
         } else {
             Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT)
@@ -212,7 +195,7 @@ class DownloadsFragment : Fragment(), DownloadAdapter.Interaction {
             .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_download)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                vm.deleteDownload(download)
+                viewModel.deleteDownload(download)
             }
             .setNegativeButton(R.string.no, null)
             .show()

@@ -3,11 +3,9 @@ package com.foreverrafs.hypervid.ui.downloads
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
-import android.os.Environment
 import android.text.Html
 import android.transition.TransitionManager
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintSet
@@ -17,11 +15,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.foreverrafs.downloader.downloader.*
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
+import com.foreverrafs.hypervid.databinding.ItemDownloadBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.getDurationString
 import gone
 import invisible
-import kotlinx.android.synthetic.main.item_download.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +38,6 @@ class DownloadAdapter(val interaction: Interaction) :
 
     private val videoDownloader: Downloader by lazy { VideoDownloader.getInstance(context)!! }
 
-
     private val diffCallback = object : DiffUtil.ItemCallback<DownloadInfo>() {
         override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
             return oldItem == newItem
@@ -54,17 +51,18 @@ class DownloadAdapter(val interaction: Interaction) :
     private val asyncDiffer = AsyncListDiffer(this, diffCallback)
 
     private lateinit var context: Context
+
     fun submitList(newList: List<DownloadInfo>) {
         asyncDiffer.submitList(newList)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DownloadsViewHolder {
         context = parent.context
-
         val inflater = LayoutInflater.from(context)
-        val itemView = inflater.inflate(R.layout.item_download, parent, false)
 
-        return DownloadsViewHolder(itemView)
+        return DownloadsViewHolder(
+            ItemDownloadBinding.inflate(inflater, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: DownloadsViewHolder, position: Int) {
@@ -72,19 +70,21 @@ class DownloadAdapter(val interaction: Interaction) :
         holder.bind(downloadItem)
     }
 
-    inner class DownloadsViewHolder(itemView: View) :
-        RecyclerView.ViewHolder(itemView) {
+    inner class DownloadsViewHolder(private val binding: ItemDownloadBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         private lateinit var downloadItem: DownloadInfo
         private var isDownloading: Boolean = false
 
         private var downloadId: Int = 0
 
-        fun bind(downloadItem: DownloadInfo) {
-            this.downloadItem = downloadItem
+        fun bind(downloadItem: DownloadInfo) = with(binding) {
+            this@DownloadsViewHolder.downloadItem = downloadItem
+
             val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
             val downloadDate = Date(downloadItem.dateAdded)
-            itemView.tvDate.text = formatter.format(downloadDate)
+
+            tvDate.text = formatter.format(downloadDate)
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {
@@ -97,9 +97,9 @@ class DownloadAdapter(val interaction: Interaction) :
                     val image = retriever.frameAtTime
 
                     withContext(Dispatchers.Main) {
-                        itemView.image.load(image!!)
+                        binding.image.load(image!!)
 
-                        itemView.tvDuration.apply {
+                        binding.tvDuration.apply {
                             text = durationString
                             visible()
                         }
@@ -113,21 +113,18 @@ class DownloadAdapter(val interaction: Interaction) :
                 if (downloadItem.name.isEmpty()) "Facebook Video - ${abs(downloadItem.hashCode())}" else downloadItem.name
             )
 
-            itemView.tvName.text = videoTitle
-            itemView.tvStatus.text = context.getString(R.string.ready)
+            tvName.text = videoTitle
+            tvStatus.text = context.getString(R.string.ready)
 
-            itemView.tvMenu.setOnClickListener {
+            tvMenu.setOnClickListener {
                 openPopupMenu()
             }
 
-            itemView.btnStartPause.setOnClickListener {
+            btnStartPause.setOnClickListener {
                 toggleDownload()
             }
         }
 
-        private fun getVideoFilePath(downloadItem: DownloadInfo): String {
-            return "${getDownloadDir()}/${downloadItem.name}.mp4"
-        }
 
         private fun toggleDownload() {
             if (isDownloading)
@@ -137,7 +134,7 @@ class DownloadAdapter(val interaction: Interaction) :
         }
 
         private fun openPopupMenu() {
-            val popupMenu = PopupMenu(context, itemView.tvMenu)
+            val popupMenu = PopupMenu(context, binding.tvMenu)
             popupMenu.menuInflater.inflate(R.menu.download_menu, popupMenu.menu)
 
             if (downloadItem.isCompleted) {
@@ -152,7 +149,7 @@ class DownloadAdapter(val interaction: Interaction) :
                         return@setOnMenuItemClickListener true
                     }
                     R.id.delete -> {
-                        interaction.deleteDownload(asyncDiffer.currentList[adapterPosition])
+                        interaction.deleteDownload(asyncDiffer.currentList[bindingAdapterPosition])
                         return@setOnMenuItemClickListener true
                     }
                     R.id.stop -> {
@@ -174,28 +171,28 @@ class DownloadAdapter(val interaction: Interaction) :
             videoDownloader.cancelDownload(downloadId)
         }
 
-        private fun startDownload() {
-            itemView.btnStartPause.setImageResource(R.drawable.ic_pause)
+        private fun startDownload() = with(binding) {
+            btnStartPause.setImageResource(R.drawable.ic_pause)
 
             downloadId = videoDownloader.downloadFile(downloadItem, object :
                 DownloadEvents {
                 override fun onProgressChanged(downloaded: Long, percentage: Int) {
-                    itemView.tvPercentage.text =
+                    tvPercentage.text =
                         context.getString(R.string.percentage, percentage)
-                    itemView.progressDownload.progress = percentage
+                    progressDownload.progress = percentage
 
 
                     val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
-                    itemView.tvDownloadedSize.text =
+                    tvDownloadedSize.text =
                         if (downloadedMB.toInt() > 0) "${downloadedMB.toInt()}  MB" else "${(downloadedMB * 1024).toInt()} KB"
                 }
 
                 override fun onPause() {
                     isDownloading = false
-                    itemView.progressDownload.visible()
-                    itemView.tvStatus.text = context.getString(R.string.paused)
-                    itemView.btnStartPause.setImageResource(R.drawable.ic_start)
+                    progressDownload.visible()
+                    tvStatus.text = context.getString(R.string.paused)
+                    btnStartPause.setImageResource(R.drawable.ic_start)
 
                 }
 
@@ -206,11 +203,15 @@ class DownloadAdapter(val interaction: Interaction) :
                         url = downloadItem.url
                     )
 
-                    interaction.onVideoDownloaded(adapterPosition, facebookVideo, downloadItem)
+                    interaction.onVideoDownloaded(
+                        bindingAdapterPosition,
+                        facebookVideo,
+                        downloadItem
+                    )
 
-                    itemView.btnStartPause.setImageResource(R.drawable.ic_start)
-                    itemView.btnStartPause.gone()
-                    itemView.tvStatus.text = context.getString(R.string.completed)
+                    btnStartPause.setImageResource(R.drawable.ic_start)
+                    btnStartPause.gone()
+                    tvStatus.text = context.getString(R.string.completed)
                     isDownloading = false
                     downloadItem.isCompleted = true
 
@@ -221,64 +222,56 @@ class DownloadAdapter(val interaction: Interaction) :
                 override fun onError(error: DownloadException) {
                     Timber.e(error)
                     isDownloading = false
-                    itemView.progressDownload.invisible()
-                    itemView.tvStatus.text = context.getString(R.string.failed)
-                    itemView.btnStartPause.setImageResource(R.drawable.ic_start)
+                    progressDownload.invisible()
+                    tvStatus.text = context.getString(R.string.failed)
+                    btnStartPause.setImageResource(R.drawable.ic_start)
 
                 }
 
                 override fun onCancelled() {
                     isDownloading = false
-                    itemView.progressDownload.invisible()
-                    itemView.btnStartPause.setImageResource(R.drawable.ic_start)
-                    itemView.tvStatus.text = context.getString(R.string.cancelled)
+                    progressDownload.invisible()
+                    btnStartPause.setImageResource(R.drawable.ic_start)
+                    tvStatus.text = context.getString(R.string.cancelled)
                 }
 
                 override fun onWaitingForNetwork() {
                     Timber.i("Waiting for network")
                     isDownloading = false
-                    itemView.progressDownload.visible()
-                    itemView.btnStartPause.setImageResource(R.drawable.ic_start)
-                    itemView.tvStatus.text = context.getString(R.string.connecting)
+                    progressDownload.visible()
+                    btnStartPause.setImageResource(R.drawable.ic_start)
+                    tvStatus.text = context.getString(R.string.connecting)
                 }
 
                 override fun onStart() {
                     isDownloading = true
-                    itemView.progressDownload.visible()
-                    itemView.btnStartPause.setImageResource(R.drawable.ic_pause)
-                    itemView.tvStatus.text = context.getString(R.string.downloading)
+                    progressDownload.visible()
+                    btnStartPause.setImageResource(R.drawable.ic_pause)
+                    tvStatus.text = context.getString(R.string.downloading)
                 }
             })
         }
 
-        private fun animateLayoutChanges() {
+        private fun animateLayoutChanges() = with(binding) {
             TransitionManager.beginDelayedTransition(itemView as ViewGroup)
             val constraintSet = ConstraintSet()
 
             constraintSet.apply {
-                clone(itemView.constraintLayout)
+                clone(constraintLayout)
                 connect(
                     R.id.tvDownloadedSize,
                     ConstraintSet.TOP,
                     R.id.tvDate,
                     ConstraintSet.TOP
                 )
-                applyTo(itemView.constraintLayout)
+                applyTo(constraintLayout)
             }
         }
 
         private fun pauseDownload() {
-            itemView.btnStartPause.setImageResource(R.drawable.ic_start)
+            binding.btnStartPause.setImageResource(R.drawable.ic_start)
             videoDownloader.pauseDownload(downloadId)
         }
-    }
-
-    private fun getVideoFilePath(name: String): String {
-        return "${getDownloadDir()}/${name}.mp4"
-    }
-
-    private fun getDownloadDir(): String {
-        return context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.absolutePath!!
     }
 
     interface Interaction {

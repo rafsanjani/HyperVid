@@ -1,9 +1,7 @@
 package com.foreverrafs.hypervid.ui.videos
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.foreverrafs.hypervid.R
@@ -12,49 +10,37 @@ import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import invisible
 import visible
 import java.io.File
 
 
-class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
-    private val vm: MainViewModel by activityViewModels()
-    private lateinit var videoAdapter: VideoAdapter
-    private lateinit var videoBinding: FragmentVideosBinding
+class VideosFragment : Fragment(R.layout.fragment_videos), VideoAdapter.VideoCallback {
+    private val mainViewModel: MainViewModel by activityViewModels()
+    private val binding by viewBinding(FragmentVideosBinding::bind)
     private lateinit var emptyListBinding: ListEmptyBinding
 
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        videoBinding = FragmentVideosBinding.inflate(inflater)
-        emptyListBinding = videoBinding.emptyLayout
-
-        return videoBinding.root
-    }
+    private lateinit var videoAdapter: VideoAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        emptyListBinding = binding.emptyLayout
 
         videoAdapter = VideoAdapter(requireActivity().applicationContext, this)
 
-        videoBinding.videoListRecyclerView.adapter =
-            videoAdapter
-
+        binding.videoListRecyclerView.adapter = videoAdapter
 
         initEmptyLayoutTexts()
 
-        vm.videosList.observe(viewLifecycleOwner) { videosList ->
+        mainViewModel.videosList.observe(viewLifecycleOwner) { videosList ->
             if (videosList.isNotEmpty()) {
-                videoBinding.videoListRecyclerView.visible()
+                binding.videoListRecyclerView.visible()
                 emptyListBinding.root.invisible()
 
                 videoAdapter.submitList(videosList)
 
             } else {
-                videoBinding.videoListRecyclerView.invisible()
+                binding.videoListRecyclerView.invisible()
                 emptyListBinding.root.visible()
             }
         }
@@ -73,7 +59,7 @@ class VideosFragment : Fragment(), VideoAdapter.VideoCallback {
             .setIcon(R.drawable.ic_delete)
             .setMessage(R.string.prompt_delete_video)
             .setPositiveButton(getString(R.string.yes)) { _, _ ->
-                vm.deleteVideo(video)
+                mainViewModel.deleteVideo(video)
                 File(video.path).delete()
             }
             .setNegativeButton(R.string.cancel) { _, _ ->
