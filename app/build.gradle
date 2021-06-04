@@ -92,6 +92,6 @@ android {
 
         //firebase analytics
         releaseImplementation 'com.google.firebase:firebase-analytics:19.0.0'
-        releaseImplementation 'com.google.firebase:firebase-crashlytics:18.0.0'
+        releaseImplementation 'com.google.firebase:firebase-crashlytics:18.0.1'
     }
 }
