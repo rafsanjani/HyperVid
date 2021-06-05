@@ -2,6 +2,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -62,6 +63,23 @@ fun Context.shareFile(path: String, packageName: String = "") {
     } catch (exception: ActivityNotFoundException) {
         Toast.makeText(context, "Required App not found", Toast.LENGTH_SHORT).show()
         Timber.e("$packageName is not installed")
+    }
+}
+
+fun Context.playVideo(path: String) {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.setDataAndType(Uri.parse(path), "video/*")
+
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    try {
+        this.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(
+            this,
+            "Unable to play video. Locate and play it from your gallery",
+            Toast.LENGTH_SHORT
+        ).show()
+        Timber.e(e)
     }
 }
 

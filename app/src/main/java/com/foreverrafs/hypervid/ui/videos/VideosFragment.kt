@@ -26,7 +26,7 @@ class VideosFragment : Fragment(R.layout.fragment_videos), VideoAdapter.VideoCal
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         emptyListBinding = binding.emptyLayout
 
-        videoAdapter = VideoAdapter(requireActivity().applicationContext, this)
+        videoAdapter = VideoAdapter(this)
 
         binding.videoListRecyclerView.adapter = videoAdapter
 

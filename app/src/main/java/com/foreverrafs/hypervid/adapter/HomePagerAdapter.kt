@@ -6,7 +6,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.foreverrafs.hypervid.ui.add.AddUrlFragment
 import com.foreverrafs.hypervid.ui.downloads.DownloadsFragment
 import com.foreverrafs.hypervid.ui.videos.VideosFragment
-
 class  HomePagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
     companion object {
         const val FRAGMENT_COUNT = 3

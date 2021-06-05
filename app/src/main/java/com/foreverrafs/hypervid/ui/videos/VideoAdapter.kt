@@ -1,13 +1,9 @@
 package com.foreverrafs.hypervid.ui.videos
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
 import android.media.MediaMetadataRetriever
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -15,20 +11,22 @@ import com.foreverrafs.hypervid.databinding.ItemVideoBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.getDurationString
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import load
+import playVideo
 import shareFile
 import timber.log.Timber
-import java.io.File
 import java.util.*
 
 class VideoAdapter(
-    private val context: Context,
     private val callback: VideoCallback
 ) :
     RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
     ItemTouchCallback.ItemTouchHelperAdapter {
 
+    private lateinit var context: Context
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val diffCallback = object : DiffUtil.ItemCallback<FBVideo>() {
         override fun areContentsTheSame(oldItem: FBVideo, newItem: FBVideo) = oldItem == newItem
@@ -39,8 +37,10 @@ class VideoAdapter(
     private val asyncDiffer = AsyncListDiffer(this, diffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideosViewHolder {
+        context = parent.context
+
         return VideosViewHolder(
-            ItemVideoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ItemVideoBinding.inflate(LayoutInflater.from(context), parent, false)
         )
     }
 
@@ -58,54 +58,31 @@ class VideoAdapter(
 
     inner class VideosViewHolder(private val binding: ItemVideoBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(FBVideo: FBVideo) = with(binding) {
-            val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+
+        private val retriever = MediaMetadataRetriever()
+        fun bind(video: FBVideo) = with(binding) {
+
+            coroutineScope.runCatching {
+                retriever.setDataSource(video.path)
+            }.onSuccess {
+                imageCover.load(retriever.frameAtTime!!)
+                tvDuration.text = getDurationString(
+                    retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_DURATION
+                    )!!.toLong()
+                )
+            }.onFailure { throwable ->
                 Timber.e(throwable)
             }
 
-            val job = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(FBVideo.path)
-
-                withContext(Dispatchers.Main) {
-                    imageCover.load(retriever.frameAtTime!!)
-                    tvDuration.text = getDurationString(
-                        retriever.extractMetadata(
-                            MediaMetadataRetriever.METADATA_KEY_DURATION
-                        )!!.toLong()
-                    )
-                }
-            }
-
-            job.invokeOnCompletion { error ->
-                if (error != null) {
-                    Timber.e(error)
-                    return@invokeOnCompletion
-                }
-
-                tvTitle.text = FBVideo.title
-            }
-
+            tvTitle.text = video.title
 
             btnPlay.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(FBVideo.path), "video/*")
-
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                try {
-                    context.startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    Toast.makeText(
-                        context,
-                        "Unable to play video. Locate and play it from your gallery",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Timber.e(e)
-                }
+                context.playVideo(video.path)
             }
 
             btnShareWhatsapp.setOnClickListener {
-                context.shareFile(FBVideo.path, "com.whatsapp")
+                context.shareFile(video.path, "com.whatsapp")
             }
 
             btnDelete.setOnClickListener {
@@ -113,21 +90,10 @@ class VideoAdapter(
             }
 
             btnShare.setOnClickListener {
-                val uri = Uri.fromFile(File(FBVideo.path))
-
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    setDataAndType(Uri.parse(FBVideo.path), "*/*")
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-
-                val shareIntent = Intent.createChooser(sendIntent, "Share Facebook Video")
-                shareIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                context.startActivity(shareIntent)
+                context.shareFile(path = video.path)
             }
         }
     }
-
 
     fun submitList(videos: List<FBVideo>) {
         asyncDiffer.submitList(videos)
