@@ -1,60 +1,57 @@
 package com.foreverrafs.hypervid.ui
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import android.content.SharedPreferences
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.preference.PreferenceManager
-import androidx.room.Room
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.Downloadable
 import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.extractor.VideoExtractor
-import com.foreverrafs.hypervid.data.AppDb
-import com.foreverrafs.hypervid.data.AppRepository
+import com.foreverrafs.hypervid.data.repository.Repository
 import com.foreverrafs.hypervid.model.FBVideo
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class MainViewModel(app: Application) : AndroidViewModel(app) {
-    private val preference = PreferenceManager.getDefaultSharedPreferences(app)
-    private val dispatcher = Dispatchers.IO
+@HiltViewModel
+class MainViewModel
+@Inject
+constructor(
+    private val repository: Repository,
+    private val preference: SharedPreferences
+) : ViewModel() {
 
-    private val database = Room
-        .databaseBuilder(app, AppDb::class.java, "hypervid.db")
-        .fallbackToDestructiveMigration()
-        .build()
+    private val videos = mutableListOf<FBVideo>()
+    private val downloads = mutableListOf<DownloadInfo>()
 
-    private val repository = AppRepository(database)
 
     companion object {
         const val PREF_KEY_FIRSTRUN = "firstrun"
     }
 
-    fun saveVideo(video: FBVideo) = viewModelScope.launch(dispatcher) {
+    fun saveVideo(video: FBVideo) = viewModelScope.launch {
         repository.saveVideo(video)
     }
 
-    fun deleteVideo(video: FBVideo) = viewModelScope.launch(dispatcher) {
+    fun deleteVideo(video: FBVideo) = viewModelScope.launch {
         repository.deleteVideo(video)
     }
 
 
-    fun saveDownload(download: DownloadInfo) = viewModelScope.launch(dispatcher) {
+    fun saveDownload(download: DownloadInfo) = viewModelScope.launch {
         repository.saveDownload(download)
     }
 
-    fun deleteDownload(download: DownloadInfo) = viewModelScope.launch(dispatcher) {
+    fun deleteDownload(download: DownloadInfo) = viewModelScope.launch {
         repository.deleteDownload(download)
     }
 
-    val downloadList: LiveData<List<DownloadInfo>>
-        get() = repository.getDownloads()
+    val downloadList: Flow<List<DownloadInfo>> = repository.getDownloads()
 
-    val videosList: LiveData<List<FBVideo>>
-        get() = repository.getVideos()
+    val videosList: Flow<List<FBVideo>> = repository.getVideos()
 
     fun extractVideoDownloadUrl(
         videoUrl: String,
@@ -79,11 +76,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     //Check if a video with specified url has been downloaded already
-    fun hasVideo(url: String) = videosList.value?.any { video -> video.url == url } ?: false
+    fun videoExists(url: String) = videos.any { video -> video.url == url }
 
     //Check if a download already exists
-    fun hasDownload(url: String) =
-        downloadList.value?.any { download -> download.url == url } ?: false
+    fun downloadExists(url: String) = downloads.any { download -> download.url == url }
 
     var isFirstRun: Boolean
         get() = preference.getBoolean(PREF_KEY_FIRSTRUN, true)

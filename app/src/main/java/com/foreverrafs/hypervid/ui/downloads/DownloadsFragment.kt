@@ -7,14 +7,15 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
+import com.foreverrafs.hypervid.data.repository.AppRepository
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
@@ -22,14 +23,18 @@ import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
+import dagger.hilt.android.AndroidEntryPoint
 import invisible
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import visible
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downloads),
     DownloadAdapter.VideoDownloadEvents {
     private val downloadsAdapter = DownloadAdapter(this)
@@ -41,23 +46,15 @@ class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downl
 
     private lateinit var emptyListBinding: ListEmptyBinding
 
+    @Inject
+    lateinit var repository: AppRepository
+
     companion object {
         var tabLayoutCoordinator: TabLayoutCoordinator? = null
 
         fun newInstance(tabLayoutCoordinator: TabLayoutCoordinator): DownloadsFragment {
             this.tabLayoutCoordinator = tabLayoutCoordinator
             return DownloadsFragment()
-        }
-    }
-
-    private val downloadListObserver = Observer<List<DownloadInfo>> { list ->
-        if (list.isNotEmpty()) {
-            emptyListBinding.root.invisible()
-
-            showDownloads(list)
-
-        } else {
-            showEmptyScreen()
         }
     }
 
@@ -71,10 +68,23 @@ class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downl
         emptyListBinding = binding.layoutEmpty
         binding.downloadListRecyclerView.adapter = downloadsAdapter
 
-        viewModel.downloadList.observe(viewLifecycleOwner, downloadListObserver)
 
-        viewModel.videosList.observe(viewLifecycleOwner) {
-            videosList = it.toMutableList()
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.downloadList.collect { downloads ->
+                    if (downloads.isNotEmpty()) {
+                        emptyListBinding.root.invisible()
+                        showDownloads(downloads)
+
+                    } else {
+                        showEmptyScreen()
+                    }
+                }
+
+                viewModel.videosList.collect { videos ->
+                    videosList = videos.toMutableList()
+                }
+            }
         }
     }
 
@@ -91,24 +101,15 @@ class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downl
      * video together with the video item downloaded are received
      */
     override fun onVideoDownloaded(position: Int, video: FBVideo, download: DownloadInfo) {
-        val downloadExists = videosList.any {
-            it.path == video.path
+        saveVideoToGallery(video)
+        viewModel.saveVideo(video)
+
+        //delete the download from the download list [Downloads]
+        lifecycleScope.launch {
+            viewModel.deleteDownload(download)
         }
 
-        if (!downloadExists) {
-            saveVideoToGallery(video)
-            viewModel.saveVideo(video)
-
-            lifecycleScope.launch {
-                viewModel.deleteDownload(download)
-            }
-
-            tabLayoutCoordinator?.navigateToTab(2)
-
-        } else {
-            Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT)
-                .show()
-        }
+        tabLayoutCoordinator?.navigateToTab(2)
     }
 
     @RequiresApi(29)
@@ -117,7 +118,10 @@ class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downl
 
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DATE_TAKEN, System.currentTimeMillis())
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + videoFile.path)
+            put(
+                MediaStore.MediaColumns.RELATIVE_PATH,
+                Environment.DIRECTORY_DCIM + videoFile.path
+            )
             put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
             put(MediaStore.MediaColumns.IS_PENDING, 1)
             put(MediaStore.MediaColumns.DISPLAY_NAME, title)

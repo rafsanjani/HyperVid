@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentVideosBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
@@ -12,11 +15,15 @@ import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
+import dagger.hilt.android.AndroidEntryPoint
 import invisible
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import visible
 import java.io.File
 
 
+@AndroidEntryPoint
 class VideosFragment
 private constructor() : Fragment(R.layout.fragment_videos),
     VideoAdapter.VideoCallback {
@@ -44,16 +51,20 @@ private constructor() : Fragment(R.layout.fragment_videos),
 
         initEmptyLayoutTexts()
 
-        mainViewModel.videosList.observe(viewLifecycleOwner) { videosList ->
-            if (videosList.isNotEmpty()) {
-                binding.videoListRecyclerView.visible()
-                emptyListBinding.root.invisible()
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.videosList.collect { videosList ->
+                    if (videosList.isNotEmpty()) {
+                        binding.videoListRecyclerView.visible()
+                        emptyListBinding.root.invisible()
 
-                videoAdapter.submitList(videosList)
+                        videoAdapter.submitList(videosList)
 
-            } else {
-                binding.videoListRecyclerView.invisible()
-                emptyListBinding.root.visible()
+                    } else {
+                        binding.videoListRecyclerView.invisible()
+                        emptyListBinding.root.visible()
+                    }
+                }
             }
         }
     }

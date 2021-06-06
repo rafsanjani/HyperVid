@@ -12,12 +12,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.extractor.Downloadable
 import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentAddurlBinding
-import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
@@ -26,6 +28,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import disable
 import enable
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import showToast
 import timber.log.Timber
 
@@ -44,11 +48,12 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
     }
 
     private lateinit var clipboardText: String
+    private lateinit var clipboardManager: ClipboardManager
+
     private var clipBoardData: ClipData? = null
     private val mainViewModel: MainViewModel by activityViewModels()
 
     private var downloadList = mutableListOf<DownloadInfo>()
-    private var videoList = mutableListOf<FBVideo>()
 
     private val suggestedLinks = mutableListOf<String>()
 
@@ -81,13 +86,14 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
             showDisclaimer()
         }
 
-        mainViewModel.downloadList.observe(viewLifecycleOwner) {
-            downloadList = it.toMutableList()
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainViewModel.downloadList.collect { downloads ->
+                    downloadList = downloads.toMutableList()
+                }
+            }
         }
 
-        mainViewModel.videosList.observe(viewLifecycleOwner) {
-            videoList = it.toMutableList()
-        }
 
         initSlideShow()
     }
@@ -149,7 +155,7 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
     }
 
     private fun isNotExtracted(url: String) =
-        !suggestedLinks.contains(url) && !mainViewModel.hasVideo(url) && !mainViewModel.hasDownload(
+        !suggestedLinks.contains(url) && !mainViewModel.videoExists(url) && !mainViewModel.downloadExists(
             url
         )
 
@@ -180,9 +186,10 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
             )
 
             //Check if the extracted link exists either in the download list or the videos list.
-            val downloadExists = downloadList.any {
-                it.url == downloadInfo.url
-            } || videoList.any { it.url == downloadInfo.url }
+            val downloadExists =
+                mainViewModel.downloadExists(downloadable.url) || mainViewModel.videoExists(
+                    downloadable.url
+                )
 
             if (downloadExists) {
                 Timber.e("Download exists. Unable to add to list")
@@ -224,14 +231,14 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         btnAddToDownloads.text = getString(R.string.add_to_downloads)
         btnAddToDownloads.enable()
         urlInputLayout.enable()
-        btnAddToDownloads.enable()
         EspressoIdlingResource.decrement()
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         timer.cancel()
         tabLayoutCoordinator = null
-        super.onDestroy()
+        clipboardManager.removePrimaryClipChangedListener { clipBoardListener }
     }
 
     override fun onResume() {
@@ -245,11 +252,22 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         initializeClipboard()
     }
 
+    private val clipBoardListener = ClipboardManager.OnPrimaryClipChangedListener {
+        clipBoardData = clipboardManager.primaryClip
+        val clipText = clipBoardData?.getItemAt(0)?.text
+
+        clipText?.let {
+            if (isValidUrl(it.toString()))
+                binding.urlInputLayout.editText?.setText(clipText.toString())
+
+        } ?: Timber.e("clipText is null")
+    }
+
     private fun initializeClipboard() {
-        val clipboardManager =
-            activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboardManager = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
         clipBoardData = clipboardManager.primaryClip
+
 
         clipBoardData?.getItemAt(0)?.text?.let {
             val link = it.toString()
@@ -275,14 +293,7 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         }
 
         clipboardManager.addPrimaryClipChangedListener {
-            clipBoardData = clipboardManager.primaryClip
-            val clipText = clipBoardData?.getItemAt(0)?.text
-
-            clipText?.let {
-                if (isValidUrl(it.toString()))
-                    binding.urlInputLayout.editText?.setText(clipText.toString())
-
-            } ?: Timber.e("clipText is null")
+            clipBoardListener
         }
     }
 
@@ -308,6 +319,4 @@ class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) 
         url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE) or url.contains(
             FACEBOOK_URL_SHORT
         )
-
-
 }

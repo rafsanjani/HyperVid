@@ -4,16 +4,20 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
 
     private val viewModel: MainViewModel by viewModels()
@@ -43,29 +47,33 @@ class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
     }
 
     private fun showCounterBadges() = with(binding) {
-        viewModel.downloadList.observe(this@MainActivity) { downloads ->
-            if (downloads.isNotEmpty()) {
-                tabLayout.getTabAt(1)?.orCreateBadge?.apply {
-                    isVisible = true
-                    backgroundColor =
-                        ContextCompat.getColor(applicationContext, R.color.colorPrimary)
-                    number = downloads.size
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.downloadList.collect { downloads ->
+                    if (downloads.isNotEmpty()) {
+                        tabLayout.getTabAt(1)?.orCreateBadge?.apply {
+                            isVisible = true
+                            backgroundColor =
+                                ContextCompat.getColor(applicationContext, R.color.colorPrimary)
+                            number = downloads.size
+                        }
+                    } else {
+                        tabLayout.getTabAt(1)?.badge?.isVisible = false
+                    }
                 }
-            } else {
-                tabLayout.getTabAt(1)?.badge?.isVisible = false
-            }
-        }
 
-        viewModel.videosList.observe(this@MainActivity) { videos ->
-            if (videos.isNotEmpty()) {
-                tabLayout.getTabAt(2)?.orCreateBadge?.apply {
-                    isVisible = true
-                    backgroundColor =
-                        ContextCompat.getColor(applicationContext, R.color.colorPrimary)
-                    number = videos.size
+                viewModel.videosList.collect { videos ->
+                    if (videos.isNotEmpty()) {
+                        tabLayout.getTabAt(2)?.orCreateBadge?.apply {
+                            isVisible = true
+                            backgroundColor =
+                                ContextCompat.getColor(applicationContext, R.color.colorPrimary)
+                            number = videos.size
+                        }
+                    } else {
+                        tabLayout.getTabAt(2)?.badge?.isVisible = false
+                    }
                 }
-            } else {
-                tabLayout.getTabAt(2)?.badge?.isVisible = false
             }
         }
     }
