@@ -5,10 +5,10 @@
 HyperVid Facebook Video Downloader
 
 ## Screenshots
-[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/master/screenshots/dark.png">]
-[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/master/screenshots/empty.png">]
-[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/master/screenshots/menu.png">]
-[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/master/screenshots/videolist.png">]
+[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/main/screenshots/dark.png">]
+[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/main/screenshots/empty.png">]
+[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/main/screenshots/menu.png">]
+[<img height="500" width="250" src="https://github.com/rafsanjani/HyperVid/blob/main/screenshots/videolist.png">]
 
 
 ## Features
