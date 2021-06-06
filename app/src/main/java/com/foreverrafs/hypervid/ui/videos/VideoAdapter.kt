@@ -24,7 +24,7 @@ import visible
 import java.util.*
 
 class VideoAdapter(
-    private val callback: VideoCallback
+    private val onDeleteVideo: (video: FBVideo) -> Unit
 ) :
     RecyclerView.Adapter<VideoAdapter.VideosViewHolder>(),
     ItemTouchCallback.ItemTouchHelperAdapter {
@@ -103,7 +103,7 @@ class VideoAdapter(
             }
 
             btnDelete.setOnClickListener {
-                callback.deleteVideo(asyncDiffer.currentList[bindingAdapterPosition])
+                onDeleteVideo(asyncDiffer.currentList[bindingAdapterPosition])
             }
 
             btnShare.setOnClickListener {
@@ -119,14 +119,9 @@ class VideoAdapter(
     override fun onItemMoved(fromPosition: Int, toPosition: Int) =
         swapItems(fromPosition, toPosition)
 
-    override fun onItemDismiss(position: Int) =
-        callback.deleteVideo(asyncDiffer.currentList[position])
+    override fun onItemDismiss(position: Int) = onDeleteVideo(asyncDiffer.currentList[position])
 
     override fun getItemCount(): Int {
         return asyncDiffer.currentList.size
-    }
-
-    interface VideoCallback {
-        fun deleteVideo(video: FBVideo)
     }
 }

@@ -25,8 +25,7 @@ import java.io.File
 
 @AndroidEntryPoint
 class VideosFragment
-private constructor() : Fragment(R.layout.fragment_videos),
-    VideoAdapter.VideoCallback {
+private constructor() : Fragment(R.layout.fragment_videos) {
     private val mainViewModel: MainViewModel by activityViewModels()
     private val binding by viewBinding(FragmentVideosBinding::bind)
     private lateinit var emptyListBinding: ListEmptyBinding
@@ -45,7 +44,7 @@ private constructor() : Fragment(R.layout.fragment_videos),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         emptyListBinding = binding.emptyLayout
 
-        videoAdapter = VideoAdapter(this)
+        videoAdapter = VideoAdapter(onDeleteVideo = ::onDeleteVideo)
 
         binding.videoListRecyclerView.adapter = videoAdapter
 
@@ -76,7 +75,7 @@ private constructor() : Fragment(R.layout.fragment_videos),
         }
     }
 
-    override fun deleteVideo(video: FBVideo) {
+    private fun onDeleteVideo(video: FBVideo) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.title_delete_video)
             .setIcon(R.drawable.ic_delete)
