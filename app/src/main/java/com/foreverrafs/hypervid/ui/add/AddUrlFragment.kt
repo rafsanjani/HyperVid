@@ -19,6 +19,7 @@ import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentAddurlBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
+import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
@@ -28,11 +29,18 @@ import enable
 import showToast
 import timber.log.Timber
 
-class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
+class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) {
     companion object {
         const val FACEBOOK_URL = "https://www.facebook.com/"
         const val FACEBOOK_URL_MOBILE = "https://m.facebook.com/"
         const val FACEBOOK_URL_SHORT = "https://fb.watch/"
+
+        var tabLayoutCoordinator: TabLayoutCoordinator? = null
+
+        fun newInstance(tabLayoutCoordinator: TabLayoutCoordinator): AddUrlFragment {
+            this.tabLayoutCoordinator = tabLayoutCoordinator
+            return AddUrlFragment()
+        }
     }
 
     private lateinit var clipboardText: String
@@ -45,6 +53,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private val suggestedLinks = mutableListOf<String>()
 
     private val binding by viewBinding(FragmentAddurlBinding::bind)
+
 
     private val dismissDialog: AlertDialog by lazy {
         MaterialAlertDialogBuilder(requireActivity())
@@ -189,11 +198,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
             resetUi()
 
-//            lifecycleScope.launch {
-//                delay(2000)
-//                (requireActivity() as MainActivity).viewPager.currentItem = 1
-//                EspressoIdlingResource.decrement()
-//            }
+            tabLayoutCoordinator?.navigateToTab(1)
+
         }
 
         override fun onError(error: Exception) = with(binding) {
@@ -224,6 +230,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     override fun onDestroy() {
         timer.cancel()
+        tabLayoutCoordinator = null
         super.onDestroy()
     }
 
@@ -301,4 +308,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         url.contains(FACEBOOK_URL) or url.contains(FACEBOOK_URL_MOBILE) or url.contains(
             FACEBOOK_URL_SHORT
         )
+
+
 }

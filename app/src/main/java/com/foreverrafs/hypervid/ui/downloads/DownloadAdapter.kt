@@ -1,6 +1,7 @@
 package com.foreverrafs.hypervid.ui.downloads
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
 import android.transition.TransitionManager
@@ -28,11 +29,12 @@ import timber.log.Timber
 import visible
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
 
 
-class DownloadAdapter(val interaction: Interaction) :
+class DownloadAdapter(val interaction: VideoDownloadEvents) :
     RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
+
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val videoDownloader: Downloader by lazy { VideoDownloader.getInstance(context)!! }
 
@@ -81,29 +83,33 @@ class DownloadAdapter(val interaction: Interaction) :
 
             val formatter = SimpleDateFormat("MMMM d, yyyy", Locale.ROOT)
             val downloadDate = Date(downloadItem.dateAdded)
+            val retriever = MediaMetadataRetriever()
 
             tvDate.text = formatter.format(downloadDate)
 
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val retriever = MediaMetadataRetriever()
-                    retriever.setDataSource(downloadItem.url, HashMap())
 
-                    val durationString = getDurationString(
+            coroutineScope.launch {
+                var coverArt: Bitmap? = null
+                var duration = ""
+
+                runCatching {
+                    retriever.setDataSource(downloadItem.url, HashMap())
+                    duration = getDurationString(
                         retriever.extractMetadata(METADATA_KEY_DURATION)!!.toLong()
                     )
-                    val image = retriever.frameAtTime
 
-                    withContext(Dispatchers.Main) {
-                        binding.image.load(image!!)
+                    coverArt = retriever.frameAtTime
+                }.onSuccess {
+                    withContext(Dispatchers.Main.immediate) {
+                        with(binding) {
+                            coverArt?.let { image.load(it) }
 
-                        binding.tvDuration.apply {
-                            text = durationString
-                            visible()
+                            tvDuration.text = duration
+                            tvDuration.visible()
                         }
                     }
-                } catch (e: Exception) {
-                    Timber.i(e)
+                }.onFailure { throwable ->
+                    Timber.e(throwable)
                 }
             }
 
@@ -270,7 +276,7 @@ class DownloadAdapter(val interaction: Interaction) :
         }
     }
 
-    interface Interaction {
+    interface VideoDownloadEvents {
         fun onVideoDownloaded(position: Int, video: FBVideo, download: DownloadInfo)
         fun deleteDownload(download: DownloadInfo)
         fun onDownloadError(position: Int)

@@ -9,7 +9,6 @@ import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.view.doOnLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -20,10 +19,10 @@ import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
+import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import invisible
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import visible
@@ -31,7 +30,8 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
-class DownloadsFragment : Fragment(R.layout.fragment_downloads), DownloadAdapter.Interaction {
+class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downloads),
+    DownloadAdapter.VideoDownloadEvents {
     private val downloadsAdapter = DownloadAdapter(this)
 
     private val viewModel: MainViewModel by activityViewModels()
@@ -41,13 +41,20 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads), DownloadAdapter
 
     private lateinit var emptyListBinding: ListEmptyBinding
 
+    companion object {
+        var tabLayoutCoordinator: TabLayoutCoordinator? = null
+
+        fun newInstance(tabLayoutCoordinator: TabLayoutCoordinator): DownloadsFragment {
+            this.tabLayoutCoordinator = tabLayoutCoordinator
+            return DownloadsFragment()
+        }
+    }
+
     private val downloadListObserver = Observer<List<DownloadInfo>> { list ->
         if (list.isNotEmpty()) {
             emptyListBinding.root.invisible()
 
-            binding.downloadListRecyclerView.doOnLayout {
-                showDownloads(list)
-            }
+            showDownloads(list)
 
         } else {
             showEmptyScreen()
@@ -96,13 +103,7 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads), DownloadAdapter
                 viewModel.deleteDownload(download)
             }
 
-            //navigate to the videos page : 2
-//            lifecycleScope.launch {
-//                delay(2000)
-//                (requireActivity() as MainActivity).viewPager.currentItem = 2
-//
-//                EspressoIdlingResource.decrement()
-//            }
+            tabLayoutCoordinator?.navigateToTab(2)
 
         } else {
             Toast.makeText(requireContext(), getString(R.string.duplcate_video), Toast.LENGTH_SHORT)
@@ -203,5 +204,10 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads), DownloadAdapter
 
     override fun onDownloadError(position: Int) {
         //NO-OP
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tabLayoutCoordinator = null
     }
 }

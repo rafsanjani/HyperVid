@@ -1,6 +1,7 @@
 package com.foreverrafs.hypervid.ui.videos
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -13,10 +14,13 @@ import com.foreverrafs.hypervid.util.ItemTouchCallback
 import com.foreverrafs.hypervid.util.getDurationString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import load
 import playVideo
 import shareFile
 import timber.log.Timber
+import visible
 import java.util.*
 
 class VideoAdapter(
@@ -62,17 +66,30 @@ class VideoAdapter(
         private val retriever = MediaMetadataRetriever()
         fun bind(video: FBVideo) = with(binding) {
 
-            coroutineScope.runCatching {
-                retriever.setDataSource(video.path)
-            }.onSuccess {
-                imageCover.load(retriever.frameAtTime!!)
-                tvDuration.text = getDurationString(
-                    retriever.extractMetadata(
-                        MediaMetadataRetriever.METADATA_KEY_DURATION
-                    )!!.toLong()
-                )
-            }.onFailure { throwable ->
-                Timber.e(throwable)
+            coroutineScope.launch {
+                var coverArt: Bitmap? = null
+                var duration = ""
+
+                runCatching {
+                    retriever.setDataSource(video.url, HashMap())
+                    duration = getDurationString(
+                        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                            .toLong()
+                    )
+
+                    coverArt = retriever.frameAtTime
+                }.onSuccess {
+                    withContext(Dispatchers.Main.immediate) {
+                        with(binding) {
+                            coverArt?.let { imageCover.load(it) }
+
+                            tvDuration.text = duration
+                            tvDuration.visible()
+                        }
+                    }
+                }.onFailure { throwable ->
+                    Timber.e(throwable)
+                }
             }
 
             tvTitle.text = video.title

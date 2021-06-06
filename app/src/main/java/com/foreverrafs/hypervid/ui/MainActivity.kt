@@ -4,14 +4,17 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.databinding.ActivityMainBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
 
     private val viewModel: MainViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
@@ -69,7 +72,14 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun setupViewPager(viewPager: ViewPager2) {
-        val viewPagerAdapter = HomePagerAdapter(this)
+        val viewPagerAdapter = HomePagerAdapter(activity = this, tabLayoutCoordinator = this)
         viewPager.adapter = viewPagerAdapter
+    }
+
+    override fun navigateToTab(position: Int) {
+        lifecycleScope.launch {
+            delay(1000)
+            binding.viewPager.currentItem = position
+        }
     }
 }

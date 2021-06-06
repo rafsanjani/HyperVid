@@ -9,6 +9,7 @@ import com.foreverrafs.hypervid.databinding.FragmentVideosBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
+import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import invisible
@@ -16,12 +17,23 @@ import visible
 import java.io.File
 
 
-class VideosFragment : Fragment(R.layout.fragment_videos), VideoAdapter.VideoCallback {
+class VideosFragment
+private constructor() : Fragment(R.layout.fragment_videos),
+    VideoAdapter.VideoCallback {
     private val mainViewModel: MainViewModel by activityViewModels()
     private val binding by viewBinding(FragmentVideosBinding::bind)
     private lateinit var emptyListBinding: ListEmptyBinding
 
     private lateinit var videoAdapter: VideoAdapter
+
+    companion object {
+        var tabLayoutCoordinator: TabLayoutCoordinator? = null
+
+        fun newInstance(tabLayoutCoordinator: TabLayoutCoordinator): VideosFragment {
+            this.tabLayoutCoordinator = tabLayoutCoordinator
+            return VideosFragment()
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         emptyListBinding = binding.emptyLayout
@@ -66,5 +78,10 @@ class VideosFragment : Fragment(R.layout.fragment_videos), VideoAdapter.VideoCal
                 videoAdapter.notifyDataSetChanged()
             }
             .show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tabLayoutCoordinator = null
     }
 }
