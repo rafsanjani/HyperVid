@@ -6,29 +6,21 @@ import com.foreverrafs.downloader.model.DownloadInfo
 import com.tonyodev.fetch2.*
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.FetchLogger
+import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
-class VideoDownloader private constructor(private val context: Context) :
-    Downloader {
+@Singleton
+class VideoDownloader
+@Inject
+constructor(@ApplicationContext private val context: Context) : Downloader {
+
     private lateinit var fetch: Fetch
     private var downloads = mutableMapOf<Int, DownloadEvents>()
-
-    companion object {
-        private var instance: VideoDownloader? = null
-
-        fun getInstance(context: Context): Downloader? {
-            return (instance?.let {
-                if (it.isClosed)
-                    VideoDownloader(context)
-            } ?: VideoDownloader(context)) as VideoDownloader?
-        }
-    }
-
-    val isClosed: Boolean
-        get() = fetch.isClosed
 
     private val listener = object : AbstractFetchListener() {
         override fun onCancelled(download: Download) {
@@ -89,6 +81,7 @@ class VideoDownloader private constructor(private val context: Context) :
         setUpDownloader()
     }
 
+
     private fun setUpDownloader() {
         val config = FetchConfiguration.Builder(context)
             .enableFileExistChecks(false)
@@ -98,7 +91,7 @@ class VideoDownloader private constructor(private val context: Context) :
                     OkHttpClient.Builder().connectTimeout(1, TimeUnit.MINUTES)
                         .build()
                 )
-            ) // set custom downloader
+            )
             .setDownloadConcurrentLimit(4)
             .enableAutoStart(true)
             .enableLogging(true)
@@ -110,7 +103,7 @@ class VideoDownloader private constructor(private val context: Context) :
         fetch.addListener(listener)
     }
 
-    fun getDownloadDir(): String {
+    private fun getDownloadDir(): String {
         return context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)?.absolutePath!!
     }
 

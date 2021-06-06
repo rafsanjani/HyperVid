@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-parcelize'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 30
@@ -38,6 +39,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
+
     //Kotlin Android Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0"
 
@@ -46,4 +48,7 @@ dependencies {
     implementation 'com.github.tonyofrancis.Fetch:xfetch2okhttp:3.1.6'
     
     implementation 'joda-time:joda-time:2.10.10'
+
+    implementation "com.google.dagger:hilt-android:2.36"
+    kapt "com.google.dagger:hilt-compiler:2.36"
 }

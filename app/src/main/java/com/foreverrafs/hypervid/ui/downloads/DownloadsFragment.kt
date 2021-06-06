@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.data.repository.AppRepository
@@ -37,7 +38,12 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downloads),
     DownloadAdapter.VideoDownloadEvents {
-    private val downloadsAdapter = DownloadAdapter(this)
+    @Inject
+    lateinit var videoDownloader: VideoDownloader
+
+    private val downloadsAdapter by lazy {
+        DownloadAdapter(downloadEventsListener = this, videoDownloader = videoDownloader)
+    }
 
     private val viewModel: MainViewModel by activityViewModels()
     private var videosList = mutableListOf<FBVideo>()
