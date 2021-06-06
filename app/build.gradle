@@ -38,8 +38,8 @@ android {
         }
 
         buildFeatures {
-            dataBinding = true
             viewBinding = true
+            compose true
         }
 
         kotlinOptions {
@@ -51,6 +51,10 @@ android {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
         }
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.0.0-beta08'
     }
 
     dependencies {
@@ -82,7 +86,7 @@ android {
         implementation "android.arch.lifecycle:extensions:1.1.1"
 
         implementation 'androidx.fragment:fragment-ktx:1.3.4'
-        implementation "androidx.activity:activity-ktx:1.3.0-alpha08"
+        implementation "androidx.activity:activity-ktx:1.3.0-beta01"
 
         implementation 'com.jakewharton.timber:timber:4.7.1'
         implementation 'com.airbnb.android:lottie:3.7.0'
@@ -110,5 +114,29 @@ android {
 
         testImplementation "com.google.truth:truth:1.1.3"
         coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    }
+
+    //compose
+    dependencies {
+        implementation 'androidx.compose.ui:ui:1.0.0-beta08'
+        // Tooling support (Previews, etc.)
+        implementation 'androidx.compose.ui:ui-tooling:1.0.0-beta08'
+        // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
+        implementation 'androidx.compose.foundation:foundation:1.0.0-beta08'
+        // Material Design
+        implementation 'androidx.compose.material:material:1.0.0-beta08'
+        // Material design icons
+        implementation 'androidx.compose.material:material-icons-core:1.0.0-beta08'
+        implementation 'androidx.compose.material:material-icons-extended:1.0.0-beta08'
+        // Integration with activities
+        implementation 'androidx.activity:activity-compose:1.3.0-beta01'
+        // Integration with ViewModels
+        implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha06'
+        // Integration with observables
+        implementation 'androidx.compose.runtime:runtime-livedata:1.0.0-beta08'
+        implementation 'androidx.compose.runtime:runtime-rxjava2:1.0.0-beta08'
+
+        // UI Tests
+        androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.0.0-beta08'
     }
 }
