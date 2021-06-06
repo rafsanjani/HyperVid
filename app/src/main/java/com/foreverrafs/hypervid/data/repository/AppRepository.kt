@@ -1,7 +1,8 @@
 package com.foreverrafs.hypervid.data.repository
 
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.hypervid.data.HyperVidDB
+import com.foreverrafs.hypervid.data.dao.DownloadDao
+import com.foreverrafs.hypervid.data.dao.VideoDao
 import com.foreverrafs.hypervid.model.FBVideo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -16,12 +17,10 @@ import javax.inject.Singleton
 class AppRepository
 @Inject
 constructor(
-    hyperVidDB: HyperVidDB,
+    private val videoDao: VideoDao,
+    private val downloadDao: DownloadDao,
     private val dispatcher: CoroutineDispatcher
 ) : Repository {
-
-    private val videoDao = hyperVidDB.videoDao()
-    private val downloadDao = hyperVidDB.downloadDao()
 
     // TODO: 06/06/2021 Wrap this in a Response
     override suspend fun saveVideo(video: FBVideo) = withContext(dispatcher) {

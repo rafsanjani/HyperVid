@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import androidx.room.Room
 import com.foreverrafs.hypervid.data.HyperVidDB
+import com.foreverrafs.hypervid.data.dao.DownloadDao
+import com.foreverrafs.hypervid.data.dao.VideoDao
 import com.foreverrafs.hypervid.data.repository.AppRepository
 import com.foreverrafs.hypervid.data.repository.Repository
 import dagger.Module
@@ -21,8 +23,16 @@ import javax.inject.Singleton
 object AppModule {
     @Singleton
     @Provides
-    fun provideRepository(database: HyperVidDB, dispatcher: CoroutineDispatcher): Repository =
-        AppRepository(hyperVidDB = database, dispatcher = dispatcher)
+    fun provideRepository(
+        videoDao: VideoDao,
+        downloadDao: DownloadDao,
+        dispatcher: CoroutineDispatcher
+    ): Repository =
+        AppRepository(
+            videoDao = videoDao,
+            downloadDao = downloadDao,
+            dispatcher = dispatcher
+        )
 
     @Singleton
     @Provides
@@ -36,6 +46,14 @@ object AppModule {
             .fallbackToDestructiveMigration()
             .build()
     }
+
+    @Singleton
+    @Provides
+    fun provideVideoDao(database: HyperVidDB) = database.videoDao()
+
+    @Singleton
+    @Provides
+    fun provideDownloadDao(database: HyperVidDB) = database.downloadDao()
 
     @Singleton
     @Provides
