@@ -33,7 +33,7 @@ import kotlinx.coroutines.launch
 import showToast
 import timber.log.Timber
 
-class AddUrlFragment private constructor() : Fragment(R.layout.fragment_addurl) {
+class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     companion object {
         const val FACEBOOK_URL = "https://www.facebook.com/"
         const val FACEBOOK_URL_MOBILE = "https://m.facebook.com/"

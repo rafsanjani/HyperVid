@@ -36,7 +36,7 @@ import java.io.IOException
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DownloadsFragment private constructor() : Fragment(R.layout.fragment_downloads),
+class DownloadsFragment : Fragment(R.layout.fragment_downloads),
     DownloadAdapter.VideoDownloadEvents {
     @Inject
     lateinit var videoDownloader: VideoDownloader
