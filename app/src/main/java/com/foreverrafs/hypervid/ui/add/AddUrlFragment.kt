@@ -238,7 +238,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         super.onDestroy()
         timer.cancel()
         tabLayoutCoordinator = null
-        clipboardManager.removePrimaryClipChangedListener { clipBoardListener }
+        if (::clipboardManager.isInitialized)
+            clipboardManager.removePrimaryClipChangedListener { clipBoardListener }
     }
 
     override fun onResume() {

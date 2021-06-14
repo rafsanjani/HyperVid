@@ -8,7 +8,7 @@ interface Repository {
     suspend fun saveVideo(video: FBVideo)
     suspend fun saveDownload(downloadInfo: DownloadInfo)
 
-    suspend fun deleteVideo(video: FBVideo)
+    suspend fun deleteVideo(video: FBVideo): Int
     suspend fun deleteDownload(downloadInfo: DownloadInfo)
 
     fun getVideos(): Flow<List<FBVideo>>

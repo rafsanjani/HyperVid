@@ -46,7 +46,6 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
     }
 
     private val viewModel: MainViewModel by activityViewModels()
-    private var videosList = mutableListOf<FBVideo>()
 
     private val binding by viewBinding(FragmentDownloadsBinding::bind)
 
@@ -85,10 +84,6 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
                     } else {
                         showEmptyScreen()
                     }
-                }
-
-                viewModel.videosList.collect { videos ->
-                    videosList = videos.toMutableList()
                 }
             }
         }

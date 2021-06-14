@@ -9,10 +9,14 @@ import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.extractor.VideoExtractor
 import com.foreverrafs.hypervid.data.repository.Repository
 import com.foreverrafs.hypervid.model.FBVideo
+import com.foreverrafs.hypervid.ui.states.DownloadListState
+import com.foreverrafs.hypervid.ui.states.VideoListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 
@@ -27,6 +31,22 @@ constructor(
     private val videos = mutableListOf<FBVideo>()
     private val downloads = mutableListOf<DownloadInfo>()
 
+    val downloadList: Flow<List<DownloadInfo>> = repository.getDownloads()
+
+    val videosListState: Flow<VideoListState> = repository.getVideos().map { videos ->
+        if (videos.isEmpty())
+            VideoListState.Error(Exception("Error Loading videos"))
+        else
+            VideoListState.Videos(videos = videos)
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+
+    val downloadState: Flow<DownloadListState> = repository.getDownloads().map { downloads ->
+        if (downloads.isEmpty())
+            DownloadListState.Error(Exception("Error loading downloads"))
+        else
+            DownloadListState.DownloadList(downloads = downloads)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DownloadListState.Loading)
+
 
     companion object {
         const val PREF_KEY_FIRSTRUN = "firstrun"
@@ -37,7 +57,14 @@ constructor(
     }
 
     fun deleteVideo(video: FBVideo) = viewModelScope.launch {
-        repository.deleteVideo(video)
+        val deleted = repository.deleteVideo(video)
+
+        if (deleted >= 1) {
+            if (File(video.path).absoluteFile.delete())
+                Timber.d("deleteVideo: Delete status: $deleted")
+            else
+                Timber.e("Error deleting file")
+        }
     }
 
 
@@ -48,10 +75,6 @@ constructor(
     fun deleteDownload(download: DownloadInfo) = viewModelScope.launch {
         repository.deleteDownload(download)
     }
-
-    val downloadList: Flow<List<DownloadInfo>> = repository.getDownloads()
-
-    val videosList: Flow<List<FBVideo>> = repository.getVideos()
 
     fun extractVideoDownloadUrl(
         videoUrl: String,

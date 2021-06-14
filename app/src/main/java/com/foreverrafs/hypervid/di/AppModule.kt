@@ -38,6 +38,7 @@ object AppModule {
     @Provides
     fun provideDispatcher() = Dispatchers.Default
 
+    // TODO: 14/06/2021 Use proper migrations
     @Singleton
     @Provides
     fun provideDatabase(@ApplicationContext context: Context): HyperVidDB {

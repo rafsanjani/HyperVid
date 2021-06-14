@@ -28,6 +28,5 @@ class HomePagerAdapter(
             2 -> VideosFragment.newInstance(tabLayoutCoordinator)
             else -> throw IllegalArgumentException("Invalid fragment position specified")
         }
-
     }
 }

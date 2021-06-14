@@ -5,6 +5,7 @@ import com.foreverrafs.hypervid.data.dao.DownloadDao
 import com.foreverrafs.hypervid.data.dao.VideoDao
 import com.foreverrafs.hypervid.model.FBVideo
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
@@ -23,32 +24,34 @@ constructor(
 ) : Repository {
 
     // TODO: 06/06/2021 Wrap this in a Response
-    override suspend fun saveVideo(video: FBVideo) = withContext(dispatcher) {
+    override suspend fun saveVideo(video: FBVideo): Unit = withContext(dispatcher) {
         val saved = videoDao.insert(video)
         Timber.i("Saved video: $saved")
     }
 
     // TODO: 06/06/2021 Wrap this in a Response
-    override suspend fun deleteVideo(video: FBVideo) = withContext(dispatcher) {
+    override suspend fun deleteVideo(video: FBVideo): Int = withContext(dispatcher) {
         val deleted = videoDao.delete(video)
         Timber.i("Deleted video: $deleted")
+        deleted
     }
 
     // TODO: 06/06/2021 Wrap this in a Response
-    override fun getVideos() = videoDao.getVideos()
+    override fun getVideos(): Flow<List<FBVideo>> = videoDao.getVideos()
 
     // TODO: 06/06/2021 Wrap this in a Response
-    override suspend fun saveDownload(downloadInfo: DownloadInfo) = withContext(dispatcher) {
+    override suspend fun saveDownload(downloadInfo: DownloadInfo): Unit = withContext(dispatcher) {
         val saved = downloadDao.insert(downloadInfo)
         Timber.i("Saved download: $saved")
     }
 
     // TODO: 06/06/2021 Wrap this in a Response
-    override suspend fun deleteDownload(downloadInfo: DownloadInfo) = withContext(dispatcher) {
-        val deleted = downloadDao.delete(downloadInfo)
-        Timber.i("Deleted download: $deleted")
-    }
+    override suspend fun deleteDownload(downloadInfo: DownloadInfo): Unit =
+        withContext(dispatcher) {
+            val deleted = downloadDao.delete(downloadInfo)
+            Timber.i("Deleted download: $deleted")
+        }
 
     // TODO: 06/06/2021 Wrap this in a Response
-    override fun getDownloads() = downloadDao.getDownloads()
+    override fun getDownloads(): Flow<List<DownloadInfo>> = downloadDao.getDownloads()
 }

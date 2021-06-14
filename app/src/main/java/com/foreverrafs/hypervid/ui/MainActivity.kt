@@ -11,11 +11,13 @@ import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.databinding.ActivityMainBinding
+import com.foreverrafs.hypervid.ui.states.VideoListState
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
@@ -62,16 +64,24 @@ class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
                     }
                 }
 
-                viewModel.videosList.collect { videos ->
-                    if (videos.isNotEmpty()) {
-                        tabLayout.getTabAt(2)?.orCreateBadge?.apply {
-                            isVisible = true
-                            backgroundColor =
-                                ContextCompat.getColor(applicationContext, R.color.colorPrimary)
-                            number = videos.size
+                viewModel.videosListState.collect { state ->
+                    when (state) {
+                        is VideoListState.Error -> {
+                            tabLayout.getTabAt(2)?.badge?.isVisible = false
                         }
-                    } else {
-                        tabLayout.getTabAt(2)?.badge?.isVisible = false
+
+                        VideoListState.Loading -> {
+                            Timber.d("showCounterBadges: Loading Video List")
+                        }
+
+                        is VideoListState.Videos -> {
+                            tabLayout.getTabAt(2)?.orCreateBadge?.apply {
+                                isVisible = true
+                                backgroundColor =
+                                    ContextCompat.getColor(applicationContext, R.color.colorPrimary)
+                                number = state.videos.size
+                            }
+                        }
                     }
                 }
             }
