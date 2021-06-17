@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -84,10 +83,6 @@ class VideosFragment : Fragment() {
             setContent {
                 val mainViewModel: MainViewModel = viewModel()
                 val state by mainViewModel.videosListState.collectAsState(initial = VideoListState.Loading)
-
-                requireActivity().onBackPressedDispatcher.addCallback {
-                    onBackPressed = true
-                }
 
                 HyperVidTheme {
                     Surface {
@@ -218,7 +213,7 @@ class VideosFragment : Fragment() {
     ) {
         val selectedVideos = remember { mutableStateListOf<FBVideo>() }
         var openDeleteDialog by remember { mutableStateOf(false) }
-        var scope = rememberCoroutineScope()
+        val scope = rememberCoroutineScope()
 
 
         val bottomSheetState = rememberBottomSheetState(
