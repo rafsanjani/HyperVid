@@ -1,10 +1,15 @@
 package com.foreverrafs.hypervid.ui.videos
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -38,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.foreverrafs.hypervid.R.drawable
@@ -49,6 +55,7 @@ import com.foreverrafs.hypervid.ui.style.HyperVidTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import java.util.*
 
 
@@ -78,6 +85,10 @@ class VideosFragment : Fragment() {
                 val mainViewModel: MainViewModel = viewModel()
                 val state by mainViewModel.videosListState.collectAsState(initial = VideoListState.Loading)
 
+                requireActivity().onBackPressedDispatcher.addCallback {
+                    onBackPressed = true
+                }
+
                 HyperVidTheme {
                     Surface {
                         when (state) {
@@ -91,13 +102,12 @@ class VideosFragment : Fragment() {
                                 VideoListPage(
                                     videoList = (state as VideoListState.Videos).videos,
                                     onPlay = { video ->
-                                        Timber.d("onCreateView: Playing video $video")
+                                        playVideo(video)
                                     },
                                     onShare = { videos ->
-                                        Timber.d("onCreateView: Sharing videos $videos")
+                                        shareVideo(videos = videos.toTypedArray())
                                     },
                                     onDelete = { videos ->
-                                        Timber.d("onCreateView: Deleting videos $videos")
                                         videos.forEach {
                                             mainViewModel.deleteVideo(it)
                                         }
@@ -111,6 +121,48 @@ class VideosFragment : Fragment() {
         }
     }
 
+    private fun shareVideo(vararg videos: FBVideo) {
+
+        val context = this
+
+        val uris = videos.map {
+            FileProvider.getUriForFile(
+                requireContext(),
+                requireContext().packageName + ".provider",
+                File(it.path)
+            )
+        }.toTypedArray()
+
+        val videoShare = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris.toCollection(ArrayList()))
+            type = "*/*"
+        }
+
+        try {
+            context.startActivity(videoShare)
+        } catch (exception: ActivityNotFoundException) {
+            Timber.e("No app to handle this request")
+        }
+    }
+
+    private fun playVideo(video: FBVideo) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.setDataAndType(Uri.parse(video.path), "video/*")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+        try {
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(
+                requireContext(),
+                "Unable to play video. Locate and play it from your gallery",
+                Toast.LENGTH_SHORT
+            ).show()
+            Timber.e(e)
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -166,15 +218,14 @@ class VideosFragment : Fragment() {
     ) {
         val selectedVideos = remember { mutableStateListOf<FBVideo>() }
         var openDeleteDialog by remember { mutableStateOf(false) }
+        var scope = rememberCoroutineScope()
 
-        val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
-            bottomSheetState = BottomSheetState(
-                initialValue = BottomSheetValue.Collapsed,
-                animationSpec = tween(durationMillis = 500)
-            )
+
+        val bottomSheetState = rememberBottomSheetState(
+            initialValue = BottomSheetValue.Collapsed,
+            animationSpec = tween(durationMillis = 500)
         )
 
-        val scope = rememberCoroutineScope()
 
         BottomSheetScaffold(
             sheetContent = {
@@ -194,54 +245,62 @@ class VideosFragment : Fragment() {
             },
             sheetShape = MaterialTheme.shapes.small,
             sheetPeekHeight = 0.dp,
-            scaffoldState = bottomSheetScaffoldState,
+            scaffoldState = rememberBottomSheetScaffoldState(
+                bottomSheetState = bottomSheetState
+            ),
             sheetGesturesEnabled = false,
-        ) {
-            MainContent(
-                videoList = videoList,
-                onVideoSelected = {
-                    selectedVideos.add(it)
-
-                    if (selectedVideos.isNotEmpty())
+            content = {
+                MainContent(
+                    videoList = videoList,
+                    onVideoSelected = {
                         scope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.expand()
+                            selectedVideos.add(it)
+                            if (selectedVideos.isNotEmpty())
+                                bottomSheetState.expand()
+                            else
+                                bottomSheetState.collapse()
                         }
-                },
-                onVideoUnselected = {
-                    selectedVideos.remove(it)
-
-                    if (selectedVideos.isEmpty())
-                        scope.launch {
-                            bottomSheetScaffoldState.bottomSheetState.collapse()
-                        }
-                },
-                selectionMode = selectedVideos.isNotEmpty(),
-                selectedVideos = selectedVideos
-            )
-            if (openDeleteDialog) {
-                val message = if (selectedVideos.size > 1)
-                    "Are you sure you want to delete these videos?"
-                else
-                    "Are you sure you want to delete this video?"
-
-                DeleteDialog(
-                    message = message,
-                    onConfirm = {
-                        onDelete(selectedVideos.toList())
-
-                        scope.launch {
-                            selectedVideos.clear()
-                            bottomSheetScaffoldState.bottomSheetState.collapse()
-                        }
-
-                        openDeleteDialog = false
                     },
-                    onCancel = {
-                        openDeleteDialog = false
+                    onVideoUnselected = {
+                        scope.launch {
+                            selectedVideos.remove(it)
+                            if (selectedVideos.isNotEmpty())
+                                bottomSheetState.expand()
+                            else
+                                bottomSheetState.collapse()
+                        }
+                    },
+                    selectionMode = selectedVideos.isNotEmpty(),
+                    selectedVideos = selectedVideos,
+                    onPlay = {
+                        onPlay(it)
                     }
                 )
+                if (openDeleteDialog) {
+                    val message = if (selectedVideos.size > 1)
+                        "Are you sure you want to delete these videos?"
+                    else
+                        "Are you sure you want to delete this video?"
+
+                    DeleteDialog(
+                        message = message,
+                        onConfirm = {
+                            onDelete(selectedVideos.toList())
+                            selectedVideos.clear()
+
+                            openDeleteDialog = false
+
+                            scope.launch {
+                                bottomSheetState.collapse()
+                            }
+                        },
+                        onCancel = {
+                            openDeleteDialog = false
+                        }
+                    )
+                }
             }
-        }
+        )
     }
 
     @Composable
@@ -290,6 +349,7 @@ class VideosFragment : Fragment() {
         selectedVideos: List<FBVideo>,
         onVideoSelected: (video: FBVideo) -> Unit,
         onVideoUnselected: (video: FBVideo) -> Unit,
+        onPlay: (video: FBVideo) -> Unit,
         selectionMode: Boolean,
     ) {
         LazyColumn(
@@ -298,7 +358,7 @@ class VideosFragment : Fragment() {
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(videoList) { video ->
+            items(items = videoList, key = { it.url }) { video ->
                 VideoCard(
                     selectionMode = selectionMode,
                     video = video,
@@ -308,7 +368,10 @@ class VideosFragment : Fragment() {
                         else
                             onVideoUnselected(video)
                     },
-                    selected = selectedVideos.contains(video)
+                    selected = selectedVideos.contains(video),
+                    onPlay = {
+                        onPlay(video)
+                    }
                 )
             }
         }
@@ -426,6 +489,7 @@ class VideosFragment : Fragment() {
         video: FBVideo,
         onSelectionChanged: (selected: Boolean) -> Unit,
         selected: Boolean,
+        onPlay: () -> Unit
     ) {
         val retriever = MediaMetadataRetriever()
 
@@ -458,6 +522,7 @@ class VideosFragment : Fragment() {
                                 onLongPress = {
                                     onSelectionChanged(!selected)
                                 },
+                                onTap = { onPlay() }
                             )
                         },
                     bitmap = it,
@@ -470,7 +535,7 @@ class VideosFragment : Fragment() {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(brush = SolidColor(Color.Black), alpha = 0.75f),
+                    .background(brush = SolidColor(Color.Black), alpha = 0.65f),
                 contentAlignment = Alignment.TopEnd
             ) {
                 AnimatedVisibility(
@@ -484,7 +549,12 @@ class VideosFragment : Fragment() {
                         checked = selected,
                         onCheckedChange = {
                             onSelectionChanged(!selected)
-                        }
+                        },
+                        colors = CheckboxDefaults.colors(
+                            checkmarkColor = Color.Black,
+                            uncheckedColor = Color.White,
+                            checkedColor = Color.White
+                        )
                     )
                 }
 

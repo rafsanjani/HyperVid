@@ -9,6 +9,7 @@ import com.tonyodev.fetch2core.FetchLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import timber.log.Timber
+import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -113,7 +114,7 @@ constructor(@ApplicationContext private val context: Context) : Downloader {
     ): Int {
         val request = Request(
             downloadInfo.url,
-            "${getDownloadDir()}/${downloadInfo.name}.${downloadInfo.extension}"
+            "${getDownloadDir()}/${UUID.randomUUID()}.${downloadInfo.extension}"
         )
 
         request.apply {

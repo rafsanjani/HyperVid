@@ -20,18 +20,24 @@ import com.foreverrafs.extractor.Downloadable
 import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.databinding.FragmentAddurlBinding
+import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
+import com.foreverrafs.hypervid.ui.states.DownloadListState
+import com.foreverrafs.hypervid.ui.states.VideoListState
 import com.foreverrafs.hypervid.util.EspressoIdlingResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayoutMediator
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import disable
 import enable
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import showToast
 import timber.log.Timber
+import java.net.URI
+import java.net.UnknownHostException
 
 class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     companion object {
@@ -53,7 +59,8 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private var clipBoardData: ClipData? = null
     private val mainViewModel: MainViewModel by activityViewModels()
 
-    private var downloadList = mutableListOf<DownloadInfo>()
+    private var downloadList = listOf<DownloadInfo>()
+    private var videoList = listOf<FBVideo>()
 
     private val suggestedLinks = mutableListOf<String>()
 
@@ -86,17 +93,49 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             showDisclaimer()
         }
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.downloadList.collect { downloads ->
-                    downloadList = downloads.toMutableList()
+        mainViewModel.videosListState.collectWhenStarted { videoListState ->
+            when (videoListState) {
+                is VideoListState.Error -> {
+                    Timber.e(videoListState.exception)
+                }
+                VideoListState.Loading -> {
+                    Timber.d("Video state loading")
+                }
+                is VideoListState.Videos -> {
+                    videoList = videoListState.videos
                 }
             }
         }
 
+        mainViewModel.downloadState.collectWhenStarted { downloadState ->
+            when (downloadState) {
+                is DownloadListState.DownloadList -> {
+                    downloadList = downloadState.downloads.toMutableList()
+                }
+                is DownloadListState.Error -> {
+                    Timber.e(downloadState.exception)
+                }
+                DownloadListState.Loading -> {
+                    Timber.d("Download state loading")
+                }
+            }
+        }
 
         initSlideShow()
     }
+
+    inline fun <T> Flow<T>.collectWhenStarted(crossinline action: suspend (value: T) -> Unit) {
+        val flow = this
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                flow.collect {
+                    action(it)
+                }
+            }
+        }
+    }
+
 
     private fun initSlideShow() = with(binding) {
         val adapter = SlideShowAdapter()
@@ -154,14 +193,26 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
-    private fun isNotExtracted(url: String) =
-        !suggestedLinks.contains(url) && !mainViewModel.videoExists(url) && !mainViewModel.downloadExists(
-            url
-        )
+    private fun downloadExist(url: String): Boolean =
+        downloadList.any { URI.create(url).path == URI.create(it.url).path }
+
+    private fun videoExist(url: String): Boolean =
+        videoList.any { URI.create(url).path == URI.create(it.url).path }
+
+    private fun isExtracted(url: String): Boolean = downloadExist(url) || videoExist(url)
 
 
     private fun extractVideo(videoURL: String) {
         EspressoIdlingResource.increment()
+        if (downloadList.any { it.url == videoURL }) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setMessage("Video already extracted")
+                .setTitle("Download exists")
+                .setPositiveButton("OK", null)
+                .show()
+
+            return
+        }
 
         with(binding) {
             btnAddToDownloads.text = getString(R.string.extracting)
@@ -186,35 +237,30 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             )
 
             //Check if the extracted link exists either in the download list or the videos list.
-            val downloadExists =
-                mainViewModel.downloadExists(downloadable.url) || mainViewModel.videoExists(
-                    downloadable.url
-                )
-
-            if (downloadExists) {
+            if (isExtracted(downloadable.url)) {
                 Timber.e("Download exists. Unable to add to list")
                 showToast("Link already extracted")
                 resetUi()
                 return
             }
 
-
             Timber.d("Download URL extraction complete: Adding to List: $downloadInfo")
             showToast("Video added to download queue...")
             mainViewModel.saveDownload(downloadInfo)
+            // TODO: 17/06/2021 add analytics here
 
             resetUi()
 
             tabLayoutCoordinator?.navigateToTab(1)
-
         }
 
         override fun onError(error: Exception) = with(binding) {
             EspressoIdlingResource.decrement()
+            val noInternet = error is UnknownHostException
 
-            showToast("Error loading video from link")
+            showToast(if (noInternet) "No Internet connection" else "Error loading video from link")
             urlInputLayout.isErrorEnabled = true
-            urlInputLayout.error = "Invalid Link"
+            urlInputLayout.error = if (noInternet) "No internet connection" else "Invalid Link"
 
             btnAddToDownloads.text = getString(R.string.add_to_downloads)
             btnAddToDownloads.enable()
@@ -272,8 +318,12 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
         clipBoardData?.getItemAt(0)?.text?.let {
             val link = it.toString()
+            if (suggestedLinks.contains(link)) {
+                Timber.d("Link already in suggestion list, ignoring")
+                return@let
+            }
 
-            if (isValidUrl(link) && isNotExtracted(link)) {
+            if (isValidUrl(link) && !isExtracted(link)) {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.title_download_video)
                     .setMessage(getString(R.string.prompt_download_video))

@@ -22,6 +22,7 @@ import com.foreverrafs.hypervid.databinding.ListEmptyBinding
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
+import com.foreverrafs.hypervid.ui.states.DownloadListState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.zhuinden.fragmentviewbindingdelegatekt.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -76,13 +77,23 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.downloadList.collect { downloads ->
-                    if (downloads.isNotEmpty()) {
-                        emptyListBinding.root.invisible()
-                        showDownloads(downloads)
+                viewModel.downloadState.collect { state ->
+                    when (state) {
+                        is DownloadListState.DownloadList -> {
+                            if (state.downloads.isNotEmpty()) {
+                                emptyListBinding.root.invisible()
+                                showDownloads(state.downloads)
 
-                    } else {
-                        showEmptyScreen()
+                            } else {
+                                showEmptyScreen()
+                            }
+                        }
+                        is DownloadListState.Error -> {
+                            Timber.e(state.exception)
+                        }
+                        DownloadListState.Loading -> {
+                            Timber.d("loading downloadstate")
+                        }
                     }
                 }
             }

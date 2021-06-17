@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.foreverrafs.hypervid.R
 import com.foreverrafs.hypervid.adapter.HomePagerAdapter
 import com.foreverrafs.hypervid.databinding.ActivityMainBinding
+import com.foreverrafs.hypervid.ui.states.DownloadListState
 import com.foreverrafs.hypervid.ui.states.VideoListState
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,16 +52,29 @@ class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
     private fun showCounterBadges() = with(binding) {
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.downloadList.collect { downloads ->
-                    if (downloads.isNotEmpty()) {
-                        tabLayout.getTabAt(1)?.orCreateBadge?.apply {
-                            isVisible = true
-                            backgroundColor =
-                                ContextCompat.getColor(applicationContext, R.color.colorPrimary)
-                            number = downloads.size
+                viewModel.downloadState.collect { state ->
+                    when (state) {
+                        is DownloadListState.DownloadList -> {
+                            if (state.downloads.isNotEmpty()) {
+                                tabLayout.getTabAt(1)?.orCreateBadge?.apply {
+                                    isVisible = true
+                                    backgroundColor =
+                                        ContextCompat.getColor(
+                                            applicationContext,
+                                            R.color.colorPrimary
+                                        )
+                                    number = state.downloads.size
+                                }
+                            } else {
+                                tabLayout.getTabAt(1)?.badge?.isVisible = false
+                            }
                         }
-                    } else {
-                        tabLayout.getTabAt(1)?.badge?.isVisible = false
+                        is DownloadListState.Error -> {
+                            Timber.e(state.exception)
+                        }
+                        DownloadListState.Loading -> {
+                            Timber.d("Loading downloadstate")
+                        }
                     }
                 }
 

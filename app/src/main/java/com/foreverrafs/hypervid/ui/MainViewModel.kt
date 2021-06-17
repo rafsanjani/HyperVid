@@ -13,7 +13,10 @@ import com.foreverrafs.hypervid.ui.states.DownloadListState
 import com.foreverrafs.hypervid.ui.states.VideoListState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -28,24 +31,13 @@ constructor(
     private val preference: SharedPreferences
 ) : ViewModel() {
 
-    private val videos = mutableListOf<FBVideo>()
-    private val downloads = mutableListOf<DownloadInfo>()
-
-    val downloadList: Flow<List<DownloadInfo>> = repository.getDownloads()
-
     val videosListState: Flow<VideoListState> = repository.getVideos().map { videos ->
-        if (videos.isEmpty())
-            VideoListState.Error(Exception("Error Loading videos"))
-        else
-            VideoListState.Videos(videos = videos)
-    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        VideoListState.Videos(videos = videos)
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 2)
 
     val downloadState: Flow<DownloadListState> = repository.getDownloads().map { downloads ->
-        if (downloads.isEmpty())
-            DownloadListState.Error(Exception("Error loading downloads"))
-        else
-            DownloadListState.DownloadList(downloads = downloads)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DownloadListState.Loading)
+        DownloadListState.DownloadList(downloads = downloads)
+    }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 2)
 
 
     companion object {
@@ -97,12 +89,6 @@ constructor(
             }
         }
     }
-
-    //Check if a video with specified url has been downloaded already
-    fun videoExists(url: String) = videos.any { video -> video.url == url }
-
-    //Check if a download already exists
-    fun downloadExists(url: String) = downloads.any { download -> download.url == url }
 
     var isFirstRun: Boolean
         get() = preference.getBoolean(PREF_KEY_FIRSTRUN, true)
