@@ -9,8 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -27,6 +29,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
@@ -51,6 +54,7 @@ import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
 import com.foreverrafs.hypervid.ui.states.VideoListState
 import com.foreverrafs.hypervid.ui.style.HyperVidTheme
+import com.foreverrafs.hypervid.util.getDurationString
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -79,7 +83,9 @@ class VideosFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         return ComposeView(requireContext()).apply {
+
             setContent {
                 val mainViewModel: MainViewModel = viewModel()
                 val state by mainViewModel.videosListState.collectAsState(initial = VideoListState.Loading)
@@ -91,7 +97,25 @@ class VideosFragment : Fragment() {
                                 EmptyList()
                             }
                             VideoListState.Loading -> {
-                                Text(text = "Loading...")
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    val alpha by rememberInfiniteTransition().animateFloat(
+                                        initialValue = 0.2f,
+                                        targetValue = 1f,
+                                        animationSpec = infiniteRepeatable(
+                                            animation = tween(durationMillis = 500),
+                                            repeatMode = RepeatMode.Reverse
+                                        )
+                                    )
+
+                                    Text(
+                                        modifier = Modifier.alpha(alpha),
+                                        text = "Loading...",
+                                        style = MaterialTheme.typography.h4
+                                    )
+                                }
                             }
                             is VideoListState.Videos -> {
                                 VideoListPage(
@@ -201,6 +225,28 @@ class VideosFragment : Fragment() {
         }
     }
 
+    @ExperimentalAnimationApi
+    @Composable
+    @Preview
+    fun VideoCardPreview() {
+        HyperVidTheme {
+            Surface {
+                Box(modifier = Modifier.padding(10.dp)) {
+                    VideoCard(
+                        video = FBVideo(
+                            title = "Rafsanjani and the wailers",
+                            path = "",
+                            url = ""
+                        ),
+                        onSelectionChanged = {},
+                        selected = false,
+                        onPlay = {}) {
+                    }
+                }
+            }
+        }
+    }
+
 
     @ExperimentalAnimationApi
     @ExperimentalMaterialApi
@@ -221,6 +267,9 @@ class VideosFragment : Fragment() {
             animationSpec = tween(durationMillis = 500)
         )
 
+        BackHandler(enabled = selectedVideos.isNotEmpty()) {
+            selectedVideos.clear()
+        }
 
         BottomSheetScaffold(
             sheetContent = {
@@ -352,20 +401,32 @@ class VideosFragment : Fragment() {
                 .fillMaxSize()
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
+            state = rememberLazyListState(
+
+            )
         ) {
             items(items = videoList, key = { it.url }) { video ->
+                var selected by remember { mutableStateOf(selectedVideos.contains(video)) }
+
                 VideoCard(
                     selectionMode = selectionMode,
                     video = video,
-                    onSelectionChanged = { selected ->
+                    onSelectionChanged = { isSelected ->
+                        selected = isSelected
+
                         if (selected)
                             onVideoSelected(video)
                         else
                             onVideoUnselected(video)
                     },
-                    selected = selectedVideos.contains(video),
+                    selected = selected,
                     onPlay = {
                         onPlay(video)
+                    },
+                    onclick = {
+                        if (selectedVideos.isNotEmpty()) {
+                            selected = !selected
+                        }
                     }
                 )
             }
@@ -484,7 +545,8 @@ class VideosFragment : Fragment() {
         video: FBVideo,
         onSelectionChanged: (selected: Boolean) -> Unit,
         selected: Boolean,
-        onPlay: () -> Unit
+        onPlay: () -> Unit,
+        onclick: () -> Unit,
     ) {
         val retriever = MediaMetadataRetriever()
 
@@ -495,11 +557,17 @@ class VideosFragment : Fragment() {
         }
 
         var image: ImageBitmap? by remember { mutableStateOf(null) }
+        var duration: String by remember { mutableStateOf("00:00:00") }
 
         LaunchedEffect(Unit) {
             image = retriever.frameAtTime?.asImageBitmap()
+            duration = getDurationString(
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
+                    ?: 0L
+            )
             retriever.release()
         }
+
 
         Card(
             modifier = Modifier
@@ -507,60 +575,95 @@ class VideosFragment : Fragment() {
                 .height(160.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
-            //background image extracted from the media
-            image?.let { it ->
-                Image(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    onSelectionChanged(!selected)
-                                },
-                                onTap = { onPlay() }
-                            )
-                        },
-                    bitmap = it,
-                    contentDescription = video.title,
-                    contentScale = ContentScale.FillBounds
-                )
-            }
-
-            //dark overlay on the picture
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(brush = SolidColor(Color.Black), alpha = 0.65f),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                AnimatedVisibility(
-                    visible = selectionMode,
-                    enter = slideInHorizontally({ it / 2 }) + fadeIn(),
-                    exit = slideOutHorizontally({ it / 2 }) + fadeOut()
-                ) {
-                    Checkbox(
+            Box {
+                //background image extracted from the media
+                image?.let { it ->
+                    Image(
                         modifier = Modifier
-                            .padding(10.dp),
-                        checked = selected,
-                        onCheckedChange = {
-                            onSelectionChanged(!selected)
-                        },
-                        colors = CheckboxDefaults.colors(
-                            checkmarkColor = Color.Black,
-                            uncheckedColor = Color.White,
-                            checkedColor = Color.White
-                        )
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        onSelectionChanged(!selected)
+                                    },
+                                    onTap = {
+                                        onclick()
+                                    }
+                                )
+                            },
+                        bitmap = it,
+                        contentDescription = video.title,
+                        contentScale = ContentScale.FillBounds
                     )
                 }
 
-                //Play icon
-                Icon(
+                //dark overlay on the picture
+                Box(
                     modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(80.dp),
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play Icon",
-                    tint = Color.White.copy(alpha = 0.6f)
+                        .fillMaxSize()
+                        .background(brush = SolidColor(Color.Black), alpha = 0.40f),
+                    contentAlignment = Alignment.TopEnd
+                ) {
+                    AnimatedVisibility(
+                        visible = selectionMode,
+                        enter = slideInHorizontally({ it / 2 }) + fadeIn(),
+                        exit = slideOutHorizontally({ it / 2 }) + fadeOut()
+                    ) {
+                        Checkbox(
+                            modifier = Modifier
+                                .padding(10.dp),
+                            checked = selected,
+                            onCheckedChange = {
+                                onSelectionChanged(!selected)
+                            },
+                            colors = CheckboxDefaults.colors(
+                                checkmarkColor = Color.Black,
+                                uncheckedColor = Color.White,
+                                checkedColor = Color.White
+                            )
+                        )
+                    }
+
+                    //Play icon
+                    Icon(
+                        modifier = Modifier
+                            .clickable {
+                                onPlay()
+                            }
+                            .align(Alignment.Center)
+                            .size(80.dp),
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Play Icon",
+                        tint = Color.White.copy(alpha = 0.6f)
+                    )
+                }
+
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .align(Alignment.TopEnd)
+                        .size(width = 96.dp, height = 30.dp)
+                        .background(
+                            color = Color.Black.copy(alpha = 0.5f),
+                            RoundedCornerShape(20.dp)
+                        )
+                ) {
+                    Text(
+                        text = duration,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+
+                Text(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.BottomStart),
+                    text = video.title,
+                    color = Color.White,
+                    style = MaterialTheme.typography.subtitle2
                 )
             }
         }
