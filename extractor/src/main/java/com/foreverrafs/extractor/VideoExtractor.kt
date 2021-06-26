@@ -13,7 +13,10 @@ class VideoExtractor : Extractor {
             .create(FacebookService::class.java)
 
         val html = retrofit.downloadVideoHtml(facebookUrl)
-        return parseHtml(html)
+
+        return parseHtml(html).copy(
+            originalUrl = facebookUrl
+        )
     }
 
     private fun parseHtml(html: ResponseBody): Downloadable {
@@ -28,7 +31,7 @@ class VideoExtractor : Extractor {
         val title = document.body().getElementsByClass("card-title").text()
 
         return Downloadable(
-            url = videoUrl,
+            downloadUrl = videoUrl,
             filename = title
         )
     }

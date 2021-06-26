@@ -16,6 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.foreverrafs.downloader.downloader.VideoDownloader
 import com.foreverrafs.downloader.model.DownloadInfo
 import com.foreverrafs.hypervid.R
+import com.foreverrafs.hypervid.analytics.Analytics
+import com.foreverrafs.hypervid.analytics.events.DownloadVideoEvent
 import com.foreverrafs.hypervid.data.repository.AppRepository
 import com.foreverrafs.hypervid.databinding.FragmentDownloadsBinding
 import com.foreverrafs.hypervid.databinding.ListEmptyBinding
@@ -41,6 +43,9 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
     DownloadAdapter.VideoDownloadEvents {
     @Inject
     lateinit var videoDownloader: VideoDownloader
+
+    @Inject
+    lateinit var analytics: Analytics
 
     private val downloadsAdapter by lazy {
         DownloadAdapter(downloadEventsListener = this, videoDownloader = videoDownloader)
@@ -74,7 +79,6 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
         emptyListBinding = binding.layoutEmpty
         binding.downloadListRecyclerView.adapter = downloadsAdapter
 
-
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.downloadState.collect { state ->
@@ -83,7 +87,6 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
                             if (state.downloads.isNotEmpty()) {
                                 emptyListBinding.root.invisible()
                                 showDownloads(state.downloads)
-
                             } else {
                                 showEmptyScreen()
                             }
@@ -107,16 +110,21 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
         downloadsAdapter.submitList(downloadList)
     }
 
-
     /**
      * when a video has been successfully downloaded from the list. The adapter position of the downloaded
      * video together with the video item downloaded are received
      */
     override fun onVideoDownloaded(position: Int, video: FBVideo, download: DownloadInfo) {
+        analytics.trackEvent(
+            DownloadVideoEvent(
+                title = video.title,
+                url = download.originalUrl
+            )
+        )
         saveVideoToGallery(video)
         viewModel.saveVideo(video)
 
-        //delete the download from the download list [Downloads]
+        // delete the download from the download list [Downloads]
         lifecycleScope.launch {
             viewModel.deleteDownload(download)
         }
@@ -169,10 +177,11 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
     private fun saveVideoToGallery(video: FBVideo): Uri? {
         var uri: Uri? = null
         try {
-            uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 saveVideoToGalleryQ(File(video.path), video.title)
-            else
+            } else {
                 saveVideoToGallery(File(video.path), video.title)
+            }
         } catch (exception: IOException) {
             Timber.e(exception)
         }
@@ -219,7 +228,7 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
     }
 
     override fun onDownloadError(position: Int) {
-        //NO-OP
+        // NO-OP
     }
 
     override fun onDestroy() {

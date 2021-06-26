@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import androidx.room.Room
+import com.foreverrafs.hypervid.analytics.Analytics
+import com.foreverrafs.hypervid.analytics.FirebaseAnalyticsTracker
 import com.foreverrafs.hypervid.data.HyperVidDB
 import com.foreverrafs.hypervid.data.dao.DownloadDao
 import com.foreverrafs.hypervid.data.dao.VideoDao
@@ -60,4 +62,10 @@ object AppModule {
     @Provides
     fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
         PreferenceManager.getDefaultSharedPreferences(context)
+
+    @Singleton
+    @Provides
+    fun provideAnalyticsTracker(): Analytics {
+        return FirebaseAnalyticsTracker()
+    }
 }

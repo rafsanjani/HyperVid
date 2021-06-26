@@ -4,9 +4,11 @@ import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.foreverrafs.extractor.Downloadable
 import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.extractor.VideoExtractor
+import com.foreverrafs.hypervid.analytics.Analytics
+import com.foreverrafs.hypervid.analytics.events.ExtractVideoEvent
+import com.foreverrafs.hypervid.analytics.events.Status
 import com.foreverrafs.hypervid.data.repository.Repository
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.states.DownloadListState
@@ -22,13 +24,13 @@ import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
 
-
 @HiltViewModel
 class MainViewModel
 @Inject
 constructor(
     private val repository: Repository,
-    private val preference: SharedPreferences
+    private val preference: SharedPreferences,
+    private val analytics: Analytics,
 ) : ViewModel() {
 
     val videosListState: Flow<VideoListState> = repository.getVideos().map { videos ->
@@ -38,7 +40,6 @@ constructor(
     val downloadState: Flow<DownloadListState> = repository.getDownloads().map { downloads ->
         DownloadListState.DownloadList(downloads = downloads)
     }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 2)
-
 
     companion object {
         const val PREF_KEY_FIRSTRUN = "firstrun"
@@ -52,13 +53,13 @@ constructor(
         val deleted = repository.deleteVideo(video)
 
         if (deleted >= 1) {
-            if (File(video.path).absoluteFile.delete())
+            if (File(video.path).absoluteFile.delete()) {
                 Timber.d("deleteVideo: Delete status: $deleted")
-            else
+            } else {
                 Timber.e("Error deleting file")
+            }
         }
     }
-
 
     fun saveDownload(download: DownloadInfo) = viewModelScope.launch {
         repository.saveDownload(download)
@@ -79,13 +80,26 @@ constructor(
                 val downloadable = extractor.extractVideoUrl(videoUrl)
 
                 listener.onComplete(
-                    Downloadable(
-                        url = downloadable.url,
-                        filename = downloadable.filename,
+                    downloadable
+                )
+
+                analytics.trackEvent(
+                    ExtractVideoEvent(
+                        title = downloadable.filename,
+                        url = videoUrl,
+                        status = Status.Success,
                     )
                 )
             } catch (e: Exception) {
                 listener.onError(e)
+
+                analytics.trackEvent(
+                    ExtractVideoEvent(
+                        title = "",
+                        url = videoUrl,
+                        status = Status.Failed,
+                    )
+                )
             }
         }
     }
