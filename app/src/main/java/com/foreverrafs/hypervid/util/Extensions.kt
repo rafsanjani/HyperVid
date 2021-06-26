@@ -32,7 +32,6 @@ fun View.enable() {
     this.isEnabled = true
 }
 
-
 fun ImageView.load(image: Bitmap) {
     Glide.with(context)
         .load(image)
@@ -48,4 +47,3 @@ fun ImageView.load(@DrawableRes image: Int) {
         .transition(DrawableTransitionOptions.withCrossFade())
         .into(this)
 }
-

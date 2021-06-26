@@ -102,7 +102,6 @@ class MainActivity : AppCompatActivity(), TabLayoutCoordinator {
         }
     }
 
-
     private fun setupViewPager(viewPager: ViewPager2) {
         val viewPagerAdapter = HomePagerAdapter(activity = this, tabLayoutCoordinator = this)
         viewPager.adapter = viewPagerAdapter

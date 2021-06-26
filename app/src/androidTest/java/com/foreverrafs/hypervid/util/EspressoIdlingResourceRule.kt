@@ -4,9 +4,7 @@ import androidx.test.espresso.IdlingRegistry
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
-
 class EspressoIdlingResourceRule : TestWatcher() {
-
 
     private val idlingResource = EspressoIdlingResource.countingIdlingResource
 
@@ -20,6 +18,3 @@ class EspressoIdlingResourceRule : TestWatcher() {
         super.starting(description)
     }
 }
-
-
-

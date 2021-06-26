@@ -66,7 +66,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
 
     private val binding by viewBinding(FragmentAddurlBinding::bind)
 
-
     private val dismissDialog: AlertDialog by lazy {
         MaterialAlertDialogBuilder(requireActivity())
             .setMessage("This app cannot function properly without allowing all the requested permissions")
@@ -136,27 +135,25 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         }
     }
 
-
     private fun initSlideShow() = with(binding) {
         val adapter = SlideShowAdapter()
         slideShowPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, slideShowPager) { tab, position ->
             tab.text = "${position + 1}"
-
         }.attach()
 
         timer.start()
     }
 
-
     private val timer = object : CountDownTimer(60 * 1000L, 5 * 1000L) {
         override fun onTick(millisUntilFinished: Long) = with(binding) {
             slideShowPager.let {
-                if (slideShowPager.currentItem + 1 <= 2)
+                if (slideShowPager.currentItem + 1 <= 2) {
                     slideShowPager.currentItem = slideShowPager.currentItem + 1
-                else
+                } else {
                     slideShowPager.currentItem = 0
+                }
             }
         }
 
@@ -169,13 +166,14 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         btnPaste.setOnClickListener {
             if (clipBoardData != null) {
                 clipboardText = clipBoardData?.getItemAt(0)?.text.toString()
-                if (clipboardText.contains(FACEBOOK_URL))
+                if (clipboardText.contains(FACEBOOK_URL)) {
                     urlInputLayout.editText?.setText(clipboardText)
+                }
             }
         }
 
-        //add the download job to the download list when the button is clicked. We don't start downloading
-        //immediately. We wait for the user to interact with it in the downloads section before we download.
+        // add the download job to the download list when the button is clicked. We don't start downloading
+        // immediately. We wait for the user to interact with it in the downloads section before we download.
         btnAddToDownloads.setOnClickListener {
             requestStoragePermission.launch(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
@@ -200,7 +198,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         videoList.any { URI.create(url).path == URI.create(it.url).path }
 
     private fun isExtracted(url: String): Boolean = downloadExist(url) || videoExist(url)
-
 
     private fun extractVideo(videoURL: String) {
         EspressoIdlingResource.increment()
@@ -231,13 +228,14 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
     private var extractionListener = object : Extractor.ExtractionEvents {
         override fun onComplete(downloadable: Downloadable) {
             val downloadInfo = DownloadInfo(
-                url = downloadable.url,
+                url = downloadable.downloadUrl,
                 name = downloadable.filename,
                 downloadId = 0,
+                originalUrl = downloadable.originalUrl
             )
 
-            //Check if the extracted link exists either in the download list or the videos list.
-            if (isExtracted(downloadable.url)) {
+            // Check if the extracted link exists either in the download list or the videos list.
+            if (isExtracted(downloadable.downloadUrl)) {
                 Timber.e("Download exists. Unable to add to list")
                 showToast("Link already extracted")
                 resetUi()
@@ -284,17 +282,20 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         super.onDestroy()
         timer.cancel()
         tabLayoutCoordinator = null
-        if (::clipboardManager.isInitialized)
+        if (::clipboardManager.isInitialized) {
             clipboardManager.removePrimaryClipChangedListener { clipBoardListener }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (dismissDialog.isShowing)
+        if (dismissDialog.isShowing) {
             return
+        }
 
-        if (mainViewModel.isFirstRun)
+        if (mainViewModel.isFirstRun) {
             return
+        }
 
         initializeClipboard()
     }
@@ -304,9 +305,9 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         val clipText = clipBoardData?.getItemAt(0)?.text
 
         clipText?.let {
-            if (isValidUrl(it.toString()))
+            if (isValidUrl(it.toString())) {
                 binding.urlInputLayout.editText?.setText(clipText.toString())
-
+            }
         } ?: Timber.e("clipText is null")
     }
 
@@ -314,7 +315,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         clipboardManager = activity?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
         clipBoardData = clipboardManager.primaryClip
-
 
         clipBoardData?.getItemAt(0)?.text?.let {
             val link = it.toString()
@@ -347,7 +347,6 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
             clipBoardListener
         }
     }
-
 
     private fun showDisclaimer() {
         MaterialAlertDialogBuilder(requireContext())

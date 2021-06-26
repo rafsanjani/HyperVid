@@ -27,7 +27,6 @@ class MainActivityTest {
     @get:Rule
     val idlingResourceRule = EspressoIdlingResourceRule()
 
-
     @Before
     fun dismissDialog() {
         try {

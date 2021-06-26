@@ -7,7 +7,6 @@ import androidx.room.Query
 import com.foreverrafs.hypervid.model.FBVideo
 import kotlinx.coroutines.flow.Flow
 
-
 /* Created by Rafsanjani on 23/05/2020. */
 
 @Dao

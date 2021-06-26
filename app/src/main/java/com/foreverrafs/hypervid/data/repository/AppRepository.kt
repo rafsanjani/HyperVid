@@ -11,7 +11,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 /* Created by Rafsanjani on 29/03/2020. */
 
 @Singleton

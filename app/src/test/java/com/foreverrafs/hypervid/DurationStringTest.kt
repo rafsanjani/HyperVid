@@ -4,7 +4,6 @@ import com.foreverrafs.hypervid.util.getDurationString
 import com.google.common.truth.Truth
 import org.junit.Test
 
-
 class DurationStringTest {
     @Test
     fun testDurationSecondsOnly() {
@@ -45,6 +44,4 @@ class DurationStringTest {
 
         Truth.assertThat(date).isEqualTo("01:01:50")
     }
-
 }
-

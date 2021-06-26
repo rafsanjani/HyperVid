@@ -30,7 +30,6 @@ import visible
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class DownloadAdapter constructor(
     private val downloadEventsListener: VideoDownloadEvents,
     private val videoDownloader: VideoDownloader
@@ -38,7 +37,6 @@ class DownloadAdapter constructor(
     RecyclerView.Adapter<DownloadAdapter.DownloadsViewHolder>() {
 
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)
-
 
     private val diffCallback = object : DiffUtil.ItemCallback<DownloadInfo>() {
         override fun areContentsTheSame(oldItem: DownloadInfo, newItem: DownloadInfo): Boolean {
@@ -89,7 +87,6 @@ class DownloadAdapter constructor(
 
             tvDate.text = formatter.format(downloadDate)
 
-
             coroutineScope.launch {
                 var coverArt: Bitmap? = null
                 var duration = ""
@@ -129,12 +126,12 @@ class DownloadAdapter constructor(
             }
         }
 
-
         private fun toggleDownload() {
-            if (isDownloading)
+            if (isDownloading) {
                 pauseDownload()
-            else
+            } else {
                 startDownload()
+            }
         }
 
         private fun openPopupMenu() {
@@ -180,7 +177,6 @@ class DownloadAdapter constructor(
                 context.getString(R.string.percentage, percentage)
             progressDownload.progress = percentage
 
-
             val downloadedMB = (downloaded.toDouble() / 1024 / 1024)
 
             tvDownloadedSize.text =
@@ -192,7 +188,6 @@ class DownloadAdapter constructor(
             progressDownload.visible()
             tvStatus.text = context.getString(R.string.paused)
             btnStartPause.setImageResource(R.drawable.ic_start)
-
         }
 
         override fun onCompleted(path: String): Unit = with(binding) {
@@ -217,14 +212,12 @@ class DownloadAdapter constructor(
             animateLayoutChanges()
         }
 
-
         override fun onError(error: DownloadException) = with(binding) {
             Timber.e(error)
             isDownloading = false
             progressDownload.invisible()
             tvStatus.text = context.getString(R.string.failed)
             btnStartPause.setImageResource(R.drawable.ic_start)
-
         }
 
         override fun onCancelled() = with(binding) {

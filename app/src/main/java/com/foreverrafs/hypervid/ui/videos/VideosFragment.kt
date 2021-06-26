@@ -10,23 +10,63 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.BottomSheetValue
+import androidx.compose.material.Card
+import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.runtime.*
+import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material.rememberBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -60,9 +100,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.util.*
-
-
-private const val TAG = "VideosFragment"
+import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class VideosFragment : Fragment() {
@@ -74,7 +112,6 @@ class VideosFragment : Fragment() {
             return VideosFragment()
         }
     }
-
 
     @ExperimentalAnimationApi
     @ExperimentalMaterialApi
@@ -162,7 +199,7 @@ class VideosFragment : Fragment() {
         try {
             context.startActivity(videoShare)
         } catch (exception: ActivityNotFoundException) {
-            Timber.e("No app to handle this request")
+            Timber.e(exception, "No app to handle this request")
         }
     }
 
@@ -187,7 +224,6 @@ class VideosFragment : Fragment() {
         super.onDestroy()
         tabLayoutCoordinator = null
     }
-
 
     @Preview
     @Composable
@@ -215,10 +251,8 @@ class VideosFragment : Fragment() {
                         )
                     ),
                     onDelete = {
-
                     },
                     onShare = {
-
                     }
                 )
             }
@@ -247,7 +281,6 @@ class VideosFragment : Fragment() {
         }
     }
 
-
     @ExperimentalAnimationApi
     @ExperimentalMaterialApi
     @Composable
@@ -260,7 +293,6 @@ class VideosFragment : Fragment() {
         val selectedVideos = remember { mutableStateListOf<FBVideo>() }
         var openDeleteDialog by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
-
 
         val bottomSheetState = rememberBottomSheetState(
             initialValue = BottomSheetValue.Collapsed,
@@ -299,19 +331,21 @@ class VideosFragment : Fragment() {
                     onVideoSelected = {
                         scope.launch {
                             selectedVideos.add(it)
-                            if (selectedVideos.isNotEmpty())
+                            if (selectedVideos.isNotEmpty()) {
                                 bottomSheetState.expand()
-                            else
+                            } else {
                                 bottomSheetState.collapse()
+                            }
                         }
                     },
                     onVideoUnselected = {
                         scope.launch {
                             selectedVideos.remove(it)
-                            if (selectedVideos.isNotEmpty())
+                            if (selectedVideos.isNotEmpty()) {
                                 bottomSheetState.expand()
-                            else
+                            } else {
                                 bottomSheetState.collapse()
+                            }
                         }
                     },
                     selectionMode = selectedVideos.isNotEmpty(),
@@ -321,10 +355,11 @@ class VideosFragment : Fragment() {
                     }
                 )
                 if (openDeleteDialog) {
-                    val message = if (selectedVideos.size > 1)
+                    val message = if (selectedVideos.size > 1) {
                         "Are you sure you want to delete these videos?"
-                    else
+                    } else {
                         "Are you sure you want to delete this video?"
+                    }
 
                     DeleteDialog(
                         message = message,
@@ -361,7 +396,6 @@ class VideosFragment : Fragment() {
                 Text(text = message)
             },
             onDismissRequest = {
-
             },
             confirmButton = {
                 TextButton(
@@ -401,9 +435,7 @@ class VideosFragment : Fragment() {
                 .fillMaxSize()
                 .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            state = rememberLazyListState(
-
-            )
+            state = rememberLazyListState()
         ) {
             items(items = videoList, key = { it.url }) { video ->
                 var selected by remember { mutableStateOf(selectedVideos.contains(video)) }
@@ -414,10 +446,11 @@ class VideosFragment : Fragment() {
                     onSelectionChanged = { isSelected ->
                         selected = isSelected
 
-                        if (selected)
+                        if (selected) {
                             onVideoSelected(video)
-                        else
+                        } else {
                             onVideoUnselected(video)
+                        }
                     },
                     selected = selected,
                     onPlay = {
@@ -553,7 +586,7 @@ class VideosFragment : Fragment() {
         try {
             retriever.setDataSource(video.path)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
 
         var image: ImageBitmap? by remember { mutableStateOf(null) }
@@ -568,7 +601,6 @@ class VideosFragment : Fragment() {
             retriever.release()
         }
 
-
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -576,7 +608,7 @@ class VideosFragment : Fragment() {
             shape = RoundedCornerShape(8.dp)
         ) {
             Box {
-                //background image extracted from the media
+                // background image extracted from the media
                 image?.let { it ->
                     Image(
                         modifier = Modifier
@@ -597,7 +629,7 @@ class VideosFragment : Fragment() {
                     )
                 }
 
-                //dark overlay on the picture
+                // dark overlay on the picture
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -624,7 +656,7 @@ class VideosFragment : Fragment() {
                         )
                     }
 
-                    //Play icon
+                    // Play icon
                     Icon(
                         modifier = Modifier
                             .clickable {
@@ -655,7 +687,6 @@ class VideosFragment : Fragment() {
                         fontWeight = FontWeight.Bold
                     )
                 }
-
 
                 Text(
                     modifier = Modifier

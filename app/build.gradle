@@ -1,3 +1,5 @@
+import io.gitlab.arturbosch.detekt.Detekt
+
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -5,6 +7,37 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'dagger.hilt.android.plugin'
+    id("io.gitlab.arturbosch.detekt").version("1.17.1")
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config = files("$projectDir/config/detekt.yml")
+    baseline = file("$projectDir/config/baseline.xml")
+
+    reports {
+        html.enabled = true
+        sarif.enabled = true
+    }
+}
+
+tasks.register("format", Detekt){
+    description = "Reformats whole code base"
+    group = "Formatting"
+    allRules = false
+    parallel = true
+    autoCorrect = true
+    setSource(files(projectDir))
+    include("**/*.kt")
+    include("**/*.kts")
+    exclude("**/resources/**")
+    exclude("**/build/**")
+
+    reports {
+        xml { enabled = false }
+        html { enabled = false }
+    }
 }
 
 android {
@@ -101,8 +134,8 @@ android {
 
         //firebase analytics
         implementation platform('com.google.firebase:firebase-bom:28.0.1')
-        releaseImplementation 'com.google.firebase:firebase-analytics-ktx'
-        releaseImplementation 'com.google.firebase:firebase-crashlytics-ktx'
+        implementation 'com.google.firebase:firebase-analytics-ktx'
+        implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
         //viewBinding delegate
         implementation 'com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.0'
@@ -136,6 +169,8 @@ android {
         implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
         implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
         implementation "com.google.accompanist:accompanist-glide:0.12.0"
+        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.17.1")
+
 
         // UI Tests
         androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"

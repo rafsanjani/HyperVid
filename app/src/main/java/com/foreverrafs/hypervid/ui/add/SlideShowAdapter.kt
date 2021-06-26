@@ -8,7 +8,6 @@ import com.foreverrafs.hypervid.databinding.ItemSlideshowBinding
 import com.foreverrafs.hypervid.model.SlideShowImage
 import load
 
-
 /* Created by Rafsanjani on 08/04/2020. */
 
 class SlideShowAdapter : RecyclerView.Adapter<SlideShowAdapter.SlideShowViewHolder>() {
