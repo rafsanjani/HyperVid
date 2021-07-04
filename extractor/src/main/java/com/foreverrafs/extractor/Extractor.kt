@@ -1,7 +1,5 @@
 package com.foreverrafs.extractor
 
-private const val TAG = "FacebookExtractor"
-
 interface Extractor {
     suspend fun extractVideoUrl(facebookUrl: String): Downloadable
 
@@ -10,4 +8,3 @@ interface Extractor {
         fun onError(error: Exception)
     }
 }
-

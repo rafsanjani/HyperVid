@@ -7,7 +7,7 @@ import com.foreverrafs.hypervid.analytics.AnalyticsKeys
 data class ExtractVideoEvent(
     private val title: String,
     private val url: String,
-    private val status: Status,
+    private val successful: Boolean,
 ) : AnalyticsEvent {
 
     companion object {
@@ -21,6 +21,6 @@ data class ExtractVideoEvent(
         get() = mapOf(
             AnalyticsKeys.VIDEO_TITLE to title.takeLast(CHAR_LIMIT),
             AnalyticsKeys.VIDEO_URL to url.takeLast(CHAR_LIMIT),
-            AnalyticsKeys.SUCCESSFUL to (status == Status.Success)
+            AnalyticsKeys.SUCCESSFUL to successful
         )
 }

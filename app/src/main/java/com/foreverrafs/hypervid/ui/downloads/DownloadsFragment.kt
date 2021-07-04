@@ -118,7 +118,8 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
         analytics.trackEvent(
             DownloadVideoEvent(
                 title = video.title,
-                url = download.originalUrl
+                url = download.originalUrl,
+                successful = true
             )
         )
         saveVideoToGallery(video)

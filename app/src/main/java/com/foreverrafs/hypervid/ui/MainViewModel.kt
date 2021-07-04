@@ -4,11 +4,11 @@ import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.foreverrafs.downloader.model.DownloadInfo
+import com.foreverrafs.extractor.ExtractionException
 import com.foreverrafs.extractor.Extractor
 import com.foreverrafs.extractor.VideoExtractor
 import com.foreverrafs.hypervid.analytics.Analytics
 import com.foreverrafs.hypervid.analytics.events.ExtractVideoEvent
-import com.foreverrafs.hypervid.analytics.events.Status
 import com.foreverrafs.hypervid.data.repository.Repository
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.states.DownloadListState
@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -87,17 +88,19 @@ constructor(
                     ExtractVideoEvent(
                         title = downloadable.filename,
                         url = videoUrl,
-                        status = Status.Success,
+                        successful = true
                     )
                 )
-            } catch (e: Exception) {
+            } catch (e: UnknownHostException) {
+                listener.onError(e)
+            } catch (e: ExtractionException) {
                 listener.onError(e)
 
                 analytics.trackEvent(
                     ExtractVideoEvent(
                         title = "",
                         url = videoUrl,
-                        status = Status.Failed,
+                        successful = false,
                     )
                 )
             }
