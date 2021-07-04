@@ -1,4 +1,4 @@
-name: Release Beta to Play Store
+name: Publish bundle to internal test
 
 on:
   push:
