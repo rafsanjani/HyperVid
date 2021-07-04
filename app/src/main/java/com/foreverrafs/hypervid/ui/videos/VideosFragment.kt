@@ -601,7 +601,7 @@ class VideosFragment : Fragment() {
 
         try {
             retriever.setDataSource(video.path)
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
             Timber.e(e)
         }
 

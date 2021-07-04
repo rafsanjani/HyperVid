@@ -56,6 +56,10 @@ android {
             arguments {
                 arg("room.incremental", "true")
             }
+
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
         }
 
         compileOptions {
