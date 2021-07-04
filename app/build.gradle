@@ -55,9 +55,6 @@ android {
         kapt {
             arguments {
                 arg("room.incremental", "true")
-            }
-
-            arguments {
                 arg("room.schemaLocation", "$projectDir/schemas")
             }
         }
@@ -169,10 +166,8 @@ android {
         implementation 'androidx.activity:activity-compose:1.3.0-beta02'
         // Integration with ViewModels
         implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07'
-        // Integration with observables
-        implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
-        implementation "androidx.compose.runtime:runtime-rxjava2:$compose_version"
         implementation "com.google.accompanist:accompanist-glide:0.12.0"
+
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.17.1")
 
 
