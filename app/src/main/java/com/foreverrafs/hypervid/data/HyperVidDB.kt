@@ -9,9 +9,10 @@ import com.foreverrafs.hypervid.model.FBVideo
 
 @Database(
     entities = [FBVideo::class, DownloadInfo::class],
-    version = 5,
-    exportSchema = false
+    version = 6,
+    exportSchema = true,
 )
+
 abstract class HyperVidDB : RoomDatabase() {
     abstract fun downloadDao(): DownloadDao
     abstract fun videoDao(): VideoDao

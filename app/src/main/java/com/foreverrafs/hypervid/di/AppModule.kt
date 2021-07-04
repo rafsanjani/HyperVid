@@ -46,7 +46,6 @@ object AppModule {
     fun provideDatabase(@ApplicationContext context: Context): HyperVidDB {
         return Room
             .databaseBuilder(context, HyperVidDB::class.java, "hypervid.db")
-            .fallbackToDestructiveMigration()
             .build()
     }
 
