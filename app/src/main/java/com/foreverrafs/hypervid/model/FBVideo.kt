@@ -8,7 +8,8 @@ data class FBVideo(
     val title: String,
     val duration: Long = 0L,
     val path: String,
-    val url: String,
+    val downloadUrl: String,
+    val originalUrl: String,
 
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0

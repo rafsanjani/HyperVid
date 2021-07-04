@@ -89,6 +89,8 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.foreverrafs.hypervid.R.drawable
+import com.foreverrafs.hypervid.analytics.Analytics
+import com.foreverrafs.hypervid.analytics.events.ShareVideoEvent
 import com.foreverrafs.hypervid.model.FBVideo
 import com.foreverrafs.hypervid.ui.MainViewModel
 import com.foreverrafs.hypervid.ui.TabLayoutCoordinator
@@ -100,10 +102,14 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.util.*
+import javax.inject.Inject
 import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class VideosFragment : Fragment() {
+    @Inject
+    lateinit var analytics: Analytics
+
     companion object {
         var tabLayoutCoordinator: TabLayoutCoordinator? = null
 
@@ -198,6 +204,14 @@ class VideosFragment : Fragment() {
 
         try {
             context.startActivity(videoShare)
+            videos.forEach {
+                analytics.trackEvent(
+                    ShareVideoEvent(
+                        title = it.title,
+                        url = it.originalUrl
+                    )
+                )
+            }
         } catch (exception: ActivityNotFoundException) {
             Timber.e(exception, "No app to handle this request")
         }
@@ -246,8 +260,9 @@ class VideosFragment : Fragment() {
                     videoList = listOf(
                         FBVideo(
                             title = "Hello World",
-                            url = "",
-                            path = ""
+                            downloadUrl = "",
+                            path = "",
+                            originalUrl = ""
                         )
                     ),
                     onDelete = {
@@ -270,7 +285,8 @@ class VideosFragment : Fragment() {
                         video = FBVideo(
                             title = "Rafsanjani and the wailers",
                             path = "",
-                            url = ""
+                            downloadUrl = "",
+                            originalUrl = ""
                         ),
                         onSelectionChanged = {},
                         selected = false,
@@ -437,7 +453,7 @@ class VideosFragment : Fragment() {
             verticalArrangement = Arrangement.spacedBy(8.dp),
             state = rememberLazyListState()
         ) {
-            items(items = videoList, key = { it.url }) { video ->
+            items(items = videoList, key = { it.downloadUrl }) { video ->
                 var selected by remember { mutableStateOf(selectedVideos.contains(video)) }
 
                 VideoCard(

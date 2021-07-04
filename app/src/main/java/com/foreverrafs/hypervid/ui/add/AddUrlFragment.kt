@@ -195,7 +195,7 @@ class AddUrlFragment : Fragment(R.layout.fragment_addurl) {
         downloadList.any { URI.create(url).path == URI.create(it.url).path }
 
     private fun videoExist(url: String): Boolean =
-        videoList.any { URI.create(url).path == URI.create(it.url).path }
+        videoList.any { URI.create(url).path == URI.create(it.downloadUrl).path }
 
     private fun isExtracted(url: String): Boolean = downloadExist(url) || videoExist(url)
 

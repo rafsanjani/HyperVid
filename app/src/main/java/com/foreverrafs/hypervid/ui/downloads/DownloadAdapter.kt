@@ -194,7 +194,8 @@ class DownloadAdapter constructor(
             val facebookVideo = FBVideo(
                 title = downloadItem.name,
                 path = path,
-                url = downloadItem.url
+                downloadUrl = downloadItem.url,
+                originalUrl = downloadItem.originalUrl
             )
 
             downloadEventsListener.onVideoDownloaded(
