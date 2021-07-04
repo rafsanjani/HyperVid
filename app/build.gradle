@@ -25,14 +25,9 @@ detekt {
 tasks.register("format", Detekt){
     description = "Reformats whole code base"
     group = "Formatting"
-    allRules = false
+    config.setFrom(files("$rootDir/app/config/detekt.yml"))
     parallel = true
     autoCorrect = true
-    setSource(files(projectDir))
-    include("**/*.kt")
-    include("**/*.kts")
-    exclude("**/resources/**")
-    exclude("**/build/**")
 
     reports {
         xml { enabled = false }
