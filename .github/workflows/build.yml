@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug
+        run: ./gradlew assemble
 
   lint:
     runs-on: ubuntu-latest
@@ -20,3 +20,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Detekt
         run: ./gradlew detekt
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Android unit test
+        run: ./gradlew test
+
