@@ -6,11 +6,17 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-  
-    - name: Build with Gradle
-      run:  ./gradlew assembleDebug
+      - uses: actions/checkout@v2
+
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Detekt
+        run: ./gradlew detekt
