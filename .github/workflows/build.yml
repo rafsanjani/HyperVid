@@ -5,7 +5,7 @@ on:
     branches: main
 
 jobs:
-  build:
+  Build:
     runs-on: ubuntu-latest
 
     steps:
@@ -14,14 +14,14 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assemble
 
-  lint:
+  Lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Detekt
         run: ./gradlew detekt
 
-  tests:
+  Test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
