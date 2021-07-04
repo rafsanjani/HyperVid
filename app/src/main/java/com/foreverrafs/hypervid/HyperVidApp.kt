@@ -1,11 +1,10 @@
 package com.foreverrafs.hypervid
 
 import android.app.Application
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.DebugTree
-
-private const val TAG = "HyperVidApp"
 
 @HiltAndroidApp
 class HyperVidApp : Application() {
@@ -14,5 +13,7 @@ class HyperVidApp : Application() {
         if (BuildConfig.DEBUG) {
             Timber.plant(DebugTree())
         }
+
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
     }
 }
