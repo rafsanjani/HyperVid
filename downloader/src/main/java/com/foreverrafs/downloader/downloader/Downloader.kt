@@ -7,4 +7,3 @@ interface Downloader {
     fun pauseDownload(downloadId: Int): Boolean
     fun cancelDownload(downloadId: Int): Boolean
 }
-

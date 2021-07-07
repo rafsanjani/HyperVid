@@ -3,7 +3,14 @@ package com.foreverrafs.downloader.downloader
 import android.content.Context
 import android.os.Environment
 import com.foreverrafs.downloader.model.DownloadInfo
-import com.tonyodev.fetch2.*
+import com.tonyodev.fetch2.AbstractFetchListener
+import com.tonyodev.fetch2.Download
+import com.tonyodev.fetch2.Error
+import com.tonyodev.fetch2.Fetch
+import com.tonyodev.fetch2.FetchConfiguration
+import com.tonyodev.fetch2.NetworkType
+import com.tonyodev.fetch2.Priority
+import com.tonyodev.fetch2.Request
 import com.tonyodev.fetch2core.DownloadBlock
 import com.tonyodev.fetch2core.FetchLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -13,7 +20,6 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-
 
 @Singleton
 class VideoDownloader
@@ -82,7 +88,6 @@ constructor(@ApplicationContext private val context: Context) : Downloader {
         setUpDownloader()
     }
 
-
     private fun setUpDownloader() {
         val config = FetchConfiguration.Builder(context)
             .enableFileExistChecks(false)
@@ -127,7 +132,6 @@ constructor(@ApplicationContext private val context: Context) : Downloader {
 
         return request.id
     }
-
 
     override fun pauseDownload(downloadId: Int): Boolean {
         fetch.pause(downloadId)

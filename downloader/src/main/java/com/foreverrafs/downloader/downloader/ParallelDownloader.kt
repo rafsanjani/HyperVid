@@ -4,7 +4,6 @@ import com.tonyodev.fetch2core.Downloader
 import com.tonyodev.fetch2okhttp.OkHttpDownloader
 import okhttp3.OkHttpClient
 
-
 class ParallelDownloader(okHttpClient: OkHttpClient) : OkHttpDownloader(okHttpClient) {
     private val slices = 50
 
@@ -18,5 +17,4 @@ class ParallelDownloader(okHttpClient: OkHttpClient) : OkHttpDownloader(okHttpCl
     ): Downloader.FileDownloaderType {
         return Downloader.FileDownloaderType.PARALLEL
     }
-
 }
