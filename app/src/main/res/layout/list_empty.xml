@@ -10,14 +10,12 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
-    <com.airbnb.lottie.LottieAnimationView
-        app:lottie_autoPlay="true"
-        app:lottie_rawRes="@raw/empty_anim"
-        app:lottie_repeatCount="0"
+    <ImageView
         android:id="@+id/imageView6"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:src="@drawable/ic_empty"
         app:layout_constraintBottom_toBottomOf="@+id/recyclerView"
         app:layout_constraintEnd_toEndOf="@+id/recyclerView"
         app:layout_constraintStart_toStartOf="parent"
@@ -29,9 +27,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:gravity="center"
         android:text="@string/empty_downloads"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/recyclerView"
@@ -46,7 +44,7 @@
         android:layout_marginEnd="10dp"
         android:gravity="center"
         android:padding="18dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:text="@string/empty_download_desc"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:textSize="18sp" />
 </LinearLayout>

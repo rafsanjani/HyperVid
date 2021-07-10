@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -134,15 +135,15 @@ class VideosFragment : Fragment() {
 
                 HyperVidTheme {
                     Surface {
-                        when (state) {
-                            is VideoListState.Error -> {
-                                EmptyList()
-                            }
-                            VideoListState.Loading -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            when (state) {
+                                is VideoListState.Error -> {
+                                    EmptyList()
+                                }
+                                VideoListState.Loading -> {
                                     val alpha by rememberInfiniteTransition().animateFloat(
                                         initialValue = 0.2f,
                                         targetValue = 1f,
@@ -158,25 +159,25 @@ class VideosFragment : Fragment() {
                                         style = MaterialTheme.typography.h4
                                     )
                                 }
-                            }
-                            is VideoListState.Videos -> {
-                                VideoListPage(
-                                    videoList = (state as VideoListState.Videos).videos,
-                                    onPlay = { video ->
-                                        playVideo(video)
-                                    },
-                                    onShare = { videos ->
-                                        shareVideo(videos = videos.toTypedArray())
-                                    },
-                                    onDelete = { videos ->
-                                        videos.forEach {
-                                            mainViewModel.deleteVideo(it)
+                                is VideoListState.Videos -> {
+                                    VideoListPage(
+                                        videoList = (state as VideoListState.Videos).videos,
+                                        onPlay = { video ->
+                                            playVideo(video)
+                                        },
+                                        onShare = { videos ->
+                                            shareVideo(videos = videos.toTypedArray())
+                                        },
+                                        onDelete = { videos ->
+                                            videos.forEach {
+                                                mainViewModel.deleteVideo(it)
+                                            }
                                         }
-                                    }
-                                )
-                            }
-                            VideoListState.Empty -> {
-                                EmptyList()
+                                    )
+                                }
+                                VideoListState.Empty -> {
+                                    EmptyList(modifier = Modifier.align(Alignment.TopCenter))
+                                }
                             }
                         }
                     }
@@ -250,7 +251,6 @@ class VideosFragment : Fragment() {
             }
         }
     }
-
 
     @ExperimentalAnimationApi
     @ExperimentalMaterialApi
@@ -556,12 +556,11 @@ class VideosFragment : Fragment() {
     }
 
     @Composable
-    fun EmptyList() {
+    fun EmptyList(modifier: Modifier = Modifier) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp)
-                .padding(bottom = 40.dp),
+            modifier = modifier
+                .wrapContentSize()
+                .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
