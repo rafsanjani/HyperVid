@@ -4,7 +4,7 @@ buildscript {
 
     ext {
         kotlin_version = '1.5.10'
-        compose_version = "1.0.0-beta09"
+        compose_version = "1.0.0-rc01"
         room_version = "2.4.0-alpha03"
     }
 
@@ -14,7 +14,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0-alpha02'
+        classpath 'com.android.tools.build:gradle:7.1.0-alpha03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.8'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.7.1'
