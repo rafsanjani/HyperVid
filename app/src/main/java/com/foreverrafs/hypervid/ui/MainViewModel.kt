@@ -35,7 +35,11 @@ constructor(
 ) : ViewModel() {
 
     val videosListState: Flow<VideoListState> = repository.getVideos().map { videos ->
-        VideoListState.Videos(videos = videos)
+        if (videos.isEmpty()) {
+            VideoListState.Empty
+        } else {
+            VideoListState.Videos(videos = videos)
+        }
     }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 2)
 
     val downloadState: Flow<DownloadListState> = repository.getDownloads().map { downloads ->
