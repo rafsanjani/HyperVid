@@ -103,7 +103,6 @@ import timber.log.Timber
 import java.io.File
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class VideosFragment : Fragment() {
@@ -175,6 +174,9 @@ class VideosFragment : Fragment() {
                                         }
                                     }
                                 )
+                            }
+                            VideoListState.Empty -> {
+                                EmptyList()
                             }
                         }
                     }
@@ -248,6 +250,7 @@ class VideosFragment : Fragment() {
             }
         }
     }
+
 
     @ExperimentalAnimationApi
     @ExperimentalMaterialApi
