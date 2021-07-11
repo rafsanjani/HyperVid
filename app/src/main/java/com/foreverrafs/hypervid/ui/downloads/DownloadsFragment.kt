@@ -157,7 +157,7 @@ class DownloadsFragment : Fragment(R.layout.fragment_downloads),
             val fileStream = FileInputStream(videoFile)
 
             stream?.apply {
-                write(fileStream.readBytes())
+                fileStream.copyTo(out = this, bufferSize = 1024)
                 close()
             }
 
