@@ -110,7 +110,7 @@ android {
         implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02"
 
         //Kotlin Android Coroutines
-        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0"
+        implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
 
         implementation "android.arch.lifecycle:extensions:1.1.1"
 
