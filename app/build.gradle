@@ -137,7 +137,7 @@ android {
 
         //dagger hilt
         implementation "com.google.dagger:hilt-android:2.37"
-        kapt "com.google.dagger:hilt-compiler:2.37"
+        kapt "com.google.dagger:hilt-compiler:2.40.5"
 
 
         testImplementation "com.google.truth:truth:1.1.3"
