@@ -128,7 +128,7 @@ android {
         kapt "com.github.bumptech.glide:compiler:4.12.0"
 
         //firebase analytics
-        implementation platform('com.google.firebase:firebase-bom:28.2.0')
+        implementation platform('com.google.firebase:firebase-bom:29.3.1')
         implementation 'com.google.firebase:firebase-analytics-ktx'
         implementation 'com.google.firebase:firebase-crashlytics-ktx'
 
