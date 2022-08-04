@@ -46,6 +46,6 @@ dependencies {
     
     implementation 'joda-time:joda-time:2.10.10'
 
-    implementation 'com.google.dagger:hilt-android:2.37'
+    implementation 'com.google.dagger:hilt-android:2.43.2'
     kapt 'com.google.dagger:hilt-compiler:2.40.5'
 }
